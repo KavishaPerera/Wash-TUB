@@ -55,7 +55,7 @@ const CustomerDashboard = () => {
                 <header className="dashboard-header">
                     <div className="header-content">
                         <div>
-                            <h1>Welcome back, {userName}!</h1>
+                            <h1>Welcome back!</h1>
                             <p>Manage your laundry orders and profile</p>
                         </div>
                         <button className="btn btn-primary">
