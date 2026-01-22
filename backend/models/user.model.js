@@ -30,8 +30,8 @@ const User = {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const sql = `
-      INSERT INTO users (first_name, last_name, email, password, phone, address, role)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO users (first_name, last_name, email, password, phone, address, role, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, TRUE)
     `;
     
     const [result] = await db.execute(sql, [

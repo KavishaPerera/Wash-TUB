@@ -3,35 +3,71 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import './SignUp.css'; // Reusing SignUp styles for consistency
 
+const API_URL = 'http://localhost:5000/api';
+
 const SignIn = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        role: 'customer',
         email: '',
         password: ''
     });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
+        if (error) setError('');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle login logic here
-        console.log('Sign in submitted:', formData);
+        
+        if (!formData.email || !formData.password) {
+            setError('Please enter your email and password');
+            return;
+        }
 
-        // Navigate based on role
-        if (formData.role === 'customer') {
-            navigate('/customer-dashboard');
-        } else if (formData.role === 'staff') {
-            navigate('/staff-dashboard');
-        } else if (formData.role === 'owner') {
-            navigate('/admin-dashboard');
-        } else if (formData.role === 'delivery_person') {
-            navigate('/delivery-dashboard');
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    password: formData.password
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Store token and user info
+                const storage = rememberMe ? localStorage : sessionStorage;
+                storage.setItem('token', data.token);
+                storage.setItem('user', JSON.stringify(data.user));
+                
+                // Also set in localStorage for persistence check
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                // Navigate to the appropriate dashboard based on role
+                navigate(data.redirectPath || '/customer-dashboard');
+            } else {
+                setError(data.message || 'Invalid email or password');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Unable to connect to server. Please check if the server is running.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -46,8 +82,14 @@ const SignIn = () => {
                             <p>Sign in to continue managing your laundry</p>
                         </div>
 
-                        <form className="signup-form" onSubmit={handleSubmit}>
+                        {error && (
+                            <div className="alert alert-error">
+                                <span className="alert-icon">⚠️</span>
+                                {error}
+                            </div>
+                        )}
 
+                        <form className="signup-form" onSubmit={handleSubmit}>
                             <div className="form-group">
                                 <label htmlFor="email">Email Address</label>
                                 <input
@@ -74,31 +116,25 @@ const SignIn = () => {
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label htmlFor="role">Role</label>
-                                <select
-                                    id="role"
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleChange}
-                                    required
-                                >
-                                    <option value="customer">Customer</option>
-                                    <option value="staff">Staff</option>
-                                    <option value="owner">Owner</option>
-                                    <option value="delivery_person">Delivery Person</option>
-                                </select>
-                            </div>
-
                             <div className="form-group" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                                    <input type="checkbox" style={{ width: 'auto' }} /> Remember me
+                                    <input 
+                                        type="checkbox" 
+                                        style={{ width: 'auto' }} 
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
+                                    /> Remember me
                                 </label>
                                 <a href="#" style={{ color: 'var(--color-primary-light)', fontSize: '0.9rem', textDecoration: 'none' }}>Forgot Password?</a>
                             </div>
 
-                            <button type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem', width: '100%' }}>
-                                Sign In
+                            <button 
+                                type="submit" 
+                                className="btn btn-primary" 
+                                style={{ marginTop: '0.5rem', width: '100%' }}
+                                disabled={loading}
+                            >
+                                {loading ? 'Signing In...' : 'Sign In'}
                             </button>
                         </form>
 

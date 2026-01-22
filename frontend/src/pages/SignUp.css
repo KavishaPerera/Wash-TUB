@@ -120,9 +120,53 @@
     text-decoration: underline;
 }
 
+/* Form Row for side-by-side inputs */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Alert Styles */
+.alert {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.alert-icon {
+    font-size: 1.1rem;
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+.alert-success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #86efac;
+}
+
+/* Button disabled state */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
     .signup-card {
         padding: 2rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
     }
 }
