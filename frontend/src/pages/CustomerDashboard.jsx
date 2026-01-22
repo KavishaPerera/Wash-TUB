@@ -4,7 +4,7 @@ import './CustomerDashboard.css';
 
 const CustomerDashboard = () => {
     const navigate = useNavigate();
-    const [userName] = useState('John Doe');
+    const [userName] = useState('Amandi');
 
     const handleLogout = () => {
         // Handle logout logic
