@@ -27,26 +27,34 @@ const authMiddleware = {
     }
   },
 
-  // Check if user is admin
-  isAdmin(req, res, next) {
-    if (req.userRole !== 'admin') {
-      return res.status(403).json({ message: 'Admin access required' });
+  // Check if user is owner
+  isOwner(req, res, next) {
+    if (req.userRole !== 'owner') {
+      return res.status(403).json({ message: 'Owner access required' });
     }
     next();
   },
 
-  // Check if user is staff or admin
+  // Check if user is staff or owner
   isStaff(req, res, next) {
-    if (req.userRole !== 'staff' && req.userRole !== 'admin') {
+    if (req.userRole !== 'staff' && req.userRole !== 'owner') {
       return res.status(403).json({ message: 'Staff access required' });
     }
     next();
   },
 
-  // Check if user is delivery personnel
+  // Check if user is delivery personnel or owner
   isDelivery(req, res, next) {
-    if (req.userRole !== 'delivery' && req.userRole !== 'admin') {
+    if (req.userRole !== 'delivery' && req.userRole !== 'owner') {
       return res.status(403).json({ message: 'Delivery access required' });
+    }
+    next();
+  },
+
+  // Check if user is customer
+  isCustomer(req, res, next) {
+    if (req.userRole !== 'customer' && req.userRole !== 'owner') {
+      return res.status(403).json({ message: 'Customer access required' });
     }
     next();
   }
