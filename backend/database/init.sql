@@ -23,3 +23,5 @@ CREATE INDEX idx_users_email ON users(email);
 
 -- Create index on role for filtering
 CREATE INDEX idx_users_role ON users(role);
+
+

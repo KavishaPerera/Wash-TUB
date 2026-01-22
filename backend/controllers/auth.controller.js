@@ -5,6 +5,17 @@ const jwtConfig = require('../config/jwt.config');
 // Initialize users table
 User.createTable().catch(console.error);
 
+// Helper function to get dashboard path based on role
+const getDashboardPath = (role) => {
+  const dashboards = {
+    owner: '/admin-dashboard',
+    customer: '/customer-dashboard',
+    staff: '/staff-dashboard',
+    delivery: '/delivery-dashboard'
+  };
+  return dashboards[role] || '/customer-dashboard';
+};
+
 const authController = {
   // Register new user
   async register(req, res) {
@@ -45,7 +56,11 @@ const authController = {
         { expiresIn: jwtConfig.expiresIn }
       );
 
+      // Get dashboard redirect path based on role
+      const redirectPath = getDashboardPath(user.role);
+
       res.status(201).json({
+        success: true,
         message: 'User registered successfully',
         user: {
           id: user.id,
@@ -54,11 +69,12 @@ const authController = {
           email: user.email,
           role: user.role
         },
-        token
+        token,
+        redirectPath
       });
     } catch (error) {
       console.error('Registration error:', error);
-      res.status(500).json({ message: 'Error registering user' });
+      res.status(500).json({ success: false, message: 'Error registering user' });
     }
   },
 
@@ -69,19 +85,24 @@ const authController = {
 
       // Validate required fields
       if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required' });
+        return res.status(400).json({ success: false, message: 'Email and password are required' });
       }
 
       // Find user by email
       const user = await User.findByEmail(email);
       if (!user) {
-        return res.status(401).json({ message: 'Invalid email or password' });
+        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      }
+
+      // Check if user is active
+      if (!user.is_active) {
+        return res.status(403).json({ success: false, message: 'Your account has been deactivated. Please contact support.' });
       }
 
       // Verify password
       const isValidPassword = await User.verifyPassword(password, user.password);
       if (!isValidPassword) {
-        return res.status(401).json({ message: 'Invalid email or password' });
+        return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
 
       // Generate token
@@ -91,7 +112,11 @@ const authController = {
         { expiresIn: jwtConfig.expiresIn }
       );
 
+      // Get dashboard redirect path based on role
+      const redirectPath = getDashboardPath(user.role);
+
       res.json({
+        success: true,
         message: 'Login successful',
         user: {
           id: user.id,
@@ -100,7 +125,8 @@ const authController = {
           email: user.email,
           role: user.role
         },
-        token
+        token,
+        redirectPath
       });
     } catch (error) {
       console.error('Login error:', error);
