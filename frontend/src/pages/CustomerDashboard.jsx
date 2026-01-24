@@ -25,19 +25,19 @@ const CustomerDashboard = () => {
                         {/* <span className="nav-icon">📊</span> */}
                         <span>Overview</span>
                     </a>
-                    <a href="#orders" className="nav-item">
+                    <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/my-orders'); }}>
                         {/* <span className="nav-icon">📦</span> */}
                         <span>My Orders</span>
                     </a>
-                    <a href="#new-order" className="nav-item">
+                    <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/new-order'); }}>
                         {/* <span className="nav-icon">➕</span> */}
                         <span>New Order</span>
                     </a>
-                    <a href="#profile" className="nav-item">
+                    <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/profile'); }}>
                         {/* <span className="nav-icon">👤</span> */}
                         <span>Profile</span>
                     </a>
-                    <a href="#notifications" className="nav-item">
+                    <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>
                         {/* <span className="nav-icon">⚙️</span> */}
                         <span>Notifications</span>
                     </a>
@@ -63,7 +63,7 @@ const CustomerDashboard = () => {
                                 <span className="bell-icon">🔔</span>
                                 <span className="notification-badge">3</span>
                             </div>
-                            <button className="btn btn-primary">
+                            <button className="btn btn-primary" onClick={() => navigate('/new-order')}>
                                 + New Order
                             </button>
                         </div>
