@@ -50,7 +50,7 @@ const AdminDashboard = () => {
                             <h1>Welcome, {adminName}!</h1>
                             <p>System overview and management</p>
                         </div>
-                        <button className="btn btn-primary">
+                        <button className="btn btn-primary" onClick={() => navigate('/generate-report')}>
                             Generate Report
                         </button>
                     </div>

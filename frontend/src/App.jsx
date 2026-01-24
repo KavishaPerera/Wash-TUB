@@ -13,6 +13,7 @@ import NewOrder from './pages/NewOrder';
 import MyOrders from './pages/MyOrders';
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
+import GenerateReport from './pages/GenerateReport';
 import './App.css';
 
 function Home() {
@@ -42,6 +43,7 @@ function App() {
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/generate-report" element={<GenerateReport />} />
         </Routes>
       </div>
     </Router>
