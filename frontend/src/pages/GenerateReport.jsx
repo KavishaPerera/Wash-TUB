@@ -207,22 +207,7 @@ const GenerateReport = () => {
                             ))}
                         </div>
                     </section>
-
-                    {/* Quick Stats */}
-                    <section className="report-stats">
-                        <div className="stat-card">
-                            <span className="stat-value">{generatedReports.length}</span>
-                            <span className="stat-label">Total Reports</span>
-                        </div>
-                        <div className="stat-card">
-                            <span className="stat-value">This Month</span>
-                            <span className="stat-label">Most Recent</span>
-                        </div>
-                        <div className="stat-card">
-                            <span className="stat-value">2.4 MB</span>
-                            <span className="stat-label">Storage Used</span>
-                        </div>
-                    </section>
+                    
                 </div>
             </main>
         </div>
