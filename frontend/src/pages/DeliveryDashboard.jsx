@@ -4,7 +4,7 @@ import './CustomerDashboard.css'; // Reusing the same premium styling
 
 const DeliveryDashboard = () => {
     const navigate = useNavigate();
-    const [driverName] = useState('Alex Driver');
+    const [driverName] = useState('Driver');
 
     const handleLogout = () => {
         navigate('/signin');
@@ -102,7 +102,7 @@ const DeliveryDashboard = () => {
                             <tbody>
                                 <tr>
                                     <td>ORD-1240</td>
-                                    <td>Alice Brown</td>
+                                    <td>Supun Pinto</td>
                                     <td>123 Main St, Apt 4</td>
                                     <td>Pickup</td>
                                     <td><span className="status-badge status-processing">Assigned</span></td>
@@ -110,7 +110,7 @@ const DeliveryDashboard = () => {
                                 </tr>
                                 <tr>
                                     <td>ORD-1239</td>
-                                    <td>David Green</td>
+                                    <td>Thilak Jayawardene</td>
                                     <td>456 Oak Ave</td>
                                     <td>Delivery</td>
                                     <td><span className="status-badge status-processing">In Transit</span></td>
@@ -118,16 +118,16 @@ const DeliveryDashboard = () => {
                                 </tr>
                                 <tr>
                                     <td>ORD-1238</td>
-                                    <td>Emily White</td>
-                                    <td>789 Pine Ln</td>
+                                    <td>Bandu Perera</td>
+                                    <td>789 Temple Ln</td>
                                     <td>Pickup</td>
                                     <td><span className="status-badge status-completed">Completed</span></td>
                                     <td><button className="btn-action">View</button></td>
                                 </tr>
                                 <tr>
                                     <td>ORD-1235</td>
-                                    <td>Jane Smith</td>
-                                    <td>321 Elm St</td>
+                                    <td>Nilantha Pieris</td>
+                                    <td>321 Galle Road</td>
                                     <td>Delivery</td>
                                     <td><span className="status-badge status-completed">Completed</span></td>
                                     <td><button className="btn-action">View</button></td>

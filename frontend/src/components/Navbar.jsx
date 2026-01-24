@@ -37,8 +37,8 @@ const Navbar = () => {
 
           {/* CTA Buttons */}
           <div className="navbar-actions">
-            <Link to="/signin" className="btn btn-secondary btn-small" style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Sign In</Link>
-            <Link to="/signup" className="btn btn-primary btn-small">Get Started</Link>
+            <Link to="/signin" className="btn btn-secondary btn-xs" style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Sign In</Link>
+            <Link to="/signup" className="btn btn-primary btn-xs">Get Started</Link>
           </div>
 
           {/* Mobile Menu Toggle */}

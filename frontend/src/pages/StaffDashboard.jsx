@@ -102,7 +102,7 @@ const StaffDashboard = () => {
                             <tbody>
                                 <tr>
                                     <td>ORD-1234</td>
-                                    <td>John Doe</td>
+                                    <td>Oshani Kavindya</td>
                                     <td>Wash & Fold</td>
                                     <td>Jan 21, 2026</td>
                                     <td><span className="status-badge status-processing">Processing</span></td>
@@ -110,7 +110,7 @@ const StaffDashboard = () => {
                                 </tr>
                                 <tr>
                                     <td>ORD-1235</td>
-                                    <td>Jane Smith</td>
+                                    <td>Tilara sansiluni</td>
                                     <td>Dry Cleaning</td>
                                     <td>Jan 21, 2026</td>
                                     <td><span className="status-badge status-processing">Processing</span></td>
@@ -118,7 +118,7 @@ const StaffDashboard = () => {
                                 </tr>
                                 <tr>
                                     <td>ORD-1236</td>
-                                    <td>Mike Johnson</td>
+                                    <td>Tharindu Jayasinghe</td>
                                     <td>Iron & Press</td>
                                     <td>Jan 20, 2026</td>
                                     <td><span className="status-badge status-completed">Completed</span></td>
@@ -126,7 +126,7 @@ const StaffDashboard = () => {
                                 </tr>
                                 <tr>
                                     <td>ORD-1237</td>
-                                    <td>Sarah Wilson</td>
+                                    <td>Isahara Samarasinghe</td>
                                     <td>Wash & Fold</td>
                                     <td>Jan 20, 2026</td>
                                     <td><span className="status-badge status-delivered">Ready</span></td>

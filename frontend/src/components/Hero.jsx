@@ -19,14 +19,14 @@ const Hero = () => {
                             Schedule pickups, track orders, and enjoy fresh, clean clothes
                             delivered right to your doorstep.
                         </p>
-                        <div className="hero-buttons">
-                            <Link to="/signup" className="btn btn-primary btn-small">
-                                Get Started Free
+                        {/*<div className="hero-buttons">
+                            <Link to="/signup" className="btn btn-primary btn-xs">
+                                Sign Up
                             </Link>
-                            <button className="btn btn-secondary btn-small">
-                                Watch Demo
+                            <button className="btn btn-secondary btn-xs">
+                                Login
                             </button>
-                        </div>
+                        </div>*/}
 
                     </div>
 

@@ -22,25 +22,25 @@ const CTA = () => {
 
                     <div className="cta-actions">
                         <button className="btn btn-primary btn-small">
-                            Start Free Trial
+                            Sign Up
                         </button>
                         <button className="btn btn-secondary btn-small">
-                            Contact Sales
+                            Login
                         </button>
                     </div>
 
                     <div className="cta-features">
                         <div className="cta-feature">
                             <div className="feature-icon">✓</div>
-                            <span>No credit card required</span>
+                            <span>Online Schedule</span>
                         </div>
                         <div className="cta-feature">
                             <div className="feature-icon">✓</div>
-                            <span>Cancel anytime</span>
+                            <span>Online Payment</span>
                         </div>
                         <div className="cta-feature">
                             <div className="feature-icon">✓</div>
-                            <span>24/7 Support</span>
+                            <span>Fast Delivery</span>
                         </div>
                     </div>
                 </div>

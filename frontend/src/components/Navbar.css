@@ -92,7 +92,7 @@
 }
 
 .navbar-actions .btn {
-    min-width: 160px;
+    min-width: 90px;
     display: flex;
     justify-content: center;
     align-items: center;

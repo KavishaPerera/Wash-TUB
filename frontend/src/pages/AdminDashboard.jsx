@@ -109,7 +109,7 @@ const AdminDashboard = () => {
                             <tbody>
                                 <tr>
                                     <td>SYS-001</td>
-                                    <td>John Doe</td>
+                                    <td>Bandu Perera</td>
                                     <td>New Order Placed</td>
                                     <td>Jan 21, 2026</td>
                                     <td><span className="status-badge status-processing">New</span></td>
@@ -117,7 +117,7 @@ const AdminDashboard = () => {
                                 </tr>
                                 <tr>
                                     <td>SYS-002</td>
-                                    <td>Mike Staff</td>
+                                    <td>Nilantha Pieris</td>
                                     <td>Order #1234 Status Update</td>
                                     <td>Jan 21, 2026</td>
                                     <td><span className="status-badge status-completed">Updated</span></td>
@@ -125,7 +125,7 @@ const AdminDashboard = () => {
                                 </tr>
                                 <tr>
                                     <td>SYS-003</td>
-                                    <td>Jane Smith</td>
+                                    <td>Supun Pinto</td>
                                     <td>New User Registration</td>
                                     <td>Jan 21, 2026</td>
                                     <td><span className="status-badge status-delivered">Success</span></td>
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
                                 </tr>
                                 <tr>
                                     <td>SYS-004</td>
-                                    <td>System</td>
+                                    <td>Bandu Perera</td>
                                     <td>Daily Backup</td>
                                     <td>Jan 21, 2026</td>
                                     <td><span className="status-badge status-completed">Completed</span></td>

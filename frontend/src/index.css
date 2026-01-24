@@ -173,6 +173,11 @@ p {
   font-size: 0.875rem;
 }
 
+.btn-xs {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.75rem;
+}
+
 /* Container */
 .container {
   max-width: 1200px;
