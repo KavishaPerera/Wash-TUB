@@ -54,13 +54,19 @@ const CustomerDashboard = () => {
                 {/* Header */}
                 <header className="dashboard-header">
                     <div className="header-content">
-                        <div>
+                        <div className="header-left">
                             <h1>Welcome back!</h1>
                             <p>Manage your laundry orders and profile</p>
                         </div>
-                        <button className="btn btn-primary">
-                            + New Order
-                        </button>
+                        <div className="header-right">
+                            <div className="notification-bell">
+                                <span className="bell-icon">🔔</span>
+                                <span className="notification-badge">3</span>
+                            </div>
+                            <button className="btn btn-primary">
+                                + New Order
+                            </button>
+                        </div>
                     </div>
                 </header>
 
