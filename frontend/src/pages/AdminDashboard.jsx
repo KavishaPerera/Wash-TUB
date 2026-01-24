@@ -25,7 +25,7 @@ const AdminDashboard = () => {
                     <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/user-management'); }}>
                         <span>User Management</span>
                     </a>
-                    <a href="#orders" className="nav-item">
+                    <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/all-orders'); }}>
                         <span>All Orders</span>
                     </a>
                     <a href="#reports" className="nav-item">

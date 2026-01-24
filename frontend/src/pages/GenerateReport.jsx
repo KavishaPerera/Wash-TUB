@@ -338,9 +338,9 @@ const GenerateReport = () => {
                     <Link to="/user-management" className="nav-item">
                         <span>User Management</span>
                     </Link>
-                    <a href="#orders" className="nav-item">
+                    <Link to="/all-orders" className="nav-item">
                         <span>All Orders</span>
-                    </a>
+                    </Link>
                     <a href="#" className="nav-item active">
                         <span>Generate Reports</span>
                     </a>

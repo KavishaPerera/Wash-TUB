@@ -16,6 +16,7 @@ import Profile from './pages/Profile';
 import GenerateReport from './pages/GenerateReport';
 import UserManagement from './pages/UserManagement';
 import AddUser from './pages/AddUser';
+import AllOrders from './pages/AllOrders';
 import './App.css';
 
 function Home() {
@@ -48,6 +49,7 @@ function App() {
           <Route path="/generate-report" element={<GenerateReport />} />
           <Route path="/user-management" element={<UserManagement />} />
           <Route path="/add-user" element={<AddUser />} />
+          <Route path="/all-orders" element={<AllOrders />} />
         </Routes>
       </div>
     </Router>

@@ -68,9 +68,9 @@ const AddUser = () => {
                     <Link to="/user-management" className="nav-item active">
                         <span>User Management</span>
                     </Link>
-                    <a href="#orders" className="nav-item">
+                    <Link to="/all-orders" className="nav-item">
                         <span>All Orders</span>
-                    </a>
+                    </Link>
                     <Link to="/generate-report" className="nav-item">
                         <span>Generate Reports</span>
                     </Link>

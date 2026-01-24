@@ -65,9 +65,9 @@ const UserManagement = () => {
                     <a href="#" className="nav-item active">
                         <span>User Management</span>
                     </a>
-                    <a href="#orders" className="nav-item">
+                    <Link to="/all-orders" className="nav-item">
                         <span>All Orders</span>
-                    </a>
+                    </Link>
                     <Link to="/generate-report" className="nav-item">
                         <span>Generate Reports</span>
                     </Link>
