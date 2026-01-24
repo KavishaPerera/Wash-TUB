@@ -145,6 +145,180 @@ const GenerateReport = () => {
         navigate('/signin');
     };
 
+    const handleDownloadReport = (report) => {
+        // Generate report content based on type
+        let servicesSection = '';
+        if (report.type === 'services') {
+            servicesSection = `
+    <div class="section">
+        <h2 class="section-title">Service Details</h2>
+        
+        <div class="service-card">
+            <h3>Wash & Fold</h3>
+            <p><strong>Description:</strong> Complete washing and folding service for everyday clothes</p>
+            <p><strong>Price:</strong> Rs. 50 per kg</p>
+            <p><strong>Processing Time:</strong> 24-48 hours</p>
+            <p><strong>Total Orders:</strong> 156</p>
+            <p><strong>Revenue Generated:</strong> Rs. 45,000</p>
+            <p><strong>Status:</strong> <span style="color: green;">Active</span></p>
+        </div>
+        
+        <div class="service-card">
+            <h3>Dry Cleaning</h3>
+            <p><strong>Description:</strong> Professional dry cleaning for delicate fabrics and formal wear</p>
+            <p><strong>Price:</strong> Rs. 150 per item</p>
+            <p><strong>Processing Time:</strong> 48-72 hours</p>
+            <p><strong>Total Orders:</strong> 89</p>
+            <p><strong>Revenue Generated:</strong> Rs. 38,000</p>
+            <p><strong>Status:</strong> <span style="color: green;">Active</span></p>
+        </div>
+        
+        <div class="service-card">
+            <h3>Iron & Press</h3>
+            <p><strong>Description:</strong> Professional ironing and pressing service</p>
+            <p><strong>Price:</strong> Rs. 30 per item</p>
+            <p><strong>Processing Time:</strong> 12-24 hours</p>
+            <p><strong>Total Orders:</strong> 67</p>
+            <p><strong>Revenue Generated:</strong> Rs. 22,000</p>
+            <p><strong>Status:</strong> <span style="color: green;">Active</span></p>
+        </div>
+        
+        <div class="service-card">
+            <h3>Premium Care</h3>
+            <p><strong>Description:</strong> Special care for luxury items including silk, wool, and designer wear</p>
+            <p><strong>Price:</strong> Rs. 200 per item</p>
+            <p><strong>Processing Time:</strong> 72-96 hours</p>
+            <p><strong>Total Orders:</strong> 34</p>
+            <p><strong>Revenue Generated:</strong> Rs. 20,000</p>
+            <p><strong>Status:</strong> <span style="color: green;">Active</span></p>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">Service Performance Analysis</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Total Orders</th>
+                    <th>Revenue</th>
+                    <th>Avg. Rating</th>
+                    <th>Customer Satisfaction</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Wash & Fold</td><td>156</td><td>Rs. 45,000</td><td>4.8/5</td><td>96%</td></tr>
+                <tr><td>Dry Cleaning</td><td>89</td><td>Rs. 38,000</td><td>4.7/5</td><td>94%</td></tr>
+                <tr><td>Iron & Press</td><td>67</td><td>Rs. 22,000</td><td>4.6/5</td><td>92%</td></tr>
+                <tr><td>Premium Care</td><td>34</td><td>Rs. 20,000</td><td>4.9/5</td><td>98%</td></tr>
+            </tbody>
+        </table>
+    </div>
+            `;
+        }
+
+        const reportContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>${report.name} - WashTub</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #0077cc; padding-bottom: 20px; margin-bottom: 30px; }
+        .logo { font-size: 28px; font-weight: bold; color: #0077cc; }
+        .report-title { font-size: 24px; margin-top: 10px; }
+        .date-range { color: #666; margin-top: 10px; }
+        .draft-badge { background: #ff9500; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 10px; }
+        .section { margin-bottom: 30px; }
+        .section-title { font-size: 18px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f5f5f5; font-weight: bold; }
+        .summary-box { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .summary-item { display: inline-block; margin-right: 40px; }
+        .summary-value { font-size: 24px; font-weight: bold; color: #0077cc; }
+        .summary-label { color: #666; }
+        .service-card { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #0077cc; }
+        .service-card h3 { margin: 0 0 10px 0; color: #0077cc; }
+        .service-card p { margin: 5px 0; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">WashTub</div>
+        <h1 class="report-title">${report.name}</h1>
+        <span class="draft-badge">DRAFT</span>
+        <p class="date-range">Report ID: ${report.id}</p>
+        <p class="date-range">Generated on: ${report.date}</p>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Summary</h2>
+        <div class="summary-box">
+            <div class="summary-item">
+                <div class="summary-value">${report.type === 'revenue' ? 'Rs. 125,000' : report.type === 'orders' ? '156' : report.type === 'users' ? '1,250' : report.type === 'staff' ? '12' : '4 Services'}</div>
+                <div class="summary-label">${report.type === 'revenue' ? 'Total Revenue' : report.type === 'orders' ? 'Total Orders' : report.type === 'users' ? 'Total Users' : report.type === 'staff' ? 'Active Staff' : 'Active Services'}</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">${report.type === 'revenue' ? '+15%' : report.type === 'orders' ? '94%' : report.type === 'users' ? '+23%' : report.type === 'staff' ? '96%' : 'Rs. 125,000'}</div>
+                <div class="summary-label">${report.type === 'revenue' ? 'Growth' : report.type === 'orders' ? 'Completion Rate' : report.type === 'users' ? 'Growth' : report.type === 'staff' ? 'Efficiency' : 'Total Revenue'}</div>
+            </div>
+            ${report.type === 'services' ? `
+            <div class="summary-item">
+                <div class="summary-value">346</div>
+                <div class="summary-label">Total Orders</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">95%</div>
+                <div class="summary-label">Avg. Satisfaction</div>
+            </div>
+            ` : ''}
+        </div>
+    </div>
+
+    ${report.type === 'services' ? servicesSection : `
+    <div class="section">
+        <h2 class="section-title">Detailed Breakdown</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>${report.type === 'revenue' ? 'Category' : report.type === 'orders' ? 'Order ID' : report.type === 'users' ? 'User' : 'Staff Name'}</th>
+                    <th>${report.type === 'revenue' ? 'Amount' : report.type === 'orders' ? 'Service' : report.type === 'users' ? 'Joined Date' : 'Orders Processed'}</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>${report.type === 'revenue' ? 'Wash & Fold' : report.type === 'orders' ? 'ORD-1234' : report.type === 'users' ? 'Amandi Perera' : 'Kasun Silva'}</td><td>${report.type === 'revenue' ? 'Rs. 45,000' : report.type === 'orders' ? 'Wash & Fold' : report.type === 'users' ? 'Jan 15, 2026' : '45'}</td><td>Active</td></tr>
+                <tr><td>2</td><td>${report.type === 'revenue' ? 'Dry Cleaning' : report.type === 'orders' ? 'ORD-1235' : report.type === 'users' ? 'Bandu Perera' : 'Nilantha Pieris'}</td><td>${report.type === 'revenue' ? 'Rs. 38,000' : report.type === 'orders' ? 'Dry Cleaning' : report.type === 'users' ? 'Jan 14, 2026' : '38'}</td><td>Active</td></tr>
+                <tr><td>3</td><td>${report.type === 'revenue' ? 'Iron & Press' : report.type === 'orders' ? 'ORD-1236' : report.type === 'users' ? 'Supun Pinto' : 'Supun Mendis'}</td><td>${report.type === 'revenue' ? 'Rs. 22,000' : report.type === 'orders' ? 'Iron & Press' : report.type === 'users' ? 'Jan 12, 2026' : '32'}</td><td>Active</td></tr>
+                <tr><td>4</td><td>${report.type === 'revenue' ? 'Premium Care' : report.type === 'orders' ? 'ORD-1237' : report.type === 'users' ? 'Nimal Fernando' : 'Ruwan Jayasena'}</td><td>${report.type === 'revenue' ? 'Rs. 20,000' : report.type === 'orders' ? 'Premium Care' : report.type === 'users' ? 'Jan 10, 2026' : '28'}</td><td>Active</td></tr>
+            </tbody>
+        </table>
+    </div>
+    `}
+
+    <div class="footer">
+        <p>This is a DRAFT report generated by WashTub Management System</p>
+        <p>© 2026 WashTub. All rights reserved.</p>
+    </div>
+</body>
+</html>
+        `;
+
+        // Create blob and download
+        const blob = new Blob([reportContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${report.id}_${report.name.replace(/\s+/g, '_')}.html`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
     const getTypeIcon = (type) => {
         return '';
     };
@@ -161,9 +335,9 @@ const GenerateReport = () => {
                     <Link to="/admin-dashboard" className="nav-item">
                         <span>Overview</span>
                     </Link>
-                    <a href="#users" className="nav-item">
+                    <Link to="/user-management" className="nav-item">
                         <span>User Management</span>
-                    </a>
+                    </Link>
                     <a href="#orders" className="nav-item">
                         <span>All Orders</span>
                     </a>
@@ -283,7 +457,7 @@ const GenerateReport = () => {
                                         <p>Generated on {report.date}</p>
                                     </div>
                                     <div className="report-actions">
-                                        <button className="btn-action btn-download">Download</button>
+                                        <button className="btn-action btn-download" onClick={() => handleDownloadReport(report)}>Download</button>
                                         <button className="btn-action btn-view">View</button>
                                     </div>
                                 </div>

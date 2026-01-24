@@ -22,7 +22,7 @@ const AdminDashboard = () => {
                     <a href="#overview" className="nav-item active">
                         <span>Overview</span>
                     </a>
-                    <a href="#users" className="nav-item">
+                    <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/user-management'); }}>
                         <span>User Management</span>
                     </a>
                     <a href="#orders" className="nav-item">
@@ -103,7 +103,6 @@ const AdminDashboard = () => {
                                     <th>Action / Order</th>
                                     <th>Date</th>
                                     <th>Status</th>
-                                    <th>Details</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -113,7 +112,6 @@ const AdminDashboard = () => {
                                     <td>New Order Placed</td>
                                     <td>Jan 21, 2026</td>
                                     <td><span className="status-badge status-processing">New</span></td>
-                                    <td><button className="btn-action">View</button></td>
                                 </tr>
                                 <tr>
                                     <td>SYS-002</td>
@@ -121,7 +119,6 @@ const AdminDashboard = () => {
                                     <td>Order #1234 Status Update</td>
                                     <td>Jan 21, 2026</td>
                                     <td><span className="status-badge status-completed">Updated</span></td>
-                                    <td><button className="btn-action">View</button></td>
                                 </tr>
                                 <tr>
                                     <td>SYS-003</td>
@@ -129,7 +126,6 @@ const AdminDashboard = () => {
                                     <td>New User Registration</td>
                                     <td>Jan 21, 2026</td>
                                     <td><span className="status-badge status-delivered">Success</span></td>
-                                    <td><button className="btn-action">View</button></td>
                                 </tr>
                                 <tr>
                                     <td>SYS-004</td>
@@ -137,7 +133,6 @@ const AdminDashboard = () => {
                                     <td>Daily Backup</td>
                                     <td>Jan 21, 2026</td>
                                     <td><span className="status-badge status-completed">Completed</span></td>
-                                    <td><button className="btn-action">Log</button></td>
                                 </tr>
                             </tbody>
                         </table>
