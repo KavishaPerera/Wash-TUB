@@ -28,10 +28,13 @@ const AdminDashboard = () => {
                     <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/all-orders'); }}>
                         <span>All Orders</span>
                     </a>
+                    <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/payment'); }}>
+                        <span>Payment</span>
+                    </a>
                     <a href="#reports" className="nav-item">
                         <span>Reports</span>
                     </a>
-                    <a href="#settings" className="nav-item">
+                    <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/system-settings'); }}>
                         <span>System Settings</span>
                     </a>
                 </nav>

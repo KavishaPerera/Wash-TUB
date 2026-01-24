@@ -57,12 +57,15 @@ const AllOrders = () => {
                     <a href="#" className="nav-item active">
                         <span>All Orders</span>
                     </a>
+                    <Link to="/payment" className="nav-item">
+                        <span>Payment</span>
+                    </Link>
                     <Link to="/generate-report" className="nav-item">
                         <span>Generate Reports</span>
                     </Link>
-                    <a href="#settings" className="nav-item">
+                    <Link to="/system-settings" className="nav-item">
                         <span>System Settings</span>
-                    </a>
+                    </Link>
                 </nav>
 
                 <button className="logout-btn" onClick={handleLogout}>

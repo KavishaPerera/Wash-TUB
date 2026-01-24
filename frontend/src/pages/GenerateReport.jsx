@@ -341,12 +341,15 @@ const GenerateReport = () => {
                     <Link to="/all-orders" className="nav-item">
                         <span>All Orders</span>
                     </Link>
+                    <Link to="/payment" className="nav-item">
+                        <span>Payment</span>
+                    </Link>
                     <a href="#" className="nav-item active">
                         <span>Generate Reports</span>
                     </a>
-                    <a href="#settings" className="nav-item">
+                    <Link to="/system-settings" className="nav-item">
                         <span>System Settings</span>
-                    </a>
+                    </Link>
                 </nav>
 
                 <button className="logout-btn" onClick={handleLogout}>

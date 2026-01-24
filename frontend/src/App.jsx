@@ -17,6 +17,8 @@ import GenerateReport from './pages/GenerateReport';
 import UserManagement from './pages/UserManagement';
 import AddUser from './pages/AddUser';
 import AllOrders from './pages/AllOrders';
+import Payment from './pages/Payment';
+import SystemSettings from './pages/SystemSettings';
 import './App.css';
 
 function Home() {
@@ -50,6 +52,8 @@ function App() {
           <Route path="/user-management" element={<UserManagement />} />
           <Route path="/add-user" element={<AddUser />} />
           <Route path="/all-orders" element={<AllOrders />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/system-settings" element={<SystemSettings />} />
         </Routes>
       </div>
     </Router>

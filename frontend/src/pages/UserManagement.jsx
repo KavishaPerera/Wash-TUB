@@ -68,12 +68,15 @@ const UserManagement = () => {
                     <Link to="/all-orders" className="nav-item">
                         <span>All Orders</span>
                     </Link>
+                    <Link to="/payment" className="nav-item">
+                        <span>Payment</span>
+                    </Link>
                     <Link to="/generate-report" className="nav-item">
                         <span>Generate Reports</span>
                     </Link>
-                    <a href="#settings" className="nav-item">
+                    <Link to="/system-settings" className="nav-item">
                         <span>System Settings</span>
-                    </a>
+                    </Link>
                 </nav>
 
                 <button className="logout-btn" onClick={handleLogout}>
