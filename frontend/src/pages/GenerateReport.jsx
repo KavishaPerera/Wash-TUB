@@ -192,9 +192,9 @@ const GenerateReport = () => {
                         <div className="reports-list">
                             {generatedReports.map(report => (
                                 <div key={report.id} className="report-item">
-                                    <div className="report-icon">
+                                    {/*<div className="report-icon">
                                         <span className="icon-placeholder"></span>
-                                    </div>
+                                    </div>*/}
                                     <div className="report-info">
                                         <h4>{report.name}</h4>
                                         <p>Generated on {report.date}</p>
@@ -207,7 +207,7 @@ const GenerateReport = () => {
                             ))}
                         </div>
                     </section>
-                    
+
                 </div>
             </main>
         </div>
