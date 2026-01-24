@@ -37,9 +37,9 @@ const CustomerDashboard = () => {
                         {/* <span className="nav-icon">👤</span> */}
                         <span>Profile</span>
                     </a>
-                    <a href="#settings" className="nav-item">
+                    <a href="#notifications" className="nav-item">
                         {/* <span className="nav-icon">⚙️</span> */}
-                        <span>Settings</span>
+                        <span>Notifications</span>
                     </a>
                 </nav>
 
