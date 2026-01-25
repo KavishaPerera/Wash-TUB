@@ -1,11 +1,40 @@
 import { useState } from 'react';
+import {
+    WashingMachine,
+    Shirt,
+    ChevronLeft,
+    ChevronRight,
+    Plus,
+    Minus,
+    X,
+    ShoppingBasket
+} from 'lucide-react';
 import './CustomizeModal.css';
 
+// Custom Pressing Icon (garment press machine)
+const PressingIcon = ({ size = 24 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="14" width="16" height="4" rx="1" />
+        <path d="M6 14V12a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
+        <path d="M4 10h16" />
+        <rect x="6" y="6" width="12" height="4" rx="1" />
+    </svg>
+);
+
+// Custom Dry Cleaning Icon (cleaning machine)
+const DryCleaningIcon = ({ size = 24 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+        <rect x="6" y="6" width="12" height="3" rx="1" />
+        <circle cx="12" cy="14" r="3" />
+    </svg>
+);
+
 const methods = [
-    { id: 1, name: 'Wash & Dry' },
-    { id: 2, name: 'Pressing' },
-    { id: 3, name: 'Dry Cleaning' },
-    { id: 4, name: 'Ironing' }
+    { id: 1, name: 'Wash & Dry', Icon: WashingMachine },
+    { id: 2, name: 'Pressing', Icon: PressingIcon },
+    { id: 3, name: 'Dry Cleaning', Icon: DryCleaningIcon },
+    { id: 4, name: 'Ironing', Icon: Shirt }
 ];
 
 const CustomizeModal = ({ item, onClose, onAddToBasket }) => {
@@ -40,18 +69,22 @@ const CustomizeModal = ({ item, onClose, onAddToBasket }) => {
         onClose();
     };
 
+    const MethodIcon = methods[selectedMethod].Icon;
+
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="customize-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2>Customize your order</h2>
-                    <button className="btn-close" onClick={onClose}>×</button>
+                    <button className="btn-close" onClick={onClose}>
+                        <X size={24} />
+                    </button>
                 </div>
 
                 <div className="modal-body">
                     <div className="item-preview">
                         <div className="item-preview-image">
-
+                            <ShoppingBasket size={64} />
                         </div>
                         <div className="item-preview-info">
                             <div className="item-preview-details">
@@ -68,21 +101,29 @@ const CustomizeModal = ({ item, onClose, onAddToBasket }) => {
                         <div className="option-group">
                             <label>Select Method</label>
                             <div className="option-selector">
-                                <button className="btn-nav" onClick={handlePrevMethod}>←</button>
+                                <button className="btn-nav" onClick={handlePrevMethod}>
+                                    <ChevronLeft size={20} />
+                                </button>
                                 <div className="option-display">
                                     <div className="option-icon">
-
+                                        <MethodIcon size={32} />
                                     </div>
                                     <span className="option-name">{methods[selectedMethod].name}</span>
                                 </div>
-                                <button className="btn-nav" onClick={handleNextMethod}>→</button>
+                                <button className="btn-nav" onClick={handleNextMethod}>
+                                    <ChevronRight size={20} />
+                                </button>
                             </div>
                         </div>
 
                         <div className="quantity-section">
-                            <button className="btn-quantity" onClick={handleDecrease}>−</button>
+                            <button className="btn-quantity" onClick={handleDecrease}>
+                                <Minus size={18} />
+                            </button>
                             <span className="quantity-value">{quantity}</span>
-                            <button className="btn-quantity" onClick={handleIncrease}>+</button>
+                            <button className="btn-quantity" onClick={handleIncrease}>
+                                <Plus size={18} />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -98,4 +139,5 @@ const CustomizeModal = ({ item, onClose, onAddToBasket }) => {
 };
 
 export default CustomizeModal;
+
 
