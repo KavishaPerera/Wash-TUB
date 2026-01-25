@@ -36,26 +36,27 @@
 /* Category Tabs */
 .category-tabs {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
     justify-content: center;
     margin-bottom: 1.5rem;
-    padding: 0.75rem;
+    padding: 0.75rem 0.5rem;
     background: #1a365d;
     border-radius: 8px;
 }
 
 .category-tab {
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.6rem;
     background: transparent;
     color: rgba(255, 255, 255, 0.7);
     border: none;
     border-radius: 4px;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .category-tab:hover {
