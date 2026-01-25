@@ -25,7 +25,7 @@ const SignIn = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!formData.email || !formData.password) {
             setError('Please enter your email and password');
             return;
@@ -53,7 +53,7 @@ const SignIn = () => {
                 const storage = rememberMe ? localStorage : sessionStorage;
                 storage.setItem('token', data.token);
                 storage.setItem('user', JSON.stringify(data.user));
-                
+
                 // Also set in localStorage for persistence check
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
@@ -118,19 +118,19 @@ const SignIn = () => {
 
                             <div className="form-group" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                                    <input 
-                                        type="checkbox" 
-                                        style={{ width: 'auto' }} 
+                                    <input
+                                        type="checkbox"
+                                        style={{ width: 'auto' }}
                                         checked={rememberMe}
                                         onChange={(e) => setRememberMe(e.target.checked)}
                                     /> Remember me
                                 </label>
-                                <a href="#" style={{ color: 'var(--color-primary-light)', fontSize: '0.9rem', textDecoration: 'none' }}>Forgot Password?</a>
+                                <Link to="/forgot-password" style={{ color: 'var(--color-primary-light)', fontSize: '0.9rem', textDecoration: 'none' }}>Forgot Password?</Link>
                             </div>
 
-                            <button 
-                                type="submit" 
-                                className="btn btn-primary" 
+                            <button
+                                type="submit"
+                                className="btn btn-primary"
                                 style={{ marginTop: '0.5rem', width: '100%' }}
                                 disabled={loading}
                             >

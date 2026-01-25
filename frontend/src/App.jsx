@@ -5,6 +5,10 @@ import CTA from './components/CTA';
 import Footer from './components/Footer';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
+import ForgotPassword from './pages/ForgotPassword';
+import VerifyCode from './pages/VerifyCode';
+import SetNewPassword from './pages/SetNewPassword';
+import PasswordReset from './pages/PasswordReset';
 import CustomerDashboard from './pages/CustomerDashboard';
 import StaffDashboard from './pages/StaffDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -40,6 +44,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-code" element={<VerifyCode />} />
+          <Route path="/set-new-password" element={<SetNewPassword />} />
+          <Route path="/password-reset" element={<PasswordReset />} />
           <Route path="/customer-dashboard" element={<CustomerDashboard />} />
           <Route path="/staff-dashboard" element={<StaffDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
