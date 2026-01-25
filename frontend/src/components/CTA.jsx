@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './CTA.css';
 
 const CTA = () => {
@@ -16,17 +17,17 @@ const CTA = () => {
                             <span className="gradient-text">Laundry Experience?</span>
                         </h2>
                         <p className="cta-description">
-                            Trusted laundry service for everyday freshness
+                            Manage your laundry orders, track services, and enjoy hassle-free cleaning with our smart laundry management system.
                         </p>
                     </div>
 
                     <div className="cta-actions">
-                        <button className="btn btn-primary btn-small">
-                            Sign Up
-                        </button>
-                        <button className="btn btn-secondary btn-small">
-                            Login
-                        </button>
+                        <Link to="/signup" className="btn btn-primary btn-small">
+                            Get Started
+                        </Link>
+                        <Link to="/services" className="btn btn-secondary btn-small">
+                            Services
+                        </Link>
                     </div>
 
                     <div className="cta-features">
