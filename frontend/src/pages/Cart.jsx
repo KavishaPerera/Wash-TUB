@@ -1,10 +1,11 @@
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Trash2, ArrowLeft, ShoppingCart } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import './Cart.css';
 
 const Cart = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
 
     useEffect(() => {
@@ -83,7 +84,7 @@ const Cart = () => {
                                 <span>Total Amount:</span>
                                 <span>LKR {totalAmount.toFixed(2)}</span>
                             </div>
-                            <button className="btn-checkout">
+                            <button className="btn-checkout" onClick={() => navigate('/checkout', { state: { cartItems } })}>
                                 Proceed to Checkout
                             </button>
                         </div>

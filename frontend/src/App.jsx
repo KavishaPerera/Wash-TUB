@@ -26,6 +26,7 @@ import SystemSettings from './pages/SystemSettings';
 import Services from './pages/Services';
 import Pricing from './pages/Pricing';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import './App.css';
 
 function Home() {
@@ -68,6 +69,7 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Routes>
       </div>
     </Router>
