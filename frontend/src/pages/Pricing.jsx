@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CustomizeModal from '../components/CustomizeModal';
 import './Pricing.css';
 
@@ -73,6 +73,7 @@ const pricingItems = [
 ];
 
 const Pricing = () => {
+    const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState('all');
     const [basket, setBasket] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -151,7 +152,7 @@ const Pricing = () => {
                 <div className="basket-total">
                     Total : LKR {totalAmount.toFixed(2)}
                 </div>
-                <button className="btn-basket">
+                <button className="btn-basket" onClick={() => navigate('/cart', { state: { basket } })}>
                     Your Basket ({basket.length})
                 </button>
             </div>

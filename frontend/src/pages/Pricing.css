@@ -146,16 +146,17 @@
 /* Basket Footer */
 .basket-footer {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 1rem;
+    right: 1rem;
     background: #1a365d;
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.5rem;
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 2rem;
+    gap: 1.5rem;
     z-index: 100;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .basket-total {
