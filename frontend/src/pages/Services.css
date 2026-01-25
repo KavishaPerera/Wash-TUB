@@ -89,15 +89,26 @@
     font-size: 4rem;
 }
 
-.service-title {
+.service-info {
     padding: 1rem;
     text-align: center;
+    border-top: 1px solid #e8eef2;
+}
+
+.service-title {
     font-size: 0.9rem;
     font-weight: 600;
     color: #2d3748;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-top: 1px solid #e8eef2;
+    margin-bottom: 0.5rem;
+}
+
+.service-description {
+    font-size: 0.85rem;
+    color: #5a6a72;
+    margin: 0;
+    line-height: 1.4;
 }
 
 .back-home-link {

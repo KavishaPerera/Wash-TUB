@@ -24,6 +24,7 @@ import AllOrders from './pages/AllOrders';
 import Payment from './pages/Payment';
 import SystemSettings from './pages/SystemSettings';
 import Services from './pages/Services';
+import Pricing from './pages/Pricing';
 import './App.css';
 
 function Home() {
@@ -64,6 +65,7 @@ function App() {
           <Route path="/payment" element={<Payment />} />
           <Route path="/system-settings" element={<SystemSettings />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/pricing" element={<Pricing />} />
         </Routes>
       </div>
     </Router>

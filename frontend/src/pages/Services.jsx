@@ -13,32 +13,38 @@ const services = [
     {
         id: 1,
         title: 'Wash & Dry',
-        image: washAndDryImg
+        image: washAndDryImg,
+        description: 'Complete washing and drying for everyday clothes'
     },
     {
         id: 2,
         title: 'Ironing',
-        image: ironingImg
+        image: ironingImg,
+        description: 'Professional ironing for crisp, wrinkle-free garments'
     },
     {
         id: 3,
         title: 'Dry Cleaning',
-        image: dryCleaningImg
+        image: dryCleaningImg,
+        description: 'Expert care for delicate and special fabrics'
     },
     {
         id: 4,
         title: 'Pressing',
-        image: pressingImg
+        image: pressingImg,
+        description: 'Steam pressing for a polished, neat finish'
     },
     {
         id: 5,
         title: 'One Day Service',
-        image: oneDayImg
+        image: oneDayImg,
+        description: 'Express 24-hour turnaround for urgent needs'
     },
     {
         id: 6,
         title: 'Pickup & Delivery',
-        image: pickupDeliveryImg
+        image: pickupDeliveryImg,
+        description: 'Convenient doorstep pickup and delivery'
     }
 ];
 
@@ -71,7 +77,10 @@ const Services = () => {
                                 alt={service.title}
                                 className="service-image"
                             />
-                            <div className="service-title">{service.title}</div>
+                            <div className="service-info">
+                                <div className="service-title">{service.title}</div>
+                                <p className="service-description">{service.description}</p>
+                            </div>
                         </div>
                     ))}
                 </div>
