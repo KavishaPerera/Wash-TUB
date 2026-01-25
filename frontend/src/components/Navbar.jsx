@@ -29,7 +29,7 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <ul className="navbar-menu">
             <li><Link to="/" className="nav-link">Home</Link></li>
-            <li><a href="#services" className="nav-link">Services</a></li>
+            <li><Link to="/services" className="nav-link">Services</Link></li>
             <li><a href="#pricing" className="nav-link">Pricing</a></li>
             <li><a href="#about" className="nav-link">About</a></li>
             <li><a href="#contact" className="nav-link">Contact</a></li>
@@ -55,7 +55,7 @@ const Navbar = () => {
         <div className={`mobile-menu ${menuOpen ? 'mobile-menu-open' : ''}`}>
           <ul className="mobile-menu-list">
             <li><Link to="/" onClick={() => setMenuOpen(false)}>Home</Link></li>
-            <li><a href="#services" onClick={() => setMenuOpen(false)}>Services</a></li>
+            <li><Link to="/services" onClick={() => setMenuOpen(false)}>Services</Link></li>
             <li><a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a></li>
             <li><a href="#about" onClick={() => setMenuOpen(false)}>About</a></li>
             <li><a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a></li>
