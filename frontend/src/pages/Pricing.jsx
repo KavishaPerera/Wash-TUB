@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import CustomizeModal from '../components/CustomizeModal';
 import './Pricing.css';
 
 const categories = [
@@ -74,16 +75,28 @@ const pricingItems = [
 const Pricing = () => {
     const [activeCategory, setActiveCategory] = useState('all');
     const [basket, setBasket] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     const filteredItems = activeCategory === 'all'
         ? pricingItems
         : pricingItems.filter(item => item.category === activeCategory);
 
-    const addToBasket = (item) => {
-        setBasket([...basket, item]);
+    const handleAddClick = (item) => {
+        setSelectedItem(item);
+        setShowModal(true);
     };
 
-    const totalAmount = basket.reduce((sum, item) => sum + item.price, 0);
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedItem(null);
+    };
+
+    const handleAddToBasket = (customizedItem) => {
+        setBasket([...basket, customizedItem]);
+    };
+
+    const totalAmount = basket.reduce((sum, item) => sum + (item.totalPrice || item.price), 0);
 
     return (
         <div className="pricing-page">
@@ -124,7 +137,7 @@ const Pricing = () => {
                                 </div>
                                 <button
                                     className="btn-add"
-                                    onClick={() => addToBasket(item)}
+                                    onClick={() => handleAddClick(item)}
                                 >
                                     Add
                                 </button>
@@ -142,8 +155,17 @@ const Pricing = () => {
                     Your Basket ({basket.length})
                 </button>
             </div>
+
+            {showModal && selectedItem && (
+                <CustomizeModal
+                    item={selectedItem}
+                    onClose={handleCloseModal}
+                    onAddToBasket={handleAddToBasket}
+                />
+            )}
         </div>
     );
 };
 
 export default Pricing;
+
