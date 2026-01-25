@@ -59,9 +59,9 @@ const Services = () => {
                         </svg>
                         Back to Home
                     </Link>
-                    <button className="btn-price-list">
+                    <Link to="/pricing" className="btn-price-list">
                         Check Price List
-                    </button>
+                    </Link>
                 </div>
 
                 <div className="services-header">
