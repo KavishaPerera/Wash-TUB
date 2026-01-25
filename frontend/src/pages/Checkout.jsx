@@ -13,7 +13,7 @@ const Checkout = () => {
         address: '',
         city: '',
         deliveryOption: 'pickup',
-        paymentMethod: 'cash'
+        paymentMethod: 'card'
     });
 
     useEffect(() => {
@@ -138,19 +138,6 @@ const Checkout = () => {
                         <section className="form-section">
                             <h2><CreditCard size={20} /> Payment Method</h2>
                             <div className="radio-group">
-                                <label className={`radio-option ${formData.paymentMethod === 'cash' ? 'selected' : ''}`}>
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value="cash"
-                                        checked={formData.paymentMethod === 'cash'}
-                                        onChange={handleInputChange}
-                                    />
-                                    <span className="radio-label">
-                                        <strong>Cash on Delivery</strong>
-                                        <small>Pay when you receive your order</small>
-                                    </span>
-                                </label>
                                 <label className={`radio-option ${formData.paymentMethod === 'card' ? 'selected' : ''}`}>
                                     <input
                                         type="radio"
