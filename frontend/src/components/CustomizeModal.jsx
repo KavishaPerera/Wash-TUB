@@ -83,13 +83,9 @@ const CustomizeModal = ({ item, onClose, onAddToBasket }) => {
 
                 <div className="modal-body">
                     <div className="item-preview">
-                        <div className="item-preview-image">
-                            <ShoppingBasket size={64} />
-                        </div>
                         <div className="item-preview-info">
                             <div className="item-preview-details">
                                 <h3>{item.name}</h3>
-                                <span>4 days to process</span>
                             </div>
                             <div className="item-preview-price">
                                 LKR {(item.price * quantity).toFixed(2)}

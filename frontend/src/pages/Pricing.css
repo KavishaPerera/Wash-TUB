@@ -6,31 +6,31 @@
 .pricing-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1rem 2rem;
 }
 
 .pricing-top-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .pricing-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .pricing-header h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     color: #2d3748;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .pricing-header p {
     color: #5a6a72;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 /* Category Tabs */
@@ -39,8 +39,8 @@
     flex-wrap: wrap;
     gap: 0.5rem;
     justify-content: center;
-    margin-bottom: 2rem;
-    padding: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
     background: #1a365d;
     border-radius: 8px;
 }
