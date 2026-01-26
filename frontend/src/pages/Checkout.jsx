@@ -10,7 +10,7 @@ const Checkout = () => {
     const [orderSuccess, setOrderSuccess] = useState(false);
     const [orderId, setOrderId] = useState('');
     const [formData, setFormData] = useState({
-        paymentMethod: 'card',
+        paymentMethod: 'visa',
         cardName: '',
         cardNumber: '',
         expireDate: '',
@@ -83,27 +83,48 @@ const Checkout = () => {
                         <div className="payment-card">
                             <h2 className="section-title">Payment Option</h2>
 
-                            {/* Payment Method - Debit/Credit Card Only */}
+                            {/* Payment Methods - Visa and Mastercard */}
                             <div className="payment-methods">
                                 <label
-                                    className="payment-method-option selected"
+                                    className={`payment-method-option ${formData.paymentMethod === 'visa' ? 'selected' : ''}`}
+                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'visa' }))}
                                 >
-                                    <div className="method-icon card-icon">
-                                        <div className="card-stripes"></div>
+                                    <div className="method-icon visa-icon">
+                                        <span className="visa-text">VISA</span>
                                     </div>
-                                    <span className="method-name">Debit/Credit Card</span>
+                                    <span className="method-name">Visa Card</span>
                                     <input
                                         type="radio"
                                         name="paymentMethod"
-                                        value="card"
-                                        checked={true}
-                                        readOnly
+                                        value="visa"
+                                        checked={formData.paymentMethod === 'visa'}
+                                        onChange={() => setFormData(prev => ({ ...prev, paymentMethod: 'visa' }))}
+                                    />
+                                </label>
+
+                                <label
+                                    className={`payment-method-option ${formData.paymentMethod === 'mastercard' ? 'selected' : ''}`}
+                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'mastercard' }))}
+                                >
+                                    <div className="method-icon mastercard-icon">
+                                        <div className="mc-circles">
+                                            <span className="mc-circle mc-red"></span>
+                                            <span className="mc-circle mc-orange"></span>
+                                        </div>
+                                    </div>
+                                    <span className="method-name">Master Card</span>
+                                    <input
+                                        type="radio"
+                                        name="paymentMethod"
+                                        value="mastercard"
+                                        checked={formData.paymentMethod === 'mastercard'}
+                                        onChange={() => setFormData(prev => ({ ...prev, paymentMethod: 'mastercard' }))}
                                     />
                                 </label>
                             </div>
 
-                            {/* Card Details Form - Only show when card is selected */}
-                            {formData.paymentMethod === 'card' && (
+                            {/* Card Details Form - Show for visa or mastercard */}
+                            {(formData.paymentMethod === 'visa' || formData.paymentMethod === 'mastercard') && (
                                 <div className="card-details-form">
                                     <div className="form-group">
                                         <label>Name on Card</label>
