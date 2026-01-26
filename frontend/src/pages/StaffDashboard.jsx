@@ -19,12 +19,12 @@ const StaffDashboard = () => {
                 </div>
 
                 <nav className="sidebar-nav">
-                    <a href="#overview" className="nav-item active">
+                    <Link to="/staff-dashboard" className="nav-item active">
                         <span>Overview</span>
-                    </a>
-                    <a href="#assigned-orders" className="nav-item">
+                    </Link>
+                    <Link to="/staff/pos" className="nav-item">
                         <span>Point of Sale</span>
-                    </a>
+                    </Link>
                     <a href="#completed" className="nav-item">
                         <span>Completed</span>
                     </a>
