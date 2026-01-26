@@ -17,6 +17,220 @@
     align-items: start;
 }
 
+/* Checkout Header */
+.checkout-header {
+    margin-bottom: 1.5rem;
+}
+
+.checkout-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0.75rem 0;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4a90b0;
+    font-size: 0.9rem;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: #326a86;
+}
+
+/* Step Indicator */
+.step-indicator {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.step {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.step.active {
+    color: #2c5f7c;
+    font-weight: 600;
+}
+
+.step.completed {
+    color: #38a169;
+}
+
+/* Delivery Form Section */
+.delivery-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-card .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e8eef2;
+}
+
+.form-card .section-title svg {
+    color: #3182ce;
+}
+
+/* Radio Options */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 2px solid #e8eef2;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.radio-option:hover {
+    border-color: #3182ce;
+}
+
+.radio-option.selected {
+    border-color: #3182ce;
+    background: rgba(49, 130, 206, 0.05);
+}
+
+.radio-option input {
+    width: 18px;
+    height: 18px;
+    accent-color: #3182ce;
+}
+
+.radio-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.radio-label strong {
+    font-size: 0.95rem;
+    color: #2d3748;
+}
+
+.radio-label small {
+    font-size: 0.8rem;
+    color: #5a6a72;
+}
+
+/* Order Summary Section */
+.order-summary-section {
+    position: sticky;
+    top: 2rem;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.summary-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e8eef2;
+}
+
+.summary-items {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+    color: #5a6a72;
+}
+
+.summary-totals {
+    border-top: 1px solid #e8eef2;
+    padding-top: 1rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 0.95rem;
+    color: #5a6a72;
+}
+
+.summary-row.total {
+    border-top: 2px solid #e8eef2;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.btn-proceed {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-proceed:hover {
+    background: #2c5282;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+}
+
 /* Payment Form Section */
 .payment-form-section {
     display: flex;
