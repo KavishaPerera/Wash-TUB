@@ -27,6 +27,7 @@ import Services from './pages/Services';
 import Pricing from './pages/Pricing';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import About from './pages/About';
 import './App.css';
 
 function Home() {
@@ -70,6 +71,7 @@ function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/about" element={<About />} />
         </Routes>
       </div>
     </Router>
