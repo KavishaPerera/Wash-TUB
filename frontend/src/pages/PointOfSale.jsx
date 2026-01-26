@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, CreditCard, ShoppingCart, Trash2, Plus, Minus, Search } from 'lucide-react';
+import CustomizeModal from '../components/CustomizeModal';
 import './PointOfSale.css';
 
 const categories = [
@@ -82,28 +83,52 @@ const PointOfSale = () => {
     });
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Modal state
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
     const filteredItems = pricingItems.filter(item => {
         const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
         const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesCategory && matchesSearch;
     });
 
-    const addToCart = (item) => {
-        const existingItem = cart.find(cartItem => cartItem.id === item.id);
-        if (existingItem) {
-            setCart(cart.map(cartItem =>
-                cartItem.id === item.id
-                    ? { ...cartItem, quantity: cartItem.quantity + 1 }
-                    : cartItem
-            ));
+    const handleItemClick = (item) => {
+        setSelectedItem(item);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedItem(null);
+    };
+
+    const handleAddToBasket = (customizedItem) => {
+        // Create a unique ID for cart item since the same item can be added with different methods
+        const cartItemUniqueId = `${customizedItem.id}-${customizedItem.method}-${Date.now()}`;
+
+        const newItem = {
+            ...customizedItem,
+            cartId: cartItemUniqueId,
+            price: customizedItem.totalPrice / customizedItem.quantity // Store unit price
+        };
+
+        const existingItemIndex = cart.findIndex(item =>
+            item.id === newItem.id && item.method === newItem.method
+        );
+
+        if (existingItemIndex > -1) {
+            const updatedCart = [...cart];
+            updatedCart[existingItemIndex].quantity += newItem.quantity;
+            setCart(updatedCart);
         } else {
-            setCart([...cart, { ...item, quantity: 1 }]);
+            setCart([...cart, newItem]);
         }
     };
 
-    const updateQuantity = (id, delta) => {
+    const updateQuantity = (cartId, delta) => {
         setCart(cart.map(item => {
-            if (item.id === id) {
+            if (item.cartId === cartId) {
                 const newQuantity = Math.max(1, item.quantity + delta);
                 return { ...item, quantity: newQuantity };
             }
@@ -111,8 +136,8 @@ const PointOfSale = () => {
         }));
     };
 
-    const removeFromCart = (id) => {
-        setCart(cart.filter(item => item.id !== id));
+    const removeFromCart = (cartId) => {
+        setCart(cart.filter(item => item.cartId !== cartId));
     };
 
     const calculateTotal = () => {
@@ -167,17 +192,14 @@ const PointOfSale = () => {
 
                 <div className="pos-items-grid">
                     {filteredItems.map((item) => (
-                        <div key={item.id} className="pos-item-card">
+                        <div key={item.id} className="pos-item-card" onClick={() => handleItemClick(item)}>
                             <div className="pos-item-info">
                                 <div className="pos-item-details">
                                     <div className="pos-item-name">{item.name}</div>
                                     <div className="pos-item-price">LKR {item.price.toFixed(2)}</div>
                                 </div>
-                                <button
-                                    className="pos-btn-add"
-                                    onClick={() => addToCart(item)}
-                                >
-                                    Add
+                                <button className="pos-btn-add">
+                                    <Plus size={16} />
                                 </button>
                             </div>
                         </div>
@@ -223,18 +245,21 @@ const PointOfSale = () => {
                     ) : (
                         <div className="cart-items-list">
                             {cart.map(item => (
-                                <div key={item.id} className="cart-list-item">
+                                <div key={item.cartId} className="cart-list-item">
                                     <div className="cart-item-info">
                                         <h4>{item.name}</h4>
-                                        <div className="cart-item-price">LKR {item.price}</div>
+                                        <div className="cart-item-meta">
+                                            <span className="method-tag">{item.method}</span>
+                                            <span className="cart-item-price">LKR {item.price}</span>
+                                        </div>
                                     </div>
                                     <div className="cart-item-actions">
                                         <div className="qty-controls">
-                                            <button onClick={() => updateQuantity(item.id, -1)}><Minus size={12} /></button>
+                                            <button onClick={() => updateQuantity(item.cartId, -1)}><Minus size={12} /></button>
                                             <span>{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.id, 1)}><Plus size={12} /></button>
+                                            <button onClick={() => updateQuantity(item.cartId, 1)}><Plus size={12} /></button>
                                         </div>
-                                        <button className="delete-btn" onClick={() => removeFromCart(item.id)}>
+                                        <button className="delete-btn" onClick={() => removeFromCart(item.cartId)}>
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -259,6 +284,15 @@ const PointOfSale = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Customization Modal */}
+            {showModal && selectedItem && (
+                <CustomizeModal
+                    item={selectedItem}
+                    onClose={handleCloseModal}
+                    onAddToBasket={handleAddToBasket}
+                />
+            )}
         </div>
     );
 };

@@ -269,9 +269,27 @@
     margin-bottom: 0.25rem;
 }
 
+.cart-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+}
+
+.method-tag {
+    font-size: 0.75rem;
+    background: #e2e8f0;
+    color: #4a5568;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
 .cart-item-price {
     font-size: 0.85rem;
     color: #718096;
+    font-weight: 600;
 }
 
 .cart-item-actions {
