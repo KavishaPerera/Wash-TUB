@@ -28,6 +28,7 @@ import Pricing from './pages/Pricing';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import About from './pages/About';
+import Contact from './pages/Contact';
 import './App.css';
 
 function Home() {
@@ -71,6 +72,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
       </div>
     </Router>

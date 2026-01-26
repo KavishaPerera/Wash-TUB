@@ -23,10 +23,7 @@ const StaffDashboard = () => {
                         <span>Overview</span>
                     </a>
                     <a href="#assigned-orders" className="nav-item">
-                        <span>Assigned Orders</span>
-                    </a>
-                    <a href="#pending-orders" className="nav-item">
-                        <span>Pending Orders</span>
+                        <span>Point of Sale</span>
                     </a>
                     <a href="#completed" className="nav-item">
                         <span>Completed</span>

@@ -32,7 +32,7 @@ const Navbar = () => {
             <li><Link to="/services" className="nav-link">Services</Link></li>
             <li><Link to="/pricing" className="nav-link">Pricing</Link></li>
             <li><Link to="/about" className="nav-link">About</Link></li>
-            <li><a href="#contact" className="nav-link">Contact</a></li>
+            <li><Link to="/contact" className="nav-link">Contact</Link></li>
           </ul>
 
           {/* CTA Buttons */}
@@ -58,7 +58,7 @@ const Navbar = () => {
             <li><Link to="/services" onClick={() => setMenuOpen(false)}>Services</Link></li>
             <li><Link to="/pricing" onClick={() => setMenuOpen(false)}>Pricing</Link></li>
             <li><Link to="/about" onClick={() => setMenuOpen(false)}>About</Link></li>
-            <li><a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a></li>
+            <li><Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link></li>
           </ul>
           <div className="mobile-menu-actions">
             <Link to="/signin" className="btn btn-secondary btn-small" style={{ width: '100%', textDecoration: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center' }} onClick={() => setMenuOpen(false)}>Sign In</Link>
