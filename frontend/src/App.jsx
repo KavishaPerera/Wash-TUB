@@ -35,7 +35,6 @@ function Home() {
     <>
       <Navbar />
       <Hero />
-      <CTA />
       <Footer />
     </>
   );

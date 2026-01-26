@@ -39,37 +39,13 @@ const About = () => {
                             </p>
                         </div>
                         <div className="story-image">
-                            <div className="image-placeholder">
-                                <span>🧺</span>
-                            </div>
+                            <img src="/images/about 1.jpg" alt="WashTub Laundry Services" className="about-img" />
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Stats Section */}
-            <section className="stats-section">
-                <div className="about-container">
-                    <div className="stats-grid">
-                        <div className="stat-item">
-                            <span className="stat-number">10,000+</span>
-                            <span className="stat-label">Happy Customers</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-number">50,000+</span>
-                            <span className="stat-label">Orders Completed</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-number">5+</span>
-                            <span className="stat-label">Years Experience</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-number">99%</span>
-                            <span className="stat-label">Satisfaction Rate</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+
 
             {/* Why Choose Us Section */}
             <section className="about-section why-choose-us">
@@ -145,44 +121,7 @@ const About = () => {
                 </div>
             </section>
 
-            {/* Testimonials Section */}
-            <section className="about-section testimonials-section">
-                <div className="about-container">
-                    <h2 className="section-heading">What Our Customers Say</h2>
-                    <div className="testimonials-grid">
-                        <div className="testimonial-card">
-                            <div className="testimonial-stars">
-                                {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="#f5a623" color="#f5a623" />)}
-                            </div>
-                            <p>"WashTub has made my life so much easier. The quality is amazing and the delivery is always on time!"</p>
-                            <div className="testimonial-author">
-                                <strong>Amandi Perera</strong>
-                                <span>Colombo</span>
-                            </div>
-                        </div>
-                        <div className="testimonial-card">
-                            <div className="testimonial-stars">
-                                {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="#f5a623" color="#f5a623" />)}
-                            </div>
-                            <p>"I've tried many laundry services but WashTub is by far the best. Highly recommended!"</p>
-                            <div className="testimonial-author">
-                                <strong>Kasun Silva</strong>
-                                <span>Kandy</span>
-                            </div>
-                        </div>
-                        <div className="testimonial-card">
-                            <div className="testimonial-stars">
-                                {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="#f5a623" color="#f5a623" />)}
-                            </div>
-                            <p>"Professional service, fair pricing, and my clothes always come back looking brand new."</p>
-                            <div className="testimonial-author">
-                                <strong>Nimal Fernando</strong>
-                                <span>Galle</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+
 
             {/* CTA Section */}
             <section className="about-cta">
