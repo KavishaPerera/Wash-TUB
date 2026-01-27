@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { User, CreditCard, ShoppingCart, Trash2, Plus, Minus, Search } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User, CreditCard, ShoppingCart, Trash2, Plus, Minus, Search, Printer, X } from 'lucide-react';
 import CustomizeModal from '../components/CustomizeModal';
 import './PointOfSale.css';
 
+// ... (Constants categories and pricingItems remain the same - abbreviated for brevity)
 const categories = [
     { id: 'all', name: 'All Items' },
     { id: 'gents-casual', name: 'Gents Casual Wear' },
@@ -89,6 +90,12 @@ const PointOfSale = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
+    // Payment Logic State
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+    const [amountGiven, setAmountGiven] = useState('');
+    const [finalOrderData, setFinalOrderData] = useState(null);
+
     const filteredItems = pricingItems.filter(item => {
         const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
         const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -106,13 +113,11 @@ const PointOfSale = () => {
     };
 
     const handleAddToBasket = (customizedItem) => {
-        // Create a unique ID for cart item since the same item can be added with different methods
         const cartItemUniqueId = `${customizedItem.id}-${customizedItem.method}-${Date.now()}`;
-
         const newItem = {
             ...customizedItem,
             cartId: cartItemUniqueId,
-            price: customizedItem.totalPrice / customizedItem.quantity // Store unit price
+            price: customizedItem.totalPrice / customizedItem.quantity
         };
 
         const existingItemIndex = cart.findIndex(item =>
@@ -146,7 +151,7 @@ const PointOfSale = () => {
         return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
     };
 
-    const handleProcessPayment = () => {
+    const handleProcessPaymentClick = () => {
         if (cart.length === 0) {
             alert('Cart is empty!');
             return;
@@ -155,15 +160,50 @@ const PointOfSale = () => {
             alert('Please enter all customer details (First Name, Last Name, Email, Phone).');
             return;
         }
-        const fullName = `${customerDetails.firstName} ${customerDetails.lastName}`;
-        alert(`Order created for ${fullName}! Total: LKR ${calculateTotal()}`);
+
+        // Open Payment Input Modal
+        setIsPaymentModalOpen(true);
+    };
+
+    const handleConfirmPayment = () => {
+        const total = calculateTotal();
+        const paid = parseFloat(amountGiven);
+
+        if (isNaN(paid) || paid < total) {
+            alert('Please enter a valid amount greater than or equal to the total.');
+            return;
+        }
+
+        // Prepare Final Data
+        const orderData = {
+            customer: customerDetails,
+            items: cart,
+            totalAmount: total,
+            amountGiven: paid,
+            balance: paid - total,
+            date: new Date().toLocaleString()
+        };
+
+        setFinalOrderData(orderData);
+        setIsPaymentModalOpen(false);
+        setIsReceiptOpen(true);
+    };
+
+    const handleCloseReceipt = () => {
+        setIsReceiptOpen(false);
         setCart([]);
         setCustomerDetails({ firstName: '', lastName: '', email: '', phone: '' });
+        setAmountGiven('');
+        setFinalOrderData(null);
+    };
+
+    const handlePrintReceipt = () => {
+        window.print();
     };
 
     return (
         <div className="pos-container">
-            {/* Left Side - Service Selection (Pricing Style) */}
+            {/* Left Side */}
             <div className="pos-left-panel">
                 <div className="pos-header-nav">
                     <div className="pos-title">
@@ -210,7 +250,7 @@ const PointOfSale = () => {
                 </div>
             </div>
 
-            {/* Right Side - Current Order Panel */}
+            {/* Right Side */}
             <div className="pos-right-panel">
                 <div className="order-panel-header">
                     <h2>Current Order</h2>
@@ -297,7 +337,7 @@ const PointOfSale = () => {
                     </div>
                     <button
                         className="process-payment-btn"
-                        onClick={handleProcessPayment}
+                        onClick={handleProcessPaymentClick}
                         disabled={cart.length === 0}
                     >
                         <CreditCard size={20} />
@@ -313,6 +353,92 @@ const PointOfSale = () => {
                     onClose={handleCloseModal}
                     onAddToBasket={handleAddToBasket}
                 />
+            )}
+
+            {/* Payment Input Modal */}
+            {isPaymentModalOpen && (
+                <div className="overlay">
+                    <div className="payment-modal">
+                        <h2>Payment Details</h2>
+                        <div className="input-group">
+                            <label>Total Amount: <strong>LKR {calculateTotal()}</strong></label>
+                        </div>
+                        <div className="input-group">
+                            <label>Amount Given (LKR)</label>
+                            <input
+                                type="number"
+                                value={amountGiven}
+                                onChange={(e) => setAmountGiven(e.target.value)}
+                                placeholder="Enter amount..."
+                                autoFocus
+                            />
+                        </div>
+                        {amountGiven && (
+                            <div className="input-group">
+                                <label>Balance: <strong>LKR {(parseFloat(amountGiven) - calculateTotal()).toFixed(2)}</strong></label>
+                            </div>
+                        )}
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                            <button className="btn btn-secondary" onClick={() => setIsPaymentModalOpen(false)} style={{ flex: 1 }}>Cancel</button>
+                            <button className="btn btn-primary" onClick={handleConfirmPayment} style={{ flex: 1 }}>Generate Receipt</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Receipt Modal */}
+            {isReceiptOpen && finalOrderData && (
+                <div className="overlay">
+                    <div className="receipt-modal">
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }} className="no-print">
+                            <button onClick={handleCloseReceipt} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
+                        </div>
+
+                        <div className="receipt-container" id="receipt-content">
+                            <div className="receipt-header">
+                                <h2>Wash Tub Laundry</h2>
+                                <p>478/A, Pannipitiya Rd, Pelawatta</p>
+                                <p>Tel: +94 11 452 8476</p>
+                                <br />
+                                <p>{finalOrderData.date}</p>
+                                <p>Customer: {finalOrderData.customer.firstName} {finalOrderData.customer.lastName}</p>
+                            </div>
+
+                            <div className="receipt-items">
+                                {finalOrderData.items.map((item, idx) => (
+                                    <div className="receipt-item" key={idx}>
+                                        <span>{item.name} (x{item.quantity})</span>
+                                        <span>{item.price * item.quantity}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="receipt-summary">
+                                <span>Total Amount:</span>
+                                <span>LKR {finalOrderData.totalAmount.toFixed(2)}</span>
+                            </div>
+                            <div className="receipt-summary">
+                                <span>Cash:</span>
+                                <span>LKR {finalOrderData.amountGiven.toFixed(2)}</span>
+                            </div>
+                            <div className="receipt-summary">
+                                <span>Balance:</span>
+                                <span>LKR {finalOrderData.balance.toFixed(2)}</span>
+                            </div>
+
+                            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                                <p>Thank You!</p>
+                                <p>Please come again.</p>
+                            </div>
+                        </div>
+
+                        <div className="receipt-actions">
+                            <button className="btn btn-primary" onClick={handlePrintReceipt} style={{ width: '100%' }}>
+                                <Printer size={18} style={{ marginRight: '8px' }} /> Print Receipt
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
