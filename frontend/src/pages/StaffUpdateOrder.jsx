@@ -10,11 +10,11 @@ const StaffUpdateOrder = () => {
 
     // Mock Data
     const mockOrders = [
-        { id: 'ORD-001', customer: 'John Doe', service: 'Wash & Fold', status: 'Pending', items: '5kg Mixed', date: 'Oct 24, 2026', total: 'LKR 1,500' },
-        { id: 'ORD-002', customer: 'Jane Smith', service: 'Dry Cleaning', status: 'In Progress', items: '2 Suits', date: 'Oct 25, 2026', total: 'LKR 2,200' },
-        { id: 'ORD-003', customer: 'Mike Johnson', service: 'Ironing', status: 'Completed', items: '10 Shirts', date: 'Oct 23, 2026', total: 'LKR 800' },
-        { id: 'ORD-005', customer: 'Sarah Connor', service: 'Premium Care', status: 'Urgent', items: 'Silk Dress', date: 'Today', total: 'LKR 3,500' },
-        { id: 'ORD-006', customer: 'Emily Blunt', service: 'Curtain Cleaning', status: 'Pending', items: 'Living Room Set', date: 'Yesterday', total: 'LKR 5,000' },
+        { id: 'ORD-001', customer: 'Nimal perera', service: 'Wash & Fold', status: 'Pending', items: 'Curtain', date: 'Jan 24, 2026', total: 'LKR 1,500' },
+        { id: 'ORD-002', customer: 'Jane fernando', service: 'Dry Cleaning', status: 'In Progress', items: '2 Suits', date: 'Jan 25, 2026', total: 'LKR 1,200' },
+        { id: 'ORD-003', customer: 'Mewan Gunathilaka', service: 'Ironing', status: 'Completed', items: '10 Shirts', date: 'Jan 23, 2026', total: 'LKR 2,800' },
+        { id: 'ORD-005', customer: 'Mohommad Ismail', service: 'Premium Care', status: 'Urgent', items: 'Silk Dress', date: 'Today', total: 'LKR 350' },
+        { id: 'ORD-006', customer: 'Samantha Abeyrathna', service: 'Curtain Cleaning', status: 'Pending', items: 'Living Room Set', date: 'Yesterday', total: 'LKR 500' },
     ];
 
     const [orders, setOrders] = useState(mockOrders);
