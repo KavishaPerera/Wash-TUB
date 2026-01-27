@@ -1,75 +1,56 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './CustomerDashboard.css'; // Reusing the same premium styling
+import { useNavigate } from 'react-router-dom';
+import DeliverySidebar from '../components/DeliverySidebar';
+import { Truck, MapPin, Package, Clock, DollarSign, Navigation } from 'lucide-react';
+import './DeliveryDashboard.css';
 
 const DeliveryDashboard = () => {
     const navigate = useNavigate();
     const [driverName] = useState('Driver');
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    // Mock Data for "Card" view
+    const deliveries = [
+        { id: 'ORD-1240', name: 'Supun Pinto', address: '123 Main St, Apt 4', type: 'Pickup', status: 'Pending', time: '10:00 AM' },
+        { id: 'ORD-1239', name: 'Thilak Jayawardene', address: '456 Oak Ave', type: 'Delivery', status: 'Transit', time: '11:30 AM' },
+        { id: 'ORD-1238', name: 'Bandu Perera', address: '789 Temple Ln', type: 'Pickup', status: 'Completed', time: '09:15 AM' },
+        { id: 'ORD-1235', name: 'Nilantha Pieris', address: '321 Galle Road', type: 'Delivery', status: 'Completed', time: 'Yesterday' },
+        { id: 'ORD-1244', name: 'Kamal Hassan', address: '55 Lotus Grove', type: 'Delivery', status: 'Pending', time: '02:00 PM' },
+    ];
 
     return (
         <div className="dashboard">
             {/* Sidebar */}
-            <aside className="dashboard-sidebar">
-                <div className="sidebar-header">
-                    <h2 className="logo">WashTub</h2>
-                </div>
-
-                <nav className="sidebar-nav">
-                    <a href="#overview" className="nav-item active">
-                        <span>Overview</span>
-                    </a>
-                    <a href="#active-deliveries" className="nav-item">
-                        <span>Active Deliveries</span>
-                    </a>
-                    <a href="#history" className="nav-item">
-                        <span>Delivery History</span>
-                    </a>
-                    <a href="#earnings" className="nav-item">
-                        <span>Earnings</span>
-                    </a>
-                    <a href="#profile" className="nav-item">
-                        <span>Profile</span>
-                    </a>
-                </nav>
-
-                <button className="logout-btn" onClick={handleLogout}>
-                    <span>Logout</span>
-                </button>
-            </aside>
+            <DeliverySidebar activePage="overview" />
 
             {/* Main Content */}
             <main className="dashboard-main">
                 {/* Header */}
                 <header className="dashboard-header">
                     <div className="header-content">
-                        <div>
-                            <h1>Welcome, {driverName}!</h1>
-                            <p>Manage your deliveries and route</p>
-                        </div>
-                        <button className="btn btn-primary">
-                            Go Online
-                        </button>
+                        <h1>Welcome, {driverName}!</h1>
+                        <p>You have 3 active tasks today</p>
                     </div>
+                    <button className="btn-primary">
+                        Go Online
+                    </button>
                 </header>
 
                 {/* Stats Cards */}
                 <section className="stats-section">
                     <div className="stat-card">
-                        <div className="stat-info">
+                        <div>
                             <p className="stat-label">Deliveries Today</p>
                             <h3 className="stat-value">8</h3>
                         </div>
+                        <Truck size={32} color="#0ea5e9" style={{ opacity: 0.8 }} />
                     </div>
 
                     <div className="stat-card">
-                        <div className="stat-info">
+                        <div>
                             <p className="stat-label">Pending</p>
                             <h3 className="stat-value">3</h3>
                         </div>
+                        <Package size={32} color="#f59e0b" style={{ opacity: 0.8 }} />
                     </div>
 
                     <div className="stat-card">
@@ -77,63 +58,42 @@ const DeliveryDashboard = () => {
                             <p className="stat-label">Total Earnings</p>
                             <h3 className="stat-value">Rs. 1,200</h3>
                         </div>
+                        <DollarSign size={32} color="#10b981" style={{ opacity: 0.8 }} />
                     </div>
                 </section>
 
-                {/* Current Deliveries / Tasks */}
+                {/* Current Deliveries / Tasks - GRID VIEW */}
                 <section className="orders-section">
                     <div className="section-header">
-                        <h2>Today's Deliveries</h2>
+                        <h2>Active Tasks</h2>
                         <a href="#all-deliveries" className="view-all">View All →</a>
                     </div>
 
-                    <div className="orders-table-container">
-                        <table className="orders-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Address</th>
-                                    <th>Type</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>ORD-1240</td>
-                                    <td>Supun Pinto</td>
-                                    <td>123 Main St, Apt 4</td>
-                                    <td>Pickup</td>
-                                    <td><span className="status-badge status-processing">Assigned</span></td>
-                                    <td><button className="btn-action">Start</button></td>
-                                </tr>
-                                <tr>
-                                    <td>ORD-1239</td>
-                                    <td>Thilak Jayawardene</td>
-                                    <td>456 Oak Ave</td>
-                                    <td>Delivery</td>
-                                    <td><span className="status-badge status-processing">In Transit</span></td>
-                                    <td><button className="btn-action">Complete</button></td>
-                                </tr>
-                                <tr>
-                                    <td>ORD-1238</td>
-                                    <td>Bandu Perera</td>
-                                    <td>789 Temple Ln</td>
-                                    <td>Pickup</td>
-                                    <td><span className="status-badge status-completed">Completed</span></td>
-                                    <td><button className="btn-action">View</button></td>
-                                </tr>
-                                <tr>
-                                    <td>ORD-1235</td>
-                                    <td>Nilantha Pieris</td>
-                                    <td>321 Galle Road</td>
-                                    <td>Delivery</td>
-                                    <td><span className="status-badge status-completed">Completed</span></td>
-                                    <td><button className="btn-action">View</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div className="delivery-grid">
+                        {deliveries.map((item) => (
+                            <div key={item.id} className="delivery-card">
+                                <div className="delivery-header">
+                                    <span className="delivery-id">{item.id}</span>
+                                    <span className={`delivery-status status-${item.status.toLowerCase()}`}>{item.status}</span>
+                                </div>
+                                <div className="customer-details">
+                                    <h3>{item.name}</h3>
+                                    <p><MapPin size={14} /> {item.address}</p>
+                                    <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+                                        <Clock size={14} /> Expected: {item.time}
+                                    </p>
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+                                    <span className={`delivery-type type-${item.type.toLowerCase()}`}>{item.type}</span>
+                                </div>
+                                <div className="card-actions">
+                                    <button className="btn-card-action">Map</button>
+                                    <button className="btn-card-action btn-card-primary">
+                                        {item.type === 'Pickup' ? 'Start Pickup' : 'Start Delivery'}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </section>
 
@@ -144,19 +104,19 @@ const DeliveryDashboard = () => {
                     </div>
                     <div className="quick-actions-grid">
                         <div className="action-card">
-                            <h3>Update Status</h3>
-                            <p>Update delivery status</p>
-                            <button className="btn btn-secondary btn-small">Update</button>
+                            <Navigation size={24} style={{ marginBottom: '0.5rem', color: '#0ea5e9' }} />
+                            <h3>Route Optimizer</h3>
+                            <button className="btn-small">Launch</button>
                         </div>
                         <div className="action-card">
-                            <h3>Route Map</h3>
-                            <p>View optimal route</p>
-                            <button className="btn btn-secondary btn-small">View Map</button>
+                            <Truck size={24} style={{ marginBottom: '0.5rem', color: '#0ea5e9' }} />
+                            <h3>Vehicle Check</h3>
+                            <button className="btn-small">Start Check</button>
                         </div>
                         <div className="action-card">
-                            <h3>Contact Support</h3>
-                            <p>Get help with issues</p>
-                            <button className="btn btn-secondary btn-small">Contact</button>
+                            <Package size={24} style={{ marginBottom: '0.5rem', color: '#0ea5e9' }} />
+                            <h3>Scan Package</h3>
+                            <button className="btn-small">Scan QR</button>
                         </div>
                     </div>
                 </section>
