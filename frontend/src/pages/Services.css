@@ -1,157 +1,215 @@
+/* Services.css */
 .services-page {
     min-height: 100vh;
-    padding: 2rem;
-    background: #d4e4ec;
+    background: #f8fafc;
 }
 
-.services-container {
-    max-width: 1200px;
+/* Hero Section (Matching About.css) */
+.services-hero {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3d7ab3 100%);
+    padding: 8rem 2rem 4rem;
+    text-align: center;
+}
+
+.services-hero-content h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    margin: 0 0 1rem;
+}
+
+.services-hero-content .gradient-text {
+    background: linear-gradient(135deg, #4db6ac 0%, #80cbc4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.services-hero-content p {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 600px;
     margin: 0 auto;
 }
 
-.services-top-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+/* Container */
+.services-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 
-.btn-price-list {
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #4a90b0 0%, #3d7a99 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
+/* Sections */
+.services-section {
+    padding: 5rem 0;
 }
 
-.btn-price-list:hover {
-    background: linear-gradient(135deg, #3d7a99 0%, #326a86 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(74, 144, 176, 0.3);
-}
-
-.services-header {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.services-header h1 {
-    font-size: 2.5rem;
+.section-heading {
+    font-size: 2rem;
     font-weight: 700;
-    color: #2d3748;
-    margin-bottom: 0.5rem;
+    color: #1e3a5f;
+    text-align: center;
+    margin: 0 0 3rem;
 }
 
-.services-header p {
-    color: #5a6a72;
+/* Intro Content */
+.intro-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.intro-content h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin-bottom: 1.5rem;
+}
+
+.intro-content p {
     font-size: 1.1rem;
+    color: #5a6a72;
+    line-height: 1.8;
 }
 
+/* Services Grid (Matching Features Grid in About.css) */
 .services-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
 .service-card {
-    background: #ffffff;
+    background: white;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
+    display: flex;
+    flex-direction: column;
 }
 
 .service-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.service-image-wrapper {
+    height: 200px;
+    overflow: hidden;
 }
 
 .service-image {
     width: 100%;
-    height: 200px;
+    height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
 }
 
-.service-image-placeholder {
-    width: 100%;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.service-icon {
-    font-size: 4rem;
+.service-card:hover .service-image {
+    transform: scale(1.05);
 }
 
 .service-info {
-    padding: 1rem;
+    padding: 2rem;
     text-align: center;
-    border-top: 1px solid #e8eef2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.service-title {
-    font-size: 0.9rem;
+.service-info h3 {
+    font-size: 1.25rem;
     font-weight: 600;
-    color: #2d3748;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
+    color: #1e3a5f;
+    margin: 0 0 0.75rem;
 }
 
-.service-description {
-    font-size: 0.85rem;
+.service-info p {
+    font-size: 0.95rem;
     color: #5a6a72;
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.6;
 }
 
-.back-home-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    color: #4a90b0;
+/* CTA Section (Matching About.css) */
+.services-cta {
+    background: linear-gradient(135deg, #4db6ac 0%, #3d9a91 100%);
+    padding: 5rem 0;
+    text-align: center;
+}
+
+.cta-content h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 1rem;
+}
+
+.cta-content p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 2rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.cta-buttons .btn {
+    padding: 0.875rem 2rem;
     font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: all 0.3s ease;
 }
 
-.back-home-link:hover {
-    color: #326a86;
+.cta-buttons .btn-primary {
+    background: white;
+    color: #2d5a87;
 }
 
-.back-home-link svg {
-    width: 20px;
-    height: 20px;
+.cta-buttons .btn-primary:hover {
+    background: #f0f7fa;
+    transform: translateY(-2px);
+}
+
+.cta-buttons .btn-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+}
+
+.cta-buttons .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
     .services-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 600px) {
-    .services-page {
-        padding: 1.5rem;
+@media (max-width: 768px) {
+    .services-hero-content h1 {
+        font-size: 2rem;
     }
 
     .services-grid {
         grid-template-columns: 1fr;
     }
 
-    .services-header h1 {
-        font-size: 2rem;
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
     }
 
-    .service-image {
-        height: 180px;
+    .cta-buttons .btn {
+        width: 100%;
+        max-width: 280px;
     }
 }

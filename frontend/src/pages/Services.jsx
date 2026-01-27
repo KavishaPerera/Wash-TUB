@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import './Services.css';
 
 // Import images from the images folder
@@ -51,43 +53,59 @@ const services = [
 const Services = () => {
     return (
         <div className="services-page">
-            <div className="services-container">
-                <div className="services-top-nav">
-                    <Link to="/" className="back-home-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg>
-                        Back to Home
-                    </Link>
-                    <Link to="/pricing" className="btn-price-list">
-                        Check Price List
-                    </Link>
-                </div>
+            <Navbar />
 
-                <div className="services-header">
-                    <h1>Our Services</h1>
-                    <p>Professional laundry solutions tailored to your needs</p>
+            {/* Hero Section */}
+            <section className="services-hero">
+                <div className="services-hero-content">
+                    <h1>Our <span className="gradient-text">Services</span></h1>
+                    <p>Professional laundry solutions tailored to your needs, delivering freshness to your doorstep</p>
                 </div>
+            </section>
 
-                <div className="services-grid">
-                    {services.map((service) => (
-                        <div key={service.id} className="service-card">
-                            <img
-                                src={service.image}
-                                alt={service.title}
-                                className="service-image"
-                            />
-                            <div className="service-info">
-                                <div className="service-title">{service.title}</div>
-                                <p className="service-description">{service.description}</p>
+
+
+            {/* Services Grid Section */}
+            <section className="services-section services-list-section">
+                <div className="services-container">
+                    <h2 className="section-heading">What We Offer</h2>
+                    <div className="services-grid">
+                        {services.map((service) => (
+                            <div key={service.id} className="service-card">
+                                <div className="service-image-wrapper">
+                                    <img
+                                        src={service.image}
+                                        alt={service.title}
+                                        className="service-image"
+                                    />
+                                </div>
+                                <div className="service-info">
+                                    <h3>{service.title}</h3>
+                                    <p>{service.description}</p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="services-cta">
+                <div className="services-container">
+                    <div className="cta-content">
+                        <h2>Ready to Schedule a Service?</h2>
+                        <p>Check our competitive pricing or start your order now</p>
+                        <div className="cta-buttons">
+                            <Link to="/pricing" className="btn btn-primary">Check Price List</Link>
+                            <Link to="/signup" className="btn btn-secondary">Get Started</Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <Footer />
         </div>
     );
 };
 
 export default Services;
-
