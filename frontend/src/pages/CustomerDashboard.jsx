@@ -45,10 +45,7 @@ const CustomerDashboard = () => {
                         {/* <span className="nav-icon">➕</span> */}
                         <span>New Order</span>
                     </a>
-                    <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/profile'); }}>
-                        {/* <span className="nav-icon">👤</span> */}
-                        <span>Profile</span>
-                    </a>
+
                     <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>
                         {/* <span className="nav-icon">⚙️</span> */}
                         <span>Notifications</span>

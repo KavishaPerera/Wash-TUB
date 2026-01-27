@@ -170,7 +170,7 @@
 .form-section .section-header h2 {
     margin: 0;
     font-size: 1.25rem;
-    color: var(--color-light);
+    color: white;
 }
 
 .form-group {

@@ -47,9 +47,6 @@ const MyOrders = () => {
                     <Link to="/new-order" className="nav-item">
                         <span>New Order</span>
                     </Link>
-                    <Link to="/profile" className="nav-item">
-                        <span>Profile</span>
-                    </Link>
                     <Link to="/notifications" className="nav-item">
                         <span>Notifications</span>
                     </Link>

@@ -140,9 +140,6 @@ const Notifications = () => {
                     <Link to="/new-order" className="nav-item">
                         <span>New Order</span>
                     </Link>
-                    <Link to="/profile" className="nav-item">
-                        <span>Profile</span>
-                    </Link>
                     <a href="#" className="nav-item active">
                         <span>Notifications</span>
                         {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
