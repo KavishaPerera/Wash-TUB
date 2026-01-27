@@ -77,62 +77,7 @@ const StaffDashboard = () => {
                     </div>
                 </section>
 
-                {/* Assigned Orders */}
-                <section className="orders-section">
-                    <div className="section-header">
-                        <h2>Assigned Orders</h2>
-                        <a href="#all-orders" className="view-all">View All →</a>
-                    </div>
 
-                    <div className="orders-table-container">
-                        <table className="orders-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Service</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>ORD-1234</td>
-                                    <td>Oshani Kavindya</td>
-                                    <td>Wash & Fold</td>
-                                    <td>Jan 21, 2026</td>
-                                    <td><span className="status-badge status-processing">Processing</span></td>
-                                    <td><button className="btn-action">Update</button></td>
-                                </tr>
-                                <tr>
-                                    <td>ORD-1235</td>
-                                    <td>Tilara sansiluni</td>
-                                    <td>Dry Cleaning</td>
-                                    <td>Jan 21, 2026</td>
-                                    <td><span className="status-badge status-processing">Processing</span></td>
-                                    <td><button className="btn-action">Update</button></td>
-                                </tr>
-                                <tr>
-                                    <td>ORD-1236</td>
-                                    <td>Tharindu Jayasinghe</td>
-                                    <td>Iron & Press</td>
-                                    <td>Jan 20, 2026</td>
-                                    <td><span className="status-badge status-completed">Completed</span></td>
-                                    <td><button className="btn-action">View</button></td>
-                                </tr>
-                                <tr>
-                                    <td>ORD-1237</td>
-                                    <td>Isahara Samarasinghe</td>
-                                    <td>Wash & Fold</td>
-                                    <td>Jan 20, 2026</td>
-                                    <td><span className="status-badge status-delivered">Ready</span></td>
-                                    <td><button className="btn-action">View</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
 
                 {/* Quick Actions */}
                 <section className="quick-actions-section">
