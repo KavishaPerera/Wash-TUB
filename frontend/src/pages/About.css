@@ -182,7 +182,7 @@
 
 /* CTA Section */
 .about-cta {
-    background: linear-gradient(135deg, #4db6ac 0%, #3d9a91 100%);
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3d7ab3 100%);
     padding: 5rem 0;
     text-align: center;
 }
