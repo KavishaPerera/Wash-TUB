@@ -7,6 +7,18 @@ const CustomerDashboard = () => {
     const navigate = useNavigate();
     const [userName] = useState('Amandi');
 
+    // Recent Orders Data
+    const recentOrders = [
+        { id: 'ORD-1234', service: 'Wash & Fold', date: 'Jan 20, 2026', status: 'Processing', amount: 'Rs.450' },
+        { id: 'ORD-1233', service: 'Dry Cleaning', date: 'Jan 18, 2026', status: 'Completed', amount: 'Rs.850' },
+        { id: 'ORD-1232', service: 'Iron & Press', date: 'Jan 15, 2026', status: 'Delivered', amount: 'Rs.300' },
+        { id: 'ORD-1231', service: 'Wash & Fold', date: 'Jan 12, 2026', status: 'Completed', amount: 'Rs.500' },
+    ];
+
+    const getStatusClass = (status) => {
+        return `status-${status.toLowerCase()}`;
+    };
+
     const handleLogout = () => {
         // Handle logout logic
         navigate('/signin');
@@ -104,53 +116,33 @@ const CustomerDashboard = () => {
                         <a href="#all-orders" className="view-all">View All →</a>
                     </div>
 
-                    <div className="orders-table-container">
-                        <table className="orders-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Service</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Amount</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>ORD-1234</td>
-                                    <td>Wash & Fold</td>
-                                    <td>Jan 20, 2026</td>
-                                    <td><span className="status-badge status-processing">Processing</span></td>
-                                    <td>Rs.450</td>
-                                    <td><button className="btn-action">Track</button></td>
-                                </tr>
-                                <tr>
-                                    <td>ORD-1233</td>
-                                    <td>Dry Cleaning</td>
-                                    <td>Jan 18, 2026</td>
-                                    <td><span className="status-badge status-completed">Completed</span></td>
-                                    <td>Rs.850</td>
-                                    <td><button className="btn-action">View</button></td>
-                                </tr>
-                                <tr>
-                                    <td>ORD-1232</td>
-                                    <td>Iron & Press</td>
-                                    <td>Jan 15, 2026</td>
-                                    <td><span className="status-badge status-delivered">Delivered</span></td>
-                                    <td>Rs.300</td>
-                                    <td><button className="btn-action">View</button></td>
-                                </tr>
-                                <tr>
-                                    <td>ORD-1231</td>
-                                    <td>Wash & Fold</td>
-                                    <td>Jan 12, 2026</td>
-                                    <td><span className="status-badge status-completed">Completed</span></td>
-                                    <td>Rs.500</td>
-                                    <td><button className="btn-action">View</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div className="orders-grid">
+                        {recentOrders.map((order) => (
+                            <div key={order.id} className="order-card">
+                                <div className="order-header">
+                                    <span className="order-id">{order.id}</span>
+                                    <span className={`order-status ${getStatusClass(order.status)}`}>{order.status}</span>
+                                </div>
+                                <div className="order-details">
+                                    <h3>{order.service}</h3>
+                                    <p>📅 {order.date}</p>
+                                    <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+                                        💰 {order.amount}
+                                    </p>
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+                                    <span className={`order-type type-${order.status === 'Processing' ? 'pickup' : 'delivery'}`}>
+                                        {order.status === 'Processing' ? 'Pickup' : 'Delivery'}
+                                    </span>
+                                </div>
+                                <div className="card-actions">
+                                    <button className="btn-card-outline">Details</button>
+                                    <button className="btn-card-primary">
+                                        {order.status === 'Processing' ? 'Track Order' : 'View Receipt'}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </section>
 
