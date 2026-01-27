@@ -1,5 +1,5 @@
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, Home, MapPin, Phone, User, Truck } from 'lucide-react';
+import { ArrowLeft, Check, Home, MapPin, Phone, User, Truck, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import './Checkout.css';
 
@@ -17,6 +17,8 @@ const Checkout = () => {
         address: '',
         city: '',
         deliveryOption: 'delivery',
+        pickupDate: '',
+        pickupTime: '',
         // Payment Details
         paymentMethod: 'visa',
         cardName: '',
@@ -46,7 +48,7 @@ const Checkout = () => {
     const handleDeliverySubmit = (e) => {
         e.preventDefault();
         // Validate delivery form before proceeding
-        if (formData.fullName && formData.phone && formData.address && formData.city) {
+        if (formData.fullName && formData.phone && formData.address && formData.city && formData.pickupDate && formData.pickupTime) {
             setCurrentStep(2);
         }
     };
@@ -143,33 +145,6 @@ const Checkout = () => {
                                 </div>
                             </div>
 
-                            {/* Delivery Address */}
-                            <div className="form-card">
-                                <h2 className="section-title"><MapPin size={20} /> Delivery Address</h2>
-                                <div className="form-group">
-                                    <label>Address</label>
-                                    <input
-                                        type="text"
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Enter your address"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>City</label>
-                                    <input
-                                        type="text"
-                                        name="city"
-                                        value={formData.city}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Enter your city"
-                                    />
-                                </div>
-                            </div>
-
                             {/* Delivery Option */}
                             <div className="form-card">
                                 <h2 className="section-title"><Truck size={20} /> Delivery Option</h2>
@@ -200,6 +175,74 @@ const Checkout = () => {
                                             <small>LKR {DELIVERY_FEE}.00 - Delivered to your door</small>
                                         </span>
                                     </label>
+                                </div>
+                            </div>
+
+                            {/* Delivery Address */}
+                            <div className="form-card">
+                                <h2 className="section-title"><MapPin size={20} /> Delivery Address</h2>
+                                <div className="form-group">
+                                    <label>Address</label>
+                                    <input
+                                        type="text"
+                                        name="address"
+                                        value={formData.address}
+                                        onChange={handleInputChange}
+                                        required
+                                        placeholder="Enter your address"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>City</label>
+                                    <input
+                                        type="text"
+                                        name="city"
+                                        value={formData.city}
+                                        onChange={handleInputChange}
+                                        required
+                                        placeholder="Enter your city"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Pickup Schedule */}
+                            <div className="form-card">
+                                <h2 className="section-title"><Calendar size={20} /> Pickup Schedule</h2>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Pickup Date</label>
+                                        <input
+                                            type="date"
+                                            name="pickupDate"
+                                            value={formData.pickupDate}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Pickup Time</label>
+                                        <select
+                                            name="pickupTime"
+                                            value={formData.pickupTime}
+                                            onChange={handleInputChange}
+                                            required
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.875rem 1rem',
+                                                border: '1px solid #d4e4ec',
+                                                borderRadius: '4px',
+                                                fontSize: '1rem',
+                                                color: formData.pickupTime ? '#2d3748' : '#a0aec0',
+                                                background: 'white'
+                                            }}
+                                        >
+                                            <option value="" disabled>Select time slot</option>
+                                            <option value="09:00 AM - 12:00 PM">09:00 AM - 12:00 PM</option>
+                                            <option value="12:00 PM - 03:00 PM">12:00 PM - 03:00 PM</option>
+                                            <option value="03:00 PM - 06:00 PM">03:00 PM - 06:00 PM</option>
+                                            <option value="06:00 PM - 09:00 PM">06:00 PM - 09:00 PM</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
