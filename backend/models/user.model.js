@@ -15,25 +15,35 @@ const User = {
         address TEXT,
         role ENUM('owner', 'customer', 'delivery', 'staff') DEFAULT 'customer',
         is_active BOOLEAN DEFAULT TRUE,
+        reset_password_code VARCHAR(6),
+        reset_password_expires DATETIME,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `;
     await db.execute(sql);
+
+    // Attempt to add columns if they don't exist (migrations-ish)
+    try {
+      await db.execute("ALTER TABLE users ADD COLUMN reset_password_code VARCHAR(6)");
+    } catch (e) { /* ignore if exists */ }
+    try {
+      await db.execute("ALTER TABLE users ADD COLUMN reset_password_expires DATETIME");
+    } catch (e) { /* ignore if exists */ }
   },
 
   // Create a new user
   async create(userData) {
     const { firstName, lastName, email, password, phone, address, role } = userData;
-    
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const sql = `
       INSERT INTO users (first_name, last_name, email, password, phone, address, role, is_active)
       VALUES (?, ?, ?, ?, ?, ?, ?, TRUE)
     `;
-    
+
     const [result] = await db.execute(sql, [
       firstName,
       lastName,
@@ -43,7 +53,7 @@ const User = {
       address || null,
       role || 'customer'
     ]);
-    
+
     return result;
   },
 
@@ -76,6 +86,26 @@ const User = {
   // Verify password
   async verifyPassword(plainPassword, hashedPassword) {
     return bcrypt.compare(plainPassword, hashedPassword);
+  },
+
+  // Save reset code
+  async saveResetCode(email, code, expires) {
+    const sql = 'UPDATE users SET reset_password_code = ?, reset_password_expires = ? WHERE email = ?';
+    await db.execute(sql, [code, expires, email]);
+  },
+
+  // Verify reset code
+  async verifyResetCode(email, code) {
+    const sql = 'SELECT * FROM users WHERE email = ? AND reset_password_code = ? AND reset_password_expires > NOW()';
+    const [rows] = await db.execute(sql, [email, code]);
+    return rows[0];
+  },
+
+  // Reset password
+  async resetPassword(email, newPassword) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const sql = 'UPDATE users SET password = ?, reset_password_code = NULL, reset_password_expires = NULL WHERE email = ?';
+    await db.execute(sql, [hashedPassword, email]);
   }
 };
 

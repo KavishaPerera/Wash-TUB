@@ -1,10 +1,15 @@
 import { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './ForgotPassword.css';
 
 const VerifyCode = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const email = location.state?.email;
+
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
     const inputRefs = useRef([]);
 
     const handleChange = (index, value) => {
@@ -40,16 +45,73 @@ const VerifyCode = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Navigate to set new password page
-        navigate('/set-new-password');
+        setIsLoading(true);
+        setError('');
+
+        const code = otp.join('');
+        if (code.length !== 6) {
+            setError('Please enter the 6-digit code');
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/verify-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, code })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                navigate('/set-new-password', { state: { email } });
+            } else {
+                setError(data.message || 'Invalid code');
+            }
+        } catch (err) {
+            setError('Failed to connect to server');
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleResend = () => {
-        // Resend code logic here
-        alert('Verification code resent!');
+    const handleResend = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('Verification code resent!');
+            } else {
+                alert(data.message);
+            }
+        } catch (err) {
+            alert('Failed to resend code');
+        }
     };
+
+    if (!email) {
+        return (
+            <div className="password-page">
+                <div className="password-container">
+                    <div className="password-card">
+                        <h2>Error</h2>
+                        <p>No email provided. Please start from the beginning.</p>
+                        <Link to="/forgot-password" className="btn-reset" style={{ textAlign: 'center', textDecoration: 'none' }}>
+                            Go to Forgot Password
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="password-page">
@@ -62,7 +124,9 @@ const VerifyCode = () => {
                     </div>
 
                     <h2>Verify Code</h2>
-                    <p className="subtitle">Enter the 6-digit code sent to your email address.</p>
+                    <p className="subtitle">Enter the 6-digit code sent to {email}</p>
+
+                    {error && <div className="error-message" style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
 
                     <form onSubmit={handleSubmit}>
                         <div className="otp-container">
@@ -82,8 +146,8 @@ const VerifyCode = () => {
                             ))}
                         </div>
 
-                        <button type="submit" className="btn-reset">
-                            Verify Code
+                        <button type="submit" className="btn-reset" disabled={isLoading}>
+                            {isLoading ? 'Verifying...' : 'Verify Code'}
                         </button>
                     </form>
 

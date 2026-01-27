@@ -3,11 +3,12 @@ const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const authMiddleware = require('../middleware/auth.middleware');
 
-// Public routes
+// Auth routes
 router.post('/register', authController.register);
 router.post('/login', authController.login);
-
-// Protected routes
-router.get('/profile', authMiddleware.verifyToken, authController.getProfile);
+router.get('/me', authMiddleware.verifyToken, authController.getProfile);
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/verify-code', authController.verifyCode);
+router.post('/reset-password', authController.resetPassword);
 
 module.exports = router;

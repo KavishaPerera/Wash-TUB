@@ -24,8 +24,8 @@ const authController = {
 
       // Validate required fields
       if (!firstName || !lastName || !email || !password) {
-        return res.status(400).json({ 
-          message: 'First name, last name, email, and password are required' 
+        return res.status(400).json({
+          message: 'First name, last name, email, and password are required'
         });
       }
 
@@ -157,6 +157,86 @@ const authController = {
     } catch (error) {
       console.error('Get profile error:', error);
       res.status(500).json({ message: 'Error fetching profile' });
+    }
+  },
+
+  // Forgot Password - Send OTP
+  async forgotPassword(req, res) {
+    try {
+      const { email } = req.body;
+
+      const user = await User.findByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: 'User with this email does not exist' });
+      }
+
+      // Generate 6 digit code
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      // Expires in 1 hour
+      const expires = new Date(Date.now() + 3600000);
+
+      await User.saveResetCode(email, code, expires);
+
+      // Send email
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Password Reset Code - WashTub',
+        text: `Your password reset code is: ${code}\n\nThis code will expire in 1 hour.\n\nIf you did not request this, please ignore this email.`
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      res.json({ success: true, message: 'Verification code sent to your email' });
+
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      res.status(500).json({ message: 'Error sending verification code' });
+    }
+  },
+
+  // Verify Reset Code
+  async verifyCode(req, res) {
+    try {
+      const { email, code } = req.body;
+
+      const user = await User.verifyResetCode(email, code);
+      if (!user) {
+        return res.status(400).json({ message: 'Invalid or expired verification code' });
+      }
+
+      res.json({ success: true, message: 'Code verified successfully' });
+    } catch (error) {
+      console.error('Verify code error:', error);
+      res.status(500).json({ message: 'Error verifying code' });
+    }
+  },
+
+  // Reset Password
+  async resetPassword(req, res) {
+    try {
+      const { email, newPassword } = req.body;
+
+      // Basic validation
+      if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters' });
+      }
+
+      await User.resetPassword(email, newPassword);
+
+      res.json({ success: true, message: 'Password has been reset successfully' });
+    } catch (error) {
+      console.error('Reset password error:', error);
+      res.status(500).json({ message: 'Error resetting password' });
     }
   }
 };

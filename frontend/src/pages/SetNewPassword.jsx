@@ -1,15 +1,20 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './ForgotPassword.css';
 
 const SetNewPassword = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const email = location.state?.email;
+
     const [formData, setFormData] = useState({
         newPassword: '',
         confirmPassword: ''
     });
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         setFormData({
@@ -18,11 +23,62 @@ const SetNewPassword = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Navigate to password reset success page
-        navigate('/password-reset');
+        setIsLoading(true);
+        setError('');
+
+        if (formData.newPassword !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            setIsLoading(false);
+            return;
+        }
+
+        if (formData.newPassword.length < 6) {
+            setError('Password must be at least 6 characters');
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, newPassword: formData.newPassword })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Navigate to login with success message if possible, or maybe a success page
+                navigate('/signin');
+                // Alternatively, could navigate to a success page, but we'll go to signin for now
+            } else {
+                setError(data.message || 'Failed to reset password');
+            }
+        } catch (err) {
+            setError('Failed to connect to server');
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+    if (!email) {
+        return (
+            <div className="password-page">
+                <div className="password-container">
+                    <div className="password-card">
+                        <h2>Error</h2>
+                        <p>No email provided. Please start from the beginning.</p>
+                        <Link to="/forgot-password" className="btn-reset" style={{ textAlign: 'center', textDecoration: 'none' }}>
+                            Go to Forgot Password
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="password-page">
@@ -36,6 +92,8 @@ const SetNewPassword = () => {
 
                     <h2>Set New Password</h2>
                     <p className="subtitle">Your new password must be different from previously used passwords.</p>
+
+                    {error && <div className="error-message" style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
 
                     <form className="password-form" onSubmit={handleSubmit}>
                         <div className="form-group">
@@ -102,8 +160,8 @@ const SetNewPassword = () => {
                             </div>
                         </div>
 
-                        <button type="submit" className="btn-reset">
-                            Reset Password
+                        <button type="submit" className="btn-reset" disabled={isLoading}>
+                            {isLoading ? 'Resetting Password...' : 'Reset Password'}
                         </button>
                     </form>
 
