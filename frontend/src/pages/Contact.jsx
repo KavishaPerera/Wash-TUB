@@ -35,8 +35,8 @@ const Contact = () => {
                                     </div>
                                     <div className="info-details">
                                         <h3>Phone</h3>
-                                        <p>+94 11 234 5678</p>
-                                        <p>+94 77 123 4567</p>
+                                        <p>+94 11 452 8476</p>
+                                        <p>+94 77 643 9276</p>
                                     </div>
                                 </div>
 
@@ -57,8 +57,8 @@ const Contact = () => {
                                     </div>
                                     <div className="info-details">
                                         <h3>Main Office</h3>
-                                        <p>123 Laundry Lane,</p>
-                                        <p>Colombo 03, Sri Lanka</p>
+                                        <p>478/A, Pannipitiya Rd,</p>
+                                        <p>Pelawatta, Sri Lanka</p>
                                     </div>
                                 </div>
 
@@ -80,19 +80,19 @@ const Contact = () => {
                                 <h2>Send us a Message</h2>
                                 <div className="form-group">
                                     <label>Your Name</label>
-                                    <input type="text" placeholder="John Doe" />
+                                    <input type="text" placeholder="Enter your name" />
                                 </div>
                                 <div className="form-group">
                                     <label>Email Address</label>
-                                    <input type="email" placeholder="john@example.com" />
+                                    <input type="email" placeholder="Enter your email" />
                                 </div>
                                 <div className="form-group">
                                     <label>Subject</label>
-                                    <input type="text" placeholder="How can we help?" />
+                                    <input type="text" placeholder="Enter your subject" />
                                 </div>
                                 <div className="form-group">
                                     <label>Message</label>
-                                    <textarea rows="5" placeholder="Your message here..."></textarea>
+                                    <textarea rows="5" placeholder="Enter your message"></textarea>
                                 </div>
                                 <button type="submit" className="btn btn-primary submit-btn">
                                     Send Message <Send size={18} />
