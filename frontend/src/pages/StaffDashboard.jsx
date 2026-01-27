@@ -74,9 +74,9 @@ const StaffDashboard = () => {
                             <button className="btn btn-secondary btn-small">View</button>
                         </div>
                         <div className="action-card">
-                            <h3>Report Issue</h3>
-                            <p>Report any problems with orders</p>
-                            <button className="btn btn-secondary btn-small">Report</button>
+                            <h3>Notification</h3>
+                            <p>Send notification to customer</p>
+                            <button className="btn btn-secondary btn-small">Send</button>
                         </div>
                     </div>
                 </section>
