@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Profile.css';
+import './CustomerDashboard.css'; // Use shared dashboard styles
+import './Profile.css'; // Additional profile-specific styles
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -36,7 +37,7 @@ const Profile = () => {
             [name]: value
         }));
     };
-  
+
     const handleSaveProfile = (e) => {
         e.preventDefault();
         // Save profile logic here
@@ -62,9 +63,9 @@ const Profile = () => {
     };
 
     return (
-        <div className="profile-page">
+        <div className="dashboard">
             {/* Sidebar */}
-            <aside className="profile-sidebar">
+            <aside className="dashboard-sidebar">
                 <div className="sidebar-header">
                     <h2 className="logo">WashTub</h2>
                 </div>
@@ -93,8 +94,8 @@ const Profile = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="profile-main">
-                <header className="profile-header">
+            <main className="dashboard-main">
+                <header className="dashboard-header">
                     <div className="header-content">
                         <div className="header-left">
                             <h1>My Profile</h1>

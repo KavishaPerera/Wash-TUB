@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Notifications.css';
+import './CustomerDashboard.css'; // Use shared dashboard styles
+import './Notifications.css'; // Additional notification-specific styles
 
 const Notifications = () => {
     const navigate = useNavigate();
@@ -122,9 +123,9 @@ const Notifications = () => {
     };
 
     return (
-        <div className="notifications-page">
+        <div className="dashboard">
             {/* Sidebar */}
-            <aside className="notif-sidebar">
+            <aside className="dashboard-sidebar">
                 <div className="sidebar-header">
                     <h2 className="logo">WashTub</h2>
                 </div>
@@ -139,9 +140,9 @@ const Notifications = () => {
                     <Link to="/new-order" className="nav-item">
                         <span>New Order</span>
                     </Link>
-                    <a href="#profile" className="nav-item">
+                    <Link to="/profile" className="nav-item">
                         <span>Profile</span>
-                    </a>
+                    </Link>
                     <a href="#" className="nav-item active">
                         <span>Notifications</span>
                         {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
@@ -154,8 +155,8 @@ const Notifications = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="notif-main">
-                <header className="notif-header">
+            <main className="dashboard-main">
+                <header className="dashboard-header">
                     <div className="header-content">
                         <div className="header-left">
                             <h1>Notifications</h1>
