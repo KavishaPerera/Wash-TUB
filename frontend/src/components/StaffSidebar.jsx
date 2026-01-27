@@ -25,9 +25,9 @@ const StaffSidebar = ({ activePage }) => {
                     <span>Point of Sale</span>
                 </Link>
 
-                <a href="#profile" className={`nav-item ${activePage === 'profile' ? 'active' : ''}`}>
+                <Link to="/staff/profile" className={`nav-item ${activePage === 'profile' ? 'active' : ''}`}>
                     <span>Profile</span>
-                </a>
+                </Link>
             </nav>
 
             <button className="logout-btn" onClick={handleLogout}>
