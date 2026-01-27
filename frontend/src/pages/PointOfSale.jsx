@@ -78,7 +78,8 @@ const PointOfSale = () => {
     const [activeCategory, setActiveCategory] = useState('all');
     const [cart, setCart] = useState([]);
     const [customerDetails, setCustomerDetails] = useState({
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         phone: ''
     });
@@ -150,13 +151,14 @@ const PointOfSale = () => {
             alert('Cart is empty!');
             return;
         }
-        if (!customerDetails.name || !customerDetails.phone || !customerDetails.email) {
-            alert('Please enter customer details (Name, Email, Phone).');
+        if (!customerDetails.firstName || !customerDetails.lastName || !customerDetails.phone || !customerDetails.email) {
+            alert('Please enter all customer details (First Name, Last Name, Email, Phone).');
             return;
         }
-        alert(`Order created for ${customerDetails.name}! Total: LKR ${calculateTotal()}`);
+        const fullName = `${customerDetails.firstName} ${customerDetails.lastName}`;
+        alert(`Order created for ${fullName}! Total: LKR ${calculateTotal()}`);
         setCart([]);
-        setCustomerDetails({ name: '', email: '', phone: '' });
+        setCustomerDetails({ firstName: '', lastName: '', email: '', phone: '' });
     };
 
     return (
@@ -219,13 +221,23 @@ const PointOfSale = () => {
 
                 <div className="customer-section">
                     <h3><User size={16} /> Customer Details</h3>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            placeholder="Customer Name"
-                            value={customerDetails.name}
-                            onChange={(e) => setCustomerDetails({ ...customerDetails, name: e.target.value })}
-                        />
+                    <div className="name-inputs-row" style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                        <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
+                            <input
+                                type="text"
+                                placeholder="First Name"
+                                value={customerDetails.firstName}
+                                onChange={(e) => setCustomerDetails({ ...customerDetails, firstName: e.target.value })}
+                            />
+                        </div>
+                        <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
+                            <input
+                                type="text"
+                                placeholder="Last Name"
+                                value={customerDetails.lastName}
+                                onChange={(e) => setCustomerDetails({ ...customerDetails, lastName: e.target.value })}
+                            />
+                        </div>
                     </div>
                     <div className="input-group">
                         <input
