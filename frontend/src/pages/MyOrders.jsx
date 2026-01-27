@@ -1,34 +1,28 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './MyOrders.css';
+import './CustomerDashboard.css'; // Use shared dashboard styles
 
 const MyOrders = () => {
     const navigate = useNavigate();
     const [activeFilter, setActiveFilter] = useState('all');
 
     const orders = [
-        { id: 'ORD-1234', service: 'Wash & Fold', date: 'Jan 20, 2026', status: 'processing', amount: 'Rs.450', items: '5 kg' },
-        { id: 'ORD-1233', service: 'Dry Cleaning', date: 'Jan 18, 2026', status: 'completed', amount: 'Rs.850', items: '3 items' },
-        { id: 'ORD-1232', service: 'Iron & Press', date: 'Jan 15, 2026', status: 'delivered', amount: 'Rs.300', items: '8 items' },
-        { id: 'ORD-1231', service: 'Wash & Fold', date: 'Jan 12, 2026', status: 'completed', amount: 'Rs.500', items: '4 kg' },
-        { id: 'ORD-1230', service: 'Premium Care', date: 'Jan 10, 2026', status: 'delivered', amount: 'Rs.1200', items: '2 items' },
-        { id: 'ORD-1229', service: 'Dry Cleaning', date: 'Jan 08, 2026', status: 'completed', amount: 'Rs.650', items: '4 items' },
-        { id: 'ORD-1228', service: 'Wash & Fold', date: 'Jan 05, 2026', status: 'delivered', amount: 'Rs.380', items: '3 kg' },
-        { id: 'ORD-1227', service: 'Iron & Press', date: 'Jan 02, 2026', status: 'cancelled', amount: 'Rs.250', items: '6 items' },
+        { id: 'ORD-1234', service: 'Wash & Fold', date: 'Jan 20, 2026', status: 'Processing', amount: 'Rs.450', items: '5 kg' },
+        { id: 'ORD-1233', service: 'Dry Cleaning', date: 'Jan 18, 2026', status: 'Completed', amount: 'Rs.850', items: '3 items' },
+        { id: 'ORD-1232', service: 'Iron & Press', date: 'Jan 15, 2026', status: 'Delivered', amount: 'Rs.300', items: '8 items' },
+        { id: 'ORD-1231', service: 'Wash & Fold', date: 'Jan 12, 2026', status: 'Completed', amount: 'Rs.500', items: '4 kg' },
+        { id: 'ORD-1230', service: 'Premium Care', date: 'Jan 10, 2026', status: 'Delivered', amount: 'Rs.1200', items: '2 items' },
+        { id: 'ORD-1229', service: 'Dry Cleaning', date: 'Jan 08, 2026', status: 'Completed', amount: 'Rs.650', items: '4 items' },
+        { id: 'ORD-1228', service: 'Wash & Fold', date: 'Jan 05, 2026', status: 'Delivered', amount: 'Rs.380', items: '3 kg' },
+        { id: 'ORD-1227', service: 'Iron & Press', date: 'Jan 02, 2026', status: 'Cancelled', amount: 'Rs.250', items: '6 items' },
     ];
 
     const filteredOrders = activeFilter === 'all'
         ? orders
-        : orders.filter(order => order.status === activeFilter);
+        : orders.filter(order => order.status.toLowerCase() === activeFilter);
 
     const getStatusClass = (status) => {
-        const statusClasses = {
-            processing: 'status-processing',
-            completed: 'status-completed',
-            delivered: 'status-delivered',
-            cancelled: 'status-cancelled'
-        };
-        return statusClasses[status] || '';
+        return `status-${status.toLowerCase()}`;
     };
 
     const handleLogout = () => {
@@ -36,9 +30,9 @@ const MyOrders = () => {
     };
 
     return (
-        <div className="my-orders-page">
+        <div className="dashboard">
             {/* Sidebar */}
-            <aside className="orders-sidebar">
+            <aside className="dashboard-sidebar">
                 <div className="sidebar-header">
                     <h2 className="logo">WashTub</h2>
                 </div>
@@ -53,12 +47,12 @@ const MyOrders = () => {
                     <Link to="/new-order" className="nav-item">
                         <span>New Order</span>
                     </Link>
-                    <a href="#profile" className="nav-item">
+                    <Link to="/profile" className="nav-item">
                         <span>Profile</span>
-                    </a>
-                    <a href="#notifications" className="nav-item">
+                    </Link>
+                    <Link to="/notifications" className="nav-item">
                         <span>Notifications</span>
-                    </a>
+                    </Link>
                 </nav>
 
                 <button className="logout-btn" onClick={handleLogout}>
@@ -67,8 +61,8 @@ const MyOrders = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="orders-main">
-                <header className="orders-header">
+            <main className="dashboard-main">
+                <header className="dashboard-header">
                     <div className="header-content">
                         <div className="header-left">
                             <h1>My Orders</h1>
@@ -114,48 +108,9 @@ const MyOrders = () => {
                     </button>
                 </div>
 
-                {/* Orders List */}
-                <section className="orders-list-section">
-                    <div className="orders-table-container">
-                        <table className="orders-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Service</th>
-                                    <th>Items</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Amount</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredOrders.map(order => (
-                                    <tr key={order.id}>
-                                        <td className="order-id">{order.id}</td>
-                                        <td>{order.service}</td>
-                                        <td>{order.items}</td>
-                                        <td>{order.date}</td>
-                                        <td>
-                                            <span className={`status-badge ${getStatusClass(order.status)}`}>
-                                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                            </span>
-                                        </td>
-                                        <td className="order-amount">{order.amount}</td>
-                                        <td>
-                                            {order.status === 'processing' ? (
-                                                <button className="btn-action btn-track">Track</button>
-                                            ) : (
-                                                <button className="btn-action btn-view">View</button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {filteredOrders.length === 0 && (
+                {/* Orders Grid */}
+                <section className="orders-section">
+                    {filteredOrders.length === 0 ? (
                         <div className="no-orders">
                             <span className="no-orders-icon">📦</span>
                             <h3>No orders found</h3>
@@ -164,26 +119,39 @@ const MyOrders = () => {
                                 Place Your First Order
                             </button>
                         </div>
+                    ) : (
+                        <div className="orders-grid">
+                            {filteredOrders.map((order) => (
+                                <div key={order.id} className="order-card">
+                                    <div className="order-header">
+                                        <span className="order-id">{order.id}</span>
+                                        <span className={`order-status ${getStatusClass(order.status)}`}>{order.status}</span>
+                                    </div>
+                                    <div className="order-details">
+                                        <h3>{order.service}</h3>
+                                        <p>📦 {order.items}</p>
+                                        <p>📅 {order.date}</p>
+                                        <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+                                            💰 {order.amount}
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+                                        <span className={`order-type type-${order.status === 'Processing' ? 'pickup' : 'delivery'}`}>
+                                            {order.status === 'Processing' ? 'Pickup' : 'Delivery'}
+                                        </span>
+                                    </div>
+                                    <div className="card-actions">
+                                        <button className="btn-card-outline">Details</button>
+                                        <button className="btn-card-primary">
+                                            {order.status === 'Processing' ? 'Track Order' : 'View Receipt'}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     )}
                 </section>
 
-                {/* Order Summary */}
-                <section className="order-summary-section">
-                    <div className="summary-cards">
-                        <div className="summary-card">
-                            <span className="summary-value">{orders.length}</span>
-                            <span className="summary-label">Total Orders</span>
-                        </div>
-                        <div className="summary-card">
-                            <span className="summary-value">{orders.filter(o => o.status === 'processing').length}</span>
-                            <span className="summary-label">In Progress</span>
-                        </div>
-                        <div className="summary-card">
-                            <span className="summary-value">{orders.filter(o => o.status === 'completed' || o.status === 'delivered').length}</span>
-                            <span className="summary-label">Completed</span>
-                        </div>
-                    </div>
-                </section>
             </main>
         </div>
     );
