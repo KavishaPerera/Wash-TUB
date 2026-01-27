@@ -18,7 +18,7 @@
 }
 
 .contact-hero-content .gradient-text {
-    background: linear-gradient(135deg, #4db6ac 0%, #80cbc4 100%);
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
