@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import CustomizeModal from '../components/CustomizeModal';
 import './Pricing.css';
 
@@ -101,61 +103,68 @@ const Pricing = () => {
 
     return (
         <div className="pricing-page">
-            <div className="pricing-container">
-                <div className="pricing-top-nav">
-                    <Link to="/" className="back-home-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg>
-                        Back to Home
-                    </Link>
-                </div>
+            <Navbar />
 
-                <div className="pricing-header">
-                    <h1>Price List</h1>
-                    <p>Select items to add to your basket</p>
+            {/* Hero Section */}
+            <section className="pricing-hero">
+                <div className="pricing-hero-content">
+                    <h1>Detailed <span className="gradient-text">Pricing</span></h1>
+                    <p>Transparent and affordable rates for all your laundry needs</p>
                 </div>
+            </section>
 
-                <div className="category-tabs">
-                    {categories.map((category) => (
-                        <button
-                            key={category.id}
-                            className={`category-tab ${activeCategory === category.id ? 'active' : ''}`}
-                            onClick={() => setActiveCategory(category.id)}
-                        >
-                            {category.name}
-                        </button>
-                    ))}
-                </div>
+            {/* Main Content */}
+            <section className="pricing-section">
+                <div className="pricing-container">
 
-                <div className="items-grid">
-                    {filteredItems.map((item) => (
-                        <div key={item.id} className="item-card">
-                            <div className="item-info">
-                                <div className="item-details">
-                                    <div className="item-name">{item.name}</div>
-                                    <div className="item-price">LKR {item.price.toFixed(2)}</div>
+                    {/* Category Tabs */}
+                    <div className="category-tabs">
+                        {categories.map((category) => (
+                            <button
+                                key={category.id}
+                                className={`category-tab ${activeCategory === category.id ? 'active' : ''}`}
+                                onClick={() => setActiveCategory(category.id)}
+                            >
+                                {category.name}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Items Grid */}
+                    <div className="items-grid">
+                        {filteredItems.map((item) => (
+                            <div key={item.id} className="item-card">
+                                <div className="item-info">
+                                    <div className="item-details">
+                                        <div className="item-name">{item.name}</div>
+                                        <div className="item-price">LKR {item.price.toFixed(2)}</div>
+                                    </div>
+                                    <button
+                                        className="btn-add"
+                                        onClick={() => handleAddClick(item)}
+                                    >
+                                        Add
+                                    </button>
                                 </div>
-                                <button
-                                    className="btn-add"
-                                    onClick={() => handleAddClick(item)}
-                                >
-                                    Add
-                                </button>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div className="basket-footer">
-                <div className="basket-total">
-                    Total : LKR {totalAmount.toFixed(2)}
+            {/* Floating Basket Footer */}
+            {basket.length > 0 && (
+                <div className="basket-footer">
+                    <div className="basket-total">
+                        Total : LKR {totalAmount.toFixed(2)}
+                    </div>
+                    <button className="btn-basket" onClick={() => navigate('/cart', { state: { basket } })}>
+                        Your Basket ({basket.length})
+                    </button>
                 </div>
-                <button className="btn-basket" onClick={() => navigate('/cart', { state: { basket } })}>
-                    Your Basket ({basket.length})
-                </button>
-            </div>
+            )}
+
+            <Footer />
 
             {showModal && selectedItem && (
                 <CustomizeModal
@@ -169,4 +178,3 @@ const Pricing = () => {
 };
 
 export default Pricing;
-
