@@ -15,6 +15,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import DeliveryDashboard from './pages/DeliveryDashboard';
 import StaffAllTasks from './pages/StaffAllTasks';
 import StaffProfile from './pages/StaffProfile';
+import StaffUpdateOrder from './pages/StaffUpdateOrder';
 import PointOfSale from './pages/PointOfSale';
 import NewOrder from './pages/NewOrder';
 import MyOrders from './pages/MyOrders';
@@ -63,6 +64,7 @@ function App() {
           <Route path="/staff/tasks" element={<StaffAllTasks />} />
           <Route path="/staff/pos" element={<PointOfSale />} />
           <Route path="/staff/profile" element={<StaffProfile />} />
+          <Route path="/staff/update-order" element={<StaffUpdateOrder />} />
           <Route path="/new-order" element={<NewOrder />} />
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/notifications" element={<Notifications />} />

@@ -66,7 +66,7 @@ const StaffDashboard = () => {
                         <div className="action-card">
                             <h3>Update Order Status</h3>
                             <p>Mark orders as processed or ready</p>
-                            <button className="btn btn-secondary btn-small">Update</button>
+                            <button className="btn btn-secondary btn-small" onClick={() => navigate('/staff/update-order')}>Update</button>
                         </div>
                         <div className="action-card">
                             <h3>View Schedule</h3>
