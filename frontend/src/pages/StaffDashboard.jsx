@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import StaffSidebar from '../components/StaffSidebar';
 import './StaffDashboard.css';
 
 const StaffDashboard = () => {
@@ -13,30 +14,7 @@ const StaffDashboard = () => {
     return (
         <div className="dashboard">
             {/* Sidebar */}
-            <aside className="dashboard-sidebar">
-                <div className="sidebar-header">
-                    <h2 className="logo">WashTub</h2>
-                </div>
-
-                <nav className="sidebar-nav">
-                    <Link to="/staff-dashboard" className="nav-item active">
-                        <span>Overview</span>
-                    </Link>
-                    <Link to="/staff/pos" className="nav-item">
-                        <span>Point of Sale</span>
-                    </Link>
-                    <a href="#completed" className="nav-item">
-                        <span>Completed</span>
-                    </a>
-                    <a href="#profile" className="nav-item">
-                        <span>Profile</span>
-                    </a>
-                </nav>
-
-                <button className="logout-btn" onClick={handleLogout}>
-                    <span>Logout</span>
-                </button>
-            </aside>
+            <StaffSidebar activePage="overview" />
 
             {/* Main Content */}
             <main className="dashboard-main">
@@ -47,7 +25,7 @@ const StaffDashboard = () => {
                             <h1>Welcome, {staffName}!</h1>
                             <p>Manage assigned orders and tasks</p>
                         </div>
-                        <button className="btn btn-primary">
+                        <button className="btn btn-primary" onClick={() => navigate('/staff/tasks')}>
                             View All Tasks
                         </button>
                     </div>
