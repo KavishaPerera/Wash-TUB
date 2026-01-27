@@ -24,9 +24,7 @@ const StaffSidebar = ({ activePage }) => {
                 <Link to="/staff/pos" className={`nav-item ${activePage === 'pos' ? 'active' : ''}`}>
                     <span>Point of Sale</span>
                 </Link>
-                <a href="#completed" className={`nav-item ${activePage === 'completed' ? 'active' : ''}`}>
-                    <span>Completed</span>
-                </a>
+
                 <a href="#profile" className={`nav-item ${activePage === 'profile' ? 'active' : ''}`}>
                     <span>Profile</span>
                 </a>
