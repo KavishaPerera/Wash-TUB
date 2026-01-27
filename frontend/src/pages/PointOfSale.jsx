@@ -378,7 +378,7 @@ const PointOfSale = () => {
                                 <label>Balance: <strong>LKR {(parseFloat(amountGiven) - calculateTotal()).toFixed(2)}</strong></label>
                             </div>
                         )}
-                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                             <button className="btn btn-secondary" onClick={() => setIsPaymentModalOpen(false)} style={{ flex: 1 }}>Cancel</button>
                             <button className="btn btn-primary" onClick={handleConfirmPayment} style={{ flex: 1 }}>Generate Receipt</button>
                         </div>
