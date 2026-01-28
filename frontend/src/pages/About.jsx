@@ -122,21 +122,6 @@ const About = () => {
             </section>
 
 
-
-            {/* CTA Section */}
-            <section className="about-cta">
-                <div className="about-container">
-                    <div className="cta-content">
-                        <h2>Ready to Experience the WashTub Difference?</h2>
-                        <p>Join thousands of satisfied customers today</p>
-                        <div className="cta-buttons">
-                            <Link to="/signup" className="btn btn-primary">Get Started Free</Link>
-                            <Link to="/pricing" className="btn btn-secondary">View Pricing</Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
             <Footer />
         </div>
     );
