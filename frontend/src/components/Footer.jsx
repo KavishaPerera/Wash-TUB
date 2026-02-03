@@ -56,11 +56,13 @@ const Footer = () => {
                     <div className="footer-section">
                         <h4 className="footer-heading">Services</h4>
                         <ul className="footer-links">
-                            <li><a href="#">Wash & Fold</a></li>
+                            <li><a href="#">Wash & Dry</a></li>
                             <li><a href="#">Dry Cleaning</a></li>
                             <li><a href="#">Ironing</a></li>
+                            <li><a href="#">Pressing</a></li>
+                            <li><a href="#">One day service</a></li>
                             <li><a href="#">Pickup & Delivery</a></li>
-                            <li><a href="#">Commercial</a></li>
+
                         </ul>
                     </div>
 
