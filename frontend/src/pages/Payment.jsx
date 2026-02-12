@@ -1,20 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Payment.css';
+import './CustomerDashboard.css';
 
 const Payment = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [payments] = useState([
-        { id: 'PAY-001', orderId: 'ORD-1234', customer: 'Amandi Perera', amount: 'Rs. 750', method: 'Card', date: 'Jan 24, 2026', status: 'completed' },
-        { id: 'PAY-002', orderId: 'ORD-1235', customer: 'Bandu Perera', amount: 'Rs. 1,200', method: 'Cash', date: 'Jan 24, 2026', status: 'completed' },
-        { id: 'PAY-003', orderId: 'ORD-1236', customer: 'Nimal Fernando', amount: 'Rs. 480', method: 'Card', date: 'Jan 23, 2026', status: 'completed' },
-        { id: 'PAY-004', orderId: 'ORD-1237', customer: 'Supun Pinto', amount: 'Rs. 2,500', method: 'Bank Transfer', date: 'Jan 23, 2026', status: 'pending' },
-        { id: 'PAY-005', orderId: 'ORD-1238', customer: 'Kasun Silva', amount: 'Rs. 1,500', method: 'Card', date: 'Jan 22, 2026', status: 'completed' },
-        { id: 'PAY-006', orderId: 'ORD-1239', customer: 'Nilantha Pieris', amount: 'Rs. 1,800', method: 'Cash', date: 'Jan 22, 2026', status: 'refunded' },
-        { id: 'PAY-007', orderId: 'ORD-1240', customer: 'Ruwan Jayasena', amount: 'Rs. 800', method: 'Card', date: 'Jan 21, 2026', status: 'completed' },
-        { id: 'PAY-008', orderId: 'ORD-1241', customer: 'Amandi Perera', amount: 'Rs. 360', method: 'Cash', date: 'Jan 21, 2026', status: 'pending' },
+        { id: 'PAY-001', orderId: 'ORD-001', customer: 'Amandi Perera', amount: 'Rs. 1,500', method: 'card', status: 'completed', date: 'Jan 15, 2026' },
+        { id: 'PAY-002', orderId: 'ORD-003', customer: 'Nilantha Pieris', amount: 'Rs. 800', method: 'cash', status: 'pending', date: 'Jan 16, 2026' },
+        { id: 'PAY-003', orderId: 'ORD-004', customer: 'Bandu Perera', amount: 'Rs. 3,500', method: 'bank', status: 'completed', date: 'Jan 14, 2026' },
+        { id: 'PAY-004', orderId: 'ORD-005', customer: 'Supun Mendis', amount: 'Rs. 3,000', method: 'card', status: 'failed', date: 'Jan 10, 2026' },
+        { id: 'PAY-005', orderId: 'ORD-006', customer: 'Ruwan Jayasena', amount: 'Rs. 1,200', method: 'cash', status: 'refunded', date: 'Jan 12, 2026' },
     ]);
 
     const handleLogout = () => {
@@ -22,47 +19,35 @@ const Payment = () => {
     };
 
     const filteredPayments = payments.filter(payment => {
-        const matchesSearch = payment.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            payment.orderId.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            payment.customer.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'all' || payment.status === filterStatus;
         return matchesSearch && matchesStatus;
     });
 
-    const getStatusClass = (status) => {
+    const getStatusBadgeClass = (status) => {
         const classes = {
             pending: 'status-pending',
             completed: 'status-completed',
-            refunded: 'status-refunded',
-            failed: 'status-failed'
+            failed: 'status-failed',
+            refunded: 'status-refunded'
         };
         return classes[status] || '';
     };
 
-    const getMethodClass = (method) => {
+    const getMethodBadgeClass = (method) => {
         const classes = {
-            'Card': 'method-card',
-            'Cash': 'method-cash',
-            'Bank Transfer': 'method-bank'
+            card: 'method-card',
+            cash: 'method-cash',
+            bank: 'method-bank'
         };
         return classes[method] || '';
     };
 
-    // Calculate totals
-    const totalRevenue = payments.filter(p => p.status === 'completed').reduce((sum, p) => {
-        const amount = parseInt(p.amount.replace(/[^0-9]/g, ''));
-        return sum + amount;
-    }, 0);
-
-    const pendingAmount = payments.filter(p => p.status === 'pending').reduce((sum, p) => {
-        const amount = parseInt(p.amount.replace(/[^0-9]/g, ''));
-        return sum + amount;
-    }, 0);
-
     return (
-        <div className="payment-page">
+        <div className="dashboard">
             {/* Sidebar */}
-            <aside className="payment-sidebar">
+            <aside className="dashboard-sidebar">
                 <div className="sidebar-header">
                     <h2 className="logo">WashTub</h2>
                 </div>
@@ -94,30 +79,42 @@ const Payment = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="payment-main">
-                <header className="payment-header">
+            <main className="dashboard-main">
+                <header className="dashboard-header">
                     <div className="header-content">
                         <div className="header-left">
-                            <h1>Payment Management</h1>
-                            <p>Track and manage all payment transactions</p>
+                            <h1>Payments</h1>
+                            <p>Monitor transactions and revenue</p>
                         </div>
                     </div>
                 </header>
 
-                <div className="payment-content">
+                <div className="dashboard-content">
                     {/* Stats Cards */}
-                    <section className="stats-grid">
+                    <section className="stats-section">
                         <div className="stat-card">
-                            <span className="stat-value">{payments.length}</span>
-                            <span className="stat-label">Total Transactions</span>
-                        </div>
-                        <div className="stat-card stat-revenue">
-                            <span className="stat-value">Rs. {totalRevenue.toLocaleString()}</span>
-                            <span className="stat-label">Total Revenue</span>
+                            <div className="stat-info">
+                                <p className="stat-label">Total Transactions</p>
+                                <h3 className="stat-value">{payments.length}</h3>
+                            </div>
                         </div>
                         <div className="stat-card">
-                            <span className="stat-value">{payments.filter(p => p.status === 'completed').length}</span>
-                            <span className="stat-label">Completed</span>
+                            <div className="stat-info">
+                                <p className="stat-label">Total Revenue</p>
+                                <h3 className="stat-value" style={{ color: '#34c759' }}>Rs. 10,000</h3>
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-info">
+                                <p className="stat-label">Pending Payments</p>
+                                <h3 className="stat-value" style={{ color: '#ff9500' }}>{payments.filter(p => p.status === 'pending').length}</h3>
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-info">
+                                <p className="stat-label">Failed/Refunded</p>
+                                <h3 className="stat-value" style={{ color: '#ff3b30' }}>{payments.filter(p => p.status === 'failed' || p.status === 'refunded').length}</h3>
+                            </div>
                         </div>
                     </section>
 
@@ -126,7 +123,7 @@ const Payment = () => {
                         <div className="search-box">
                             <input
                                 type="text"
-                                placeholder="Search by payment ID, order ID, or customer..."
+                                placeholder="Search by Payment ID or Customer..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -151,6 +148,12 @@ const Payment = () => {
                                 Pending
                             </button>
                             <button
+                                className={`filter-tab ${filterStatus === 'failed' ? 'active' : ''}`}
+                                onClick={() => setFilterStatus('failed')}
+                            >
+                                Failed
+                            </button>
+                            <button
                                 className={`filter-tab ${filterStatus === 'refunded' ? 'active' : ''}`}
                                 onClick={() => setFilterStatus('refunded')}
                             >
@@ -160,9 +163,9 @@ const Payment = () => {
                     </section>
 
                     {/* Payments Table */}
-                    <section className="payments-table-section">
+                    <section className="dashboard-table-section">
                         <div className="table-container">
-                            <table className="payments-table">
+                            <table className="dashboard-table">
                                 <thead>
                                     <tr>
                                         <th>Payment ID</th>
@@ -170,34 +173,51 @@ const Payment = () => {
                                         <th>Customer</th>
                                         <th>Amount</th>
                                         <th>Method</th>
-                                        <th>Date</th>
                                         <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredPayments.map(payment => (
                                         <tr key={payment.id}>
-                                            <td className="payment-id">{payment.id}</td>
+                                            <td className="payment-id" style={{ fontWeight: '600', color: 'var(--color-primary-light)' }}>{payment.id}</td>
                                             <td className="order-id">{payment.orderId}</td>
                                             <td>{payment.customer}</td>
-                                            <td className="payment-amount">{payment.amount}</td>
+                                            <td className="payment-amount" style={{ fontWeight: '700', color: '#34c759' }}>{payment.amount}</td>
                                             <td>
-                                                <span className={`method-badge ${getMethodClass(payment.method)}`}>
-                                                    {payment.method}
+                                                <span className={`method-badge ${getMethodBadgeClass(payment.method)}`}>
+                                                    {payment.method.toUpperCase()}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span className={`status-badge ${getStatusBadgeClass(payment.status)}`}>
+                                                    {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                                                 </span>
                                             </td>
                                             <td>{payment.date}</td>
-                                            <td>
-                                                <span className={`status-badge ${getStatusClass(payment.status)}`}>
-                                                    {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
-                                                </span>
+                                            <td className="actions-cell">
+                                                <button
+                                                    className="btn-action btn-view"
+                                                    onClick={() => alert(`View details for ${payment.id}`)}
+                                                >
+                                                    View
+                                                </button>
+                                                {payment.status === 'completed' && (
+                                                    <button
+                                                        className="btn-action btn-refund"
+                                                        onClick={() => alert(`Initiate refund for ${payment.id}`)}
+                                                    >
+                                                        Refund
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                             {filteredPayments.length === 0 && (
-                                <div className="no-payments">
+                                <div className="no-data">
                                     <p>No payments found matching your criteria.</p>
                                 </div>
                             )}

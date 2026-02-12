@@ -1,70 +1,64 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import './CustomerDashboard.css';
 import './SystemSettings.css';
 
 const SystemSettings = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('pricing');
 
-    const [services, setServices] = useState([
-        { id: 1, name: 'Wash & Fold', pricePerKg: 50, pricePerItem: null, minOrder: 3, status: 'active' },
-        { id: 2, name: 'Dry Cleaning', pricePerKg: null, pricePerItem: 150, minOrder: 1, status: 'active' },
-        { id: 3, name: 'Iron & Press', pricePerKg: null, pricePerItem: 30, minOrder: 5, status: 'active' },
-        { id: 4, name: 'Premium Care', pricePerKg: null, pricePerItem: 200, minOrder: 1, status: 'active' },
-        { id: 5, name: 'Express Service', pricePerKg: 80, pricePerItem: null, minOrder: 2, status: 'active' },
+    // Pricing State
+    const [prices, setPrices] = useState([
+        { id: 1, service: 'Wash & Fold', price: '150.00', unit: 'per kg', minOrder: '2 kg', status: 'active' },
+        { id: 2, service: 'Dry Cleaning', price: '450.00', unit: 'per item', minOrder: '1 item', status: 'active' },
+        { id: 3, service: 'Ironing', price: '80.00', unit: 'per item', minOrder: '5 items', status: 'active' },
+        { id: 4, service: 'Curtain Cleaning', price: '350.00', unit: 'per kg', minOrder: '3 kg', status: 'inactive' },
+        { id: 5, service: 'Carpet Cleaning', price: '250.00', unit: 'per sqft', minOrder: '50 sqft', status: 'active' },
     ]);
 
-    const [businessSettings, setBusinessSettings] = useState({
-        businessName: 'WashTub Laundry',
-        email: 'info@washtub.lk',
+    // Business Info State
+    const [businessInfo, setBusinessInfo] = useState({
+        name: 'WashTub Laundry',
+        address: '123, Laundry Avenue, Colombo 03',
         phone: '+94 11 234 5678',
-        address: '123 Main Street, Colombo 03',
-        workingHours: '8:00 AM - 8:00 PM',
-        deliveryFee: 100,
-        freeDeliveryMinimum: 1000,
-        taxRate: 0
+        email: 'info@washtub.com',
+        website: 'www.washtub.com',
+        taxRate: '15',
+        currency: 'LKR'
     });
 
-    const [editingService, setEditingService] = useState(null);
+    // Delivery Settings State
+    const [deliverySettings, setDeliverySettings] = useState({
+        standardFee: '350.00',
+        freeDeliveryThreshold: '5000.00',
+        maxDistance: '15',
+        expressFee: '750.00',
+        pickupStart: '08:00',
+        pickupEnd: '18:00'
+    });
 
     const handleLogout = () => {
         navigate('/signin');
     };
 
-    const handleServiceChange = (id, field, value) => {
-        setServices(prev => prev.map(service =>
-            service.id === id ? { ...service, [field]: value } : service
+    const handlePriceChange = (id, field, value) => {
+        setPrices(prices.map(item =>
+            item.id === id ? { ...item, [field]: value } : item
         ));
     };
 
-    const handleSaveService = (id) => {
-        setEditingService(null);
-        alert('Service price updated successfully!');
+    const handleInfoChange = (e) => {
+        setBusinessInfo({ ...businessInfo, [e.target.name]: e.target.value });
     };
 
-    const handleBusinessSettingChange = (field, value) => {
-        setBusinessSettings(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
-
-    const handleSaveBusinessSettings = () => {
-        alert('Business settings saved successfully!');
-    };
-
-    const handleToggleServiceStatus = (id) => {
-        setServices(prev => prev.map(service =>
-            service.id === id
-                ? { ...service, status: service.status === 'active' ? 'inactive' : 'active' }
-                : service
-        ));
+    const handleDeliveryChange = (e) => {
+        setDeliverySettings({ ...deliverySettings, [e.target.name]: e.target.value });
     };
 
     return (
-        <div className="settings-page">
+        <div className="dashboard">
             {/* Sidebar */}
-            <aside className="settings-sidebar">
+            <aside className="dashboard-sidebar">
                 <div className="sidebar-header">
                     <h2 className="logo">WashTub</h2>
                 </div>
@@ -96,262 +90,188 @@ const SystemSettings = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="settings-main">
-                <header className="settings-header">
+            <main className="dashboard-main">
+                <header className="dashboard-header">
                     <div className="header-content">
                         <div className="header-left">
                             <h1>System Settings</h1>
-                            <p>Manage pricing, services, and business configuration</p>
+                            <p>Manage pricing, business info, and delivery parameters</p>
                         </div>
                     </div>
                 </header>
 
-                <div className="settings-content">
-                    {/* Settings Tabs */}
+                <div className="dashboard-content">
+                    {/* Tabs */}
                     <div className="settings-tabs">
                         <button
                             className={`settings-tab ${activeTab === 'pricing' ? 'active' : ''}`}
                             onClick={() => setActiveTab('pricing')}
                         >
-                            Price List
+                            💰 Service Pricing
                         </button>
                         <button
                             className={`settings-tab ${activeTab === 'business' ? 'active' : ''}`}
                             onClick={() => setActiveTab('business')}
                         >
-                            Business Info
+                            🏢 Business Info
                         </button>
                         <button
                             className={`settings-tab ${activeTab === 'delivery' ? 'active' : ''}`}
                             onClick={() => setActiveTab('delivery')}
                         >
-                            Delivery Settings
+                            🚚 Delivery Settings
                         </button>
                     </div>
 
                     {/* Pricing Tab */}
                     {activeTab === 'pricing' && (
-                        <section className="settings-section">
-                            <div className="section-header">
-                                <h2>Service Price List</h2>
-                                <button className="btn btn-primary" onClick={() => alert('Add new service coming soon!')}>
-                                    + Add Service
-                                </button>
+                        <section className="dashboard-table-section" style={{ padding: '2rem' }}>
+                            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                                <h2>Manage Service Prices</h2>
+                                <button className="btn btn-primary btn-small">+ Add Service</button>
                             </div>
 
-                            <div className="price-table-container">
-                                <table className="price-table">
+                            <div className="table-container">
+                                <table className="dashboard-table">
                                     <thead>
                                         <tr>
                                             <th>Service Name</th>
-                                            <th>Price per Kg</th>
-                                            <th>Price per Item</th>
-                                            <th>Min. Order</th>
+                                            <th>Price (LKR)</th>
+                                            <th>Unit</th>
+                                            <th>Min Order</th>
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {services.map(service => (
-                                            <tr key={service.id}>
-                                                <td className="service-name">{service.name}</td>
+                                        {prices.map(item => (
+                                            <tr key={item.id}>
+                                                <td className="service-name">{item.service}</td>
                                                 <td>
-                                                    {editingService === service.id ? (
-                                                        <input
-                                                            type="number"
-                                                            value={service.pricePerKg || ''}
-                                                            onChange={(e) => handleServiceChange(service.id, 'pricePerKg', e.target.value ? Number(e.target.value) : null)}
-                                                            className="price-input"
-                                                            placeholder="N/A"
-                                                        />
-                                                    ) : (
-                                                        service.pricePerKg ? `Rs. ${service.pricePerKg}` : '-'
-                                                    )}
+                                                    <input
+                                                        type="text"
+                                                        className="price-input"
+                                                        value={item.price}
+                                                        onChange={(e) => handlePriceChange(item.id, 'price', e.target.value)}
+                                                    />
+                                                </td>
+                                                <td>{item.unit}</td>
+                                                <td>
+                                                    <input
+                                                        type="text"
+                                                        className="price-input min-order-input"
+                                                        value={item.minOrder}
+                                                        onChange={(e) => handlePriceChange(item.id, 'minOrder', e.target.value)}
+                                                    />
                                                 </td>
                                                 <td>
-                                                    {editingService === service.id ? (
-                                                        <input
-                                                            type="number"
-                                                            value={service.pricePerItem || ''}
-                                                            onChange={(e) => handleServiceChange(service.id, 'pricePerItem', e.target.value ? Number(e.target.value) : null)}
-                                                            className="price-input"
-                                                            placeholder="N/A"
-                                                        />
-                                                    ) : (
-                                                        service.pricePerItem ? `Rs. ${service.pricePerItem}` : '-'
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {editingService === service.id ? (
-                                                        <input
-                                                            type="number"
-                                                            value={service.minOrder}
-                                                            onChange={(e) => handleServiceChange(service.id, 'minOrder', Number(e.target.value))}
-                                                            className="price-input min-order-input"
-                                                        />
-                                                    ) : (
-                                                        service.minOrder
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    <span className={`status-badge ${service.status === 'active' ? 'status-active' : 'status-inactive'}`}>
-                                                        {service.status.charAt(0).toUpperCase() + service.status.slice(1)}
+                                                    <span className={`status-badge ${item.status === 'active' ? 'status-active' : 'status-inactive'}`}>
+                                                        {item.status.toUpperCase()}
                                                     </span>
                                                 </td>
                                                 <td className="actions-cell">
-                                                    {editingService === service.id ? (
-                                                        <>
-                                                            <button
-                                                                className="btn-action btn-save"
-                                                                onClick={() => handleSaveService(service.id)}
-                                                            >
-                                                                Save
-                                                            </button>
-                                                            <button
-                                                                className="btn-action btn-cancel"
-                                                                onClick={() => setEditingService(null)}
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <button
-                                                                className="btn-action btn-edit"
-                                                                onClick={() => setEditingService(service.id)}
-                                                            >
-                                                                Edit
-                                                            </button>
-                                                            <button
-                                                                className="btn-action btn-toggle"
-                                                                onClick={() => handleToggleServiceStatus(service.id)}
-                                                            >
-                                                                {service.status === 'active' ? 'Disable' : 'Enable'}
-                                                            </button>
-                                                        </>
-                                                    )}
+                                                    <button className="btn-action btn-save">Save</button>
+                                                    <button className="btn-action btn-toggle">Disable</button>
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
+                            <div className="info-box">
+                                <p>ℹ️ Prices are inclusive of all taxes. Changes reflect immediately in the customer app.</p>
+                            </div>
                         </section>
                     )}
 
                     {/* Business Info Tab */}
                     {activeTab === 'business' && (
-                        <section className="settings-section">
-                            <div className="section-header">
-                                <h2>Business Information</h2>
-                            </div>
-
-                            <form className="settings-form" onSubmit={(e) => { e.preventDefault(); handleSaveBusinessSettings(); }}>
+                        <section className="dashboard-form-section">
+                            <h2 style={{ marginBottom: '1.5rem', color: 'var(--color-light)' }}>Business Details</h2>
+                            <div className="settings-form">
                                 <div className="form-row">
                                     <div className="form-group">
                                         <label>Business Name</label>
-                                        <input
-                                            type="text"
-                                            value={businessSettings.businessName}
-                                            onChange={(e) => handleBusinessSettingChange('businessName', e.target.value)}
-                                        />
+                                        <input type="text" name="name" value={businessInfo.name} onChange={handleInfoChange} />
                                     </div>
                                     <div className="form-group">
-                                        <label>Email Address</label>
-                                        <input
-                                            type="email"
-                                            value={businessSettings.email}
-                                            onChange={(e) => handleBusinessSettingChange('email', e.target.value)}
-                                        />
+                                        <label>Contact Number</label>
+                                        <input type="text" name="phone" value={businessInfo.phone} onChange={handleInfoChange} />
                                     </div>
                                 </div>
-
                                 <div className="form-row">
                                     <div className="form-group">
-                                        <label>Phone Number</label>
-                                        <input
-                                            type="tel"
-                                            value={businessSettings.phone}
-                                            onChange={(e) => handleBusinessSettingChange('phone', e.target.value)}
-                                        />
+                                        <label>Email Address</label>
+                                        <input type="email" name="email" value={businessInfo.email} onChange={handleInfoChange} />
                                     </div>
                                     <div className="form-group">
-                                        <label>Working Hours</label>
-                                        <input
-                                            type="text"
-                                            value={businessSettings.workingHours}
-                                            onChange={(e) => handleBusinessSettingChange('workingHours', e.target.value)}
-                                        />
+                                        <label>Website</label>
+                                        <input type="text" name="website" value={businessInfo.website} onChange={handleInfoChange} />
                                     </div>
                                 </div>
-
                                 <div className="form-group full-width">
-                                    <label>Business Address</label>
-                                    <input
-                                        type="text"
-                                        value={businessSettings.address}
-                                        onChange={(e) => handleBusinessSettingChange('address', e.target.value)}
-                                    />
+                                    <label>Address</label>
+                                    <textarea rows="3" name="address" value={businessInfo.address} onChange={handleInfoChange}></textarea>
                                 </div>
-
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Tax Rate (%)</label>
+                                        <input type="number" name="taxRate" value={businessInfo.taxRate} onChange={handleInfoChange} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Currency</label>
+                                        <select name="currency" value={businessInfo.currency} onChange={handleInfoChange}>
+                                            <option value="LKR">LKR (Sri Lankan Rupee)</option>
+                                            <option value="USD">USD (US Dollar)</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div className="form-actions">
-                                    <button type="submit" className="btn btn-primary">
-                                        Save Changes
-                                    </button>
+                                    <button className="btn btn-primary btn-large">Save Changes</button>
                                 </div>
-                            </form>
+                            </div>
                         </section>
                     )}
 
                     {/* Delivery Settings Tab */}
                     {activeTab === 'delivery' && (
-                        <section className="settings-section">
-                            <div className="section-header">
-                                <h2>Delivery Settings</h2>
-                            </div>
-
-                            <form className="settings-form" onSubmit={(e) => { e.preventDefault(); handleSaveBusinessSettings(); }}>
+                        <section className="dashboard-form-section">
+                            <h2 style={{ marginBottom: '1.5rem', color: 'var(--color-light)' }}>Delivery Parameters</h2>
+                            <div className="settings-form">
                                 <div className="form-row">
                                     <div className="form-group">
-                                        <label>Delivery Fee (Rs.)</label>
-                                        <input
-                                            type="number"
-                                            value={businessSettings.deliveryFee}
-                                            onChange={(e) => handleBusinessSettingChange('deliveryFee', Number(e.target.value))}
-                                        />
+                                        <label>Standard Delivery Fee (LKR)</label>
+                                        <input type="number" name="standardFee" value={deliverySettings.standardFee} onChange={handleDeliveryChange} />
                                     </div>
                                     <div className="form-group">
-                                        <label>Free Delivery Minimum (Rs.)</label>
-                                        <input
-                                            type="number"
-                                            value={businessSettings.freeDeliveryMinimum}
-                                            onChange={(e) => handleBusinessSettingChange('freeDeliveryMinimum', Number(e.target.value))}
-                                        />
+                                        <label>Express Delivery Fee (LKR)</label>
+                                        <input type="number" name="expressFee" value={deliverySettings.expressFee} onChange={handleDeliveryChange} />
                                     </div>
                                 </div>
-
-                                <div className="form-group">
-                                    <label>Tax Rate (%)</label>
-                                    <input
-                                        type="number"
-                                        value={businessSettings.taxRate}
-                                        onChange={(e) => handleBusinessSettingChange('taxRate', Number(e.target.value))}
-                                        min="0"
-                                        max="100"
-                                        step="0.1"
-                                    />
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Free Delivery Threshold (LKR)</label>
+                                        <input type="number" name="freeDeliveryThreshold" value={deliverySettings.freeDeliveryThreshold} onChange={handleDeliveryChange} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Max Delivery Distance (km)</label>
+                                        <input type="number" name="maxDistance" value={deliverySettings.maxDistance} onChange={handleDeliveryChange} />
+                                    </div>
                                 </div>
-
-                                <div className="info-box">
-                                    <p><strong>Note:</strong> Free delivery will be applied to orders above Rs. {businessSettings.freeDeliveryMinimum.toLocaleString()}</p>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Pickup Start Time</label>
+                                        <input type="time" name="pickupStart" value={deliverySettings.pickupStart} onChange={handleDeliveryChange} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Pickup End Time</label>
+                                        <input type="time" name="pickupEnd" value={deliverySettings.pickupEnd} onChange={handleDeliveryChange} />
+                                    </div>
                                 </div>
-
                                 <div className="form-actions">
-                                    <button type="submit" className="btn btn-primary">
-                                        Save Changes
-                                    </button>
+                                    <button className="btn btn-primary btn-large">Update Delivery Settings</button>
                                 </div>
-                            </form>
+                            </div>
                         </section>
                     )}
                 </div>

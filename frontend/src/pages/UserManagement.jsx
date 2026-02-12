@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './UserManagement.css';
+import './CustomerDashboard.css';
 
 const UserManagement = () => {
     const navigate = useNavigate();
@@ -51,9 +51,9 @@ const UserManagement = () => {
     };
 
     return (
-        <div className="user-management-page">
+        <div className="dashboard">
             {/* Sidebar */}
-            <aside className="user-management-sidebar">
+            <aside className="dashboard-sidebar">
                 <div className="sidebar-header">
                     <h2 className="logo">WashTub</h2>
                 </div>
@@ -85,8 +85,8 @@ const UserManagement = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="user-management-main">
-                <header className="user-management-header">
+            <main className="dashboard-main">
+                <header className="dashboard-header">
                     <div className="header-content">
                         <div className="header-left">
                             <h1>User Management</h1>
@@ -98,24 +98,32 @@ const UserManagement = () => {
                     </div>
                 </header>
 
-                <div className="user-management-content">
+                <div className="dashboard-content">
                     {/* Stats Cards */}
-                    <section className="stats-grid">
+                    <section className="stats-section">
                         <div className="stat-card">
-                            <span className="stat-value">{users.length}</span>
-                            <span className="stat-label">Total Users</span>
+                            <div className="stat-info">
+                                <p className="stat-label">Total Users</p>
+                                <h3 className="stat-value">{users.length}</h3>
+                            </div>
                         </div>
                         <div className="stat-card">
-                            <span className="stat-value">{users.filter(u => u.role === 'customer').length}</span>
-                            <span className="stat-label">Customers</span>
+                            <div className="stat-info">
+                                <p className="stat-label">Customers</p>
+                                <h3 className="stat-value">{users.filter(u => u.role === 'customer').length}</h3>
+                            </div>
                         </div>
                         <div className="stat-card">
-                            <span className="stat-value">{users.filter(u => u.role === 'staff').length}</span>
-                            <span className="stat-label">Staff</span>
+                            <div className="stat-info">
+                                <p className="stat-label">Staff</p>
+                                <h3 className="stat-value">{users.filter(u => u.role === 'staff').length}</h3>
+                            </div>
                         </div>
                         <div className="stat-card">
-                            <span className="stat-value">{users.filter(u => u.status === 'active').length}</span>
-                            <span className="stat-label">Active Users</span>
+                            <div className="stat-info">
+                                <p className="stat-label">Active Users</p>
+                                <h3 className="stat-value">{users.filter(u => u.status === 'active').length}</h3>
+                            </div>
                         </div>
                     </section>
 
@@ -164,9 +172,9 @@ const UserManagement = () => {
                     </section>
 
                     {/* Users Table */}
-                    <section className="users-table-section">
+                    <section className="dashboard-table-section">
                         <div className="table-container">
-                            <table className="users-table">
+                            <table className="dashboard-table">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
@@ -220,7 +228,7 @@ const UserManagement = () => {
                                 </tbody>
                             </table>
                             {filteredUsers.length === 0 && (
-                                <div className="no-users">
+                                <div className="no-data">
                                     <p>No users found matching your criteria.</p>
                                 </div>
                             )}

@@ -1,20 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './AllOrders.css';
+import './CustomerDashboard.css';
 
 const AllOrders = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [orders] = useState([
-        { id: 'ORD-1234', customer: 'Amandi Perera', service: 'Wash & Fold', items: '5 items', date: 'Jan 24, 2026', status: 'processing', amount: 'Rs. 750' },
-        { id: 'ORD-1235', customer: 'Bandu Perera', service: 'Dry Cleaning', items: '3 items', date: 'Jan 24, 2026', status: 'completed', amount: 'Rs. 1,200' },
-        { id: 'ORD-1236', customer: 'Nimal Fernando', service: 'Iron & Press', items: '8 items', date: 'Jan 23, 2026', status: 'delivered', amount: 'Rs. 480' },
-        { id: 'ORD-1237', customer: 'Supun Pinto', service: 'Premium Care', items: '2 items', date: 'Jan 23, 2026', status: 'pending', amount: 'Rs. 2,500' },
-        { id: 'ORD-1238', customer: 'Kasun Silva', service: 'Wash & Fold', items: '10 items', date: 'Jan 22, 2026', status: 'completed', amount: 'Rs. 1,500' },
-        { id: 'ORD-1239', customer: 'Nilantha Pieris', service: 'Dry Cleaning', items: '4 items', date: 'Jan 22, 2026', status: 'cancelled', amount: 'Rs. 1,800' },
-        { id: 'ORD-1240', customer: 'Ruwan Jayasena', service: 'Premium Care', items: '1 item', date: 'Jan 21, 2026', status: 'delivered', amount: 'Rs. 800' },
-        { id: 'ORD-1241', customer: 'Amandi Perera', service: 'Iron & Press', items: '6 items', date: 'Jan 21, 2026', status: 'processing', amount: 'Rs. 360' },
+        { id: 'ORD-001', customer: 'Amandi Perera', service: 'Wash & Fold', items: 15, total: 'Rs. 1,500', status: 'processing', date: 'Jan 15, 2026' },
+        { id: 'ORD-002', customer: 'Kasun Silva', service: 'Dry Cleaning', items: 3, total: 'Rs. 2,200', status: 'pending', date: 'Jan 16, 2026' },
+        { id: 'ORD-003', customer: 'Nilantha Pieris', service: 'Ironing', items: 10, total: 'Rs. 800', status: 'completed', date: 'Jan 14, 2026' },
+        { id: 'ORD-004', customer: 'Bandu Perera', service: 'Wash & Fold', items: 25, total: 'Rs. 3,500', status: 'delivered', date: 'Jan 12, 2026' },
+        { id: 'ORD-005', customer: 'Supun Mendis', service: 'Dry Cleaning', items: 5, total: 'Rs. 3,000', status: 'cancelled', date: 'Jan 10, 2026' },
     ]);
 
     const handleLogout = () => {
@@ -22,13 +19,13 @@ const AllOrders = () => {
     };
 
     const filteredOrders = orders.filter(order => {
-        const matchesSearch = order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.id.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.customer.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
         return matchesSearch && matchesStatus;
     });
 
-    const getStatusClass = (status) => {
+    const getStatusBadgeClass = (status) => {
         const classes = {
             pending: 'status-pending',
             processing: 'status-processing',
@@ -40,9 +37,9 @@ const AllOrders = () => {
     };
 
     return (
-        <div className="all-orders-page">
+        <div className="dashboard">
             {/* Sidebar */}
-            <aside className="all-orders-sidebar">
+            <aside className="dashboard-sidebar">
                 <div className="sidebar-header">
                     <h2 className="logo">WashTub</h2>
                 </div>
@@ -74,34 +71,42 @@ const AllOrders = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="all-orders-main">
-                <header className="all-orders-header">
+            <main className="dashboard-main">
+                <header className="dashboard-header">
                     <div className="header-content">
                         <div className="header-left">
                             <h1>All Orders</h1>
-                            <p>Manage and track all customer orders</p>
+                            <p>Track and manage all customer orders</p>
                         </div>
                     </div>
                 </header>
 
-                <div className="all-orders-content">
+                <div className="dashboard-content">
                     {/* Stats Cards */}
-                    <section className="stats-grid">
+                    <section className="stats-section">
                         <div className="stat-card">
-                            <span className="stat-value">{orders.length}</span>
-                            <span className="stat-label">Total Orders</span>
+                            <div className="stat-info">
+                                <p className="stat-label">Total Orders</p>
+                                <h3 className="stat-value">{orders.length}</h3>
+                            </div>
                         </div>
                         <div className="stat-card">
-                            <span className="stat-value">{orders.filter(o => o.status === 'pending').length}</span>
-                            <span className="stat-label">Pending</span>
+                            <div className="stat-info">
+                                <p className="stat-label">Pending</p>
+                                <h3 className="stat-value">{orders.filter(o => o.status === 'pending').length}</h3>
+                            </div>
                         </div>
                         <div className="stat-card">
-                            <span className="stat-value">{orders.filter(o => o.status === 'processing').length}</span>
-                            <span className="stat-label">Processing</span>
+                            <div className="stat-info">
+                                <p className="stat-label">Processing</p>
+                                <h3 className="stat-value">{orders.filter(o => o.status === 'processing').length}</h3>
+                            </div>
                         </div>
                         <div className="stat-card">
-                            <span className="stat-value">{orders.filter(o => o.status === 'completed' || o.status === 'delivered').length}</span>
-                            <span className="stat-label">Completed</span>
+                            <div className="stat-info">
+                                <p className="stat-label">Completed</p>
+                                <h3 className="stat-value">{orders.filter(o => o.status === 'completed' || o.status === 'delivered').length}</h3>
+                            </div>
                         </div>
                     </section>
 
@@ -110,7 +115,7 @@ const AllOrders = () => {
                         <div className="search-box">
                             <input
                                 type="text"
-                                placeholder="Search by order ID or customer name..."
+                                placeholder="Search by Order ID or Customer..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -141,12 +146,6 @@ const AllOrders = () => {
                                 Completed
                             </button>
                             <button
-                                className={`filter-tab ${filterStatus === 'delivered' ? 'active' : ''}`}
-                                onClick={() => setFilterStatus('delivered')}
-                            >
-                                Delivered
-                            </button>
-                            <button
                                 className={`filter-tab ${filterStatus === 'cancelled' ? 'active' : ''}`}
                                 onClick={() => setFilterStatus('cancelled')}
                             >
@@ -156,18 +155,18 @@ const AllOrders = () => {
                     </section>
 
                     {/* Orders Table */}
-                    <section className="orders-table-section">
+                    <section className="dashboard-table-section">
                         <div className="table-container">
-                            <table className="orders-table">
+                            <table className="dashboard-table">
                                 <thead>
                                     <tr>
                                         <th>Order ID</th>
                                         <th>Customer</th>
                                         <th>Service</th>
                                         <th>Items</th>
-                                        <th>Date</th>
-                                        <th>Amount</th>
+                                        <th>Total</th>
                                         <th>Status</th>
+                                        <th>Date</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -178,25 +177,25 @@ const AllOrders = () => {
                                             <td>{order.customer}</td>
                                             <td>{order.service}</td>
                                             <td>{order.items}</td>
-                                            <td>{order.date}</td>
-                                            <td className="order-amount">{order.amount}</td>
+                                            <td className="order-amount">{order.total}</td>
                                             <td>
-                                                <span className={`status-badge ${getStatusClass(order.status)}`}>
+                                                <span className={`status-badge ${getStatusBadgeClass(order.status)}`}>
                                                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                                                 </span>
                                             </td>
+                                            <td>{order.date}</td>
                                             <td className="actions-cell">
                                                 <button
                                                     className="btn-action btn-view"
-                                                    onClick={() => alert(`Viewing order ${order.id}`)}
+                                                    onClick={() => alert(`View details for ${order.id}`)}
                                                 >
                                                     View
                                                 </button>
                                                 <button
                                                     className="btn-action btn-edit"
-                                                    onClick={() => alert(`Editing order ${order.id}`)}
+                                                    onClick={() => alert(`Edit status for ${order.id}`)}
                                                 >
-                                                    Edit
+                                                    Update
                                                 </button>
                                             </td>
                                         </tr>
@@ -204,7 +203,7 @@ const AllOrders = () => {
                                 </tbody>
                             </table>
                             {filteredOrders.length === 0 && (
-                                <div className="no-orders">
+                                <div className="no-data">
                                     <p>No orders found matching your criteria.</p>
                                 </div>
                             )}
