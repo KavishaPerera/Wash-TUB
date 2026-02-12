@@ -117,7 +117,7 @@ const SignIn = () => {
                             </div>
 
                             <div className="form-group" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: '#334155', fontSize: '0.9rem' }}>
                                     <input
                                         type="checkbox"
                                         style={{ width: 'auto' }}
@@ -125,7 +125,7 @@ const SignIn = () => {
                                         onChange={(e) => setRememberMe(e.target.checked)}
                                     /> Remember me
                                 </label>
-                                <Link to="/forgot-password" style={{ color: 'var(--color-primary-light)', fontSize: '0.9rem', textDecoration: 'none' }}>Forgot Password?</Link>
+                                <Link to="/forgot-password" style={{ color: '#2d7ec7', fontSize: '0.9rem', textDecoration: 'none', fontWeight: 600 }}>Forgot Password?</Link>
                             </div>
 
                             <button
