@@ -2,7 +2,7 @@ const db = require('../config/db.config');
 const bcrypt = require('bcryptjs');
 
 const User = {
-  // Create users table if not exists
+
   async createTable() {
     const sql = `
       CREATE TABLE IF NOT EXISTS users (
