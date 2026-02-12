@@ -1,8 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import CTA from './components/CTA';
-import Footer from './components/Footer';
+import Home from './pages/Home';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
 import ForgotPassword from './pages/ForgotPassword';
@@ -34,16 +31,6 @@ import Checkout from './pages/Checkout';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import './App.css';
-
-function Home() {
-  return (
-    <>
-      <Navbar />
-      <Hero />
-      <Footer />
-    </>
-  );
-}
 
 function App() {
   return (
