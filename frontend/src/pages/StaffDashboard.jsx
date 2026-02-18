@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Edit } from 'lucide-react';
 import StaffSidebar from '../components/StaffSidebar';
 import './StaffDashboard.css';
 
@@ -52,6 +53,54 @@ const StaffDashboard = () => {
                             <p className="stat-label">Completed Today</p>
                             <h3 className="stat-value">7</h3>
                         </div>
+                    </div>
+                </section>
+
+                {/* Recent Assigned Orders */}
+                <section className="orders-section">
+                    <div className="section-header">
+                        <h2>Recent Assigned Orders</h2>
+                    </div>
+                    <div className="orders-table-container">
+                        <table className="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Service Type</th>
+                                    <th>Status</th>
+                                    <th>Update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {[
+                                    { id: 'ORD-001', customer: 'Nimal perera', service: 'Wash & Dry', status: 'Pending' },
+                                    { id: 'ORD-002', customer: 'Jane fernando', service: 'Dry Cleaning', status: 'In Progress' },
+                                    { id: 'ORD-003', customer: 'Mewan Gunathilaka', service: 'Ironing', status: 'Completed' },
+                                    { id: 'ORD-004', customer: 'Mohommad Ismail', service: 'Pressing', status: 'Pending' }
+                                ].map(order => (
+                                    <tr key={order.id}>
+                                        <td>{order.id}</td>
+                                        <td>{order.customer}</td>
+                                        <td>{order.service}</td>
+                                        <td>
+                                            <span className={`status-badge status-${order.status.toLowerCase().replace(' ', '-')}`}>
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button
+                                                className="btn-action"
+                                                onClick={() => navigate('/staff/update-order')}
+                                                title="Update Order Status"
+                                            >
+                                                <Edit size={18} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </section>
 

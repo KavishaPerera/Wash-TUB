@@ -9,12 +9,12 @@ const StaffAllTasks = () => {
 
     // Mock Tasks Data
     const tasks = [
-        { id: 'ORD-001', service: 'Wash & Fold', details: '5kg Mixed Clothes', date: 'Today, 10:00 AM', status: 'Pending', priority: 'Medium' },
-        { id: 'ORD-005', service: 'Premium Care', details: 'Silk Saree & Blazer', date: 'Today, 2:00 PM', status: 'Urgent', priority: 'High' },
+        { id: 'ORD-001', service: 'Wash & Dry', details: '5kg Mixed Clothes', date: 'Today, 10:00 AM', status: 'Pending', priority: 'Medium' },
+        { id: 'ORD-005', service: 'Pressing', details: 'Silk Saree & Blazer', date: 'Today, 2:00 PM', status: 'Urgent', priority: 'High' },
         { id: 'ORD-002', service: 'Dry Cleaning', details: '2 Mens Suits', date: 'Today, 11:30 AM', status: 'In Progress', priority: 'Medium' },
         { id: 'ORD-004', service: 'Ironing', details: '15 Shirts', date: 'Tomorrow', status: 'Pending', priority: 'Low' },
-        { id: 'ORD-003', service: 'Wash & Fold', details: '3kg Bedding', date: 'Yesterday', status: 'Completed', priority: 'Low' },
-        { id: 'ORD-006', service: 'Curtain Cleaning', details: 'Living Room Set', date: 'Today, 4:00 PM', status: 'Pending', priority: 'Medium' },
+        { id: 'ORD-003', service: 'Wash & Dry', details: '3kg Bedding', date: 'Yesterday', status: 'Completed', priority: 'Low' },
+        { id: 'ORD-006', service: 'Dry Cleaning', details: 'Living Room Set', date: 'Today, 4:00 PM', status: 'Pending', priority: 'Medium' },
     ];
 
     const filters = ['All', 'Pending', 'In Progress', 'Urgent', 'Completed'];

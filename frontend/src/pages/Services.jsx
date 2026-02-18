@@ -37,16 +37,10 @@ const services = [
         description: 'Steam pressing for a polished, neat finish'
     },
     {
-        id: 5,
-        title: 'One Day Service',
-        image: oneDayImg,
-        description: 'Express 24-hour turnaround for urgent needs'
-    },
-    {
-        id: 6,
-        title: 'Pickup & Delivery',
-        image: pickupDeliveryImg,
-        description: 'Convenient doorstep pickup and delivery'
+        id: 4,
+        title: 'Pressing',
+        image: pressingImg,
+        description: 'Steam pressing for a polished, neat finish'
     }
 ];
 
