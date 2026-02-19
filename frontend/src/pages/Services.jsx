@@ -36,12 +36,7 @@ const services = [
         image: pressingImg,
         description: 'Steam pressing for a polished, neat finish'
     },
-    {
-        id: 4,
-        title: 'Pressing',
-        image: pressingImg,
-        description: 'Steam pressing for a polished, neat finish'
-    }
+
 ];
 
 const Services = () => {
