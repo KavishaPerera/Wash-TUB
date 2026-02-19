@@ -75,8 +75,8 @@
 /* Services Grid (Matching Features Grid in About.css) */
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
 }
 
 .service-card {
@@ -95,7 +95,7 @@
 }
 
 .service-image-wrapper {
-    height: 200px;
+    height: 150px;
     overflow: hidden;
 }
 
@@ -111,7 +111,7 @@
 }
 
 .service-info {
-    padding: 2rem;
+    padding: 1.25rem;
     text-align: center;
     flex: 1;
     display: flex;
@@ -119,17 +119,17 @@
 }
 
 .service-info h3 {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     font-weight: 600;
     color: #1e3a5f;
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.5rem;
 }
 
 .service-info p {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: #5a6a72;
     margin: 0;
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
 /* CTA Section (Matching About.css) */
