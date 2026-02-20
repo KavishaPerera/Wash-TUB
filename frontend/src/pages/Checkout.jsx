@@ -16,6 +16,7 @@ const Checkout = () => {
         phone: '',
         address: '',
         city: '',
+        postalCode: '',
         deliveryOption: 'delivery',
         pickupDate: '',
         pickupTime: '',
@@ -48,7 +49,7 @@ const Checkout = () => {
     const handleDeliverySubmit = (e) => {
         e.preventDefault();
         // Validate delivery form before proceeding
-        if (formData.fullName && formData.phone && formData.address && formData.city && formData.pickupDate && formData.pickupTime) {
+        if (formData.fullName && formData.phone && formData.address && formData.city && formData.postalCode && formData.pickupDate && formData.pickupTime) {
             setCurrentStep(2);
         }
     };
@@ -192,16 +193,29 @@ const Checkout = () => {
                                         placeholder="Enter your address"
                                     />
                                 </div>
-                                <div className="form-group">
-                                    <label>City</label>
-                                    <input
-                                        type="text"
-                                        name="city"
-                                        value={formData.city}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Enter your city"
-                                    />
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>City</label>
+                                        <input
+                                            type="text"
+                                            name="city"
+                                            value={formData.city}
+                                            onChange={handleInputChange}
+                                            required
+                                            placeholder="Enter your city"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Postal Code</label>
+                                        <input
+                                            type="text"
+                                            name="postalCode"
+                                            value={formData.postalCode}
+                                            onChange={handleInputChange}
+                                            required
+                                            placeholder="Enter postal code"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
