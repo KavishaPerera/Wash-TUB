@@ -1,11 +1,11 @@
 /* =====================================================
    AdminDashboard.css — Overrides on top of CustomerDashboard.css
-   Forces the 4 stat cards into a single compact horizontal row
+   Compact stat cards that always sit in one horizontal row
    ===================================================== */
 
-/* ---- 4-column grid: always one row ---- */
+/* ---- Single-row compact grid ---- */
 .stats-section.admin-stats {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 1rem;
     margin-bottom: 1.75rem;
 }
@@ -16,7 +16,7 @@
     border-radius: 12px;
     min-height: unset;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.3rem;
     align-items: flex-start;
 }
 
@@ -24,41 +24,56 @@
     transform: translateY(-3px);
 }
 
+/* ---- Compact stat icon ---- */
+.admin-stats .stat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    margin-bottom: 0.25rem;
+}
+
 /* ---- Compact label ---- */
 .admin-stats .stat-label {
-    font-size: 0.72rem;
-    margin: 0 0 0.2rem 0;
+    font-size: 0.7rem;
+    margin: 0 0 0.15rem 0;
     letter-spacing: 0.06em;
 }
 
 /* ---- Compact value ---- */
 .admin-stats .stat-value {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     margin: 0;
     font-weight: 700;
     line-height: 1.2;
 }
 
-/* ---- Responsive: stack on smaller screens ---- */
-@media (max-width: 1100px) {
+/* ---- Stack on very small screens ---- */
+@media (max-width: 640px) {
     .stats-section.admin-stats {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 600px) {
-    .stats-section.admin-stats {
-        grid-template-columns: 1fr;
-    }
+/* =====================================================
+   White sidebar + main area for ALL admin pages
+   ===================================================== */
+.dashboard {
+    background: #f8fafc;
 }
 
-/* =====================================================
-   White sidebar override (in case CustomerDashboard.css
-   dark colours bleed through on admin pages)
-   ===================================================== */
+.dashboard-main {
+    background: #f8fafc;
+}
+
 .dashboard-sidebar {
     background: #fff;
     border-right: 1px solid #e2e8f0;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.03);
+}
+
+.sidebar-header {
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .nav-item {
@@ -84,13 +99,35 @@
 
 .logout-btn:hover {
     background: #fee2e2;
+    border-color: #fca5a5;
 }
 
-/* Make the main dashboard area light */
-.dashboard {
-    background: #f8fafc;
+/* Dashboard header text — dark on white */
+.dashboard-header h1 {
+    color: #0f172a;
 }
 
-.dashboard-main {
-    background: #f8fafc;
+.dashboard-header p {
+    color: #64748b;
+}
+
+/* Table section headers */
+.dashboard-table-section h2,
+.quick-actions-section h2 {
+    color: #0f172a !important;
+}
+
+/* Action cards white */
+.action-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+.action-card h3 {
+    color: #0f172a !important;
+}
+
+.action-card p {
+    color: #64748b !important;
 }

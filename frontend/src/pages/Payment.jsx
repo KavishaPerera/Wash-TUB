@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
+import './AdminDashboard.css';
 
 const Payment = () => {
     const navigate = useNavigate();
@@ -91,7 +92,7 @@ const Payment = () => {
 
                 <div className="dashboard-content">
                     {/* Stats Cards */}
-                    <section className="stats-section">
+                    <section className="stats-section admin-stats">
                         <div className="stat-card">
                             <div className="stat-info">
                                 <p className="stat-label">Total Transactions</p>

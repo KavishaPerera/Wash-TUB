@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
+import './AdminDashboard.css';
 import './GenerateReport.css'; // Keep regarding specific report widget styles
 
 const GenerateReport = () => {
@@ -154,7 +155,7 @@ const GenerateReport = () => {
 
                 <div className="dashboard-content report-content">
                     {/* Stats */}
-                    <section className="stats-section">
+                    <section className="stats-section admin-stats">
                         <div className="stat-card">
                             <div className="stat-icon" style={{ background: 'rgba(0, 122, 255, 0.2)', color: '#007aff' }}>
                                 <span>📄</span>
