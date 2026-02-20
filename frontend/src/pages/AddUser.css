@@ -1,25 +1,33 @@
+/* =====================================================
+   AddUser.css — White theme matching other admin pages
+   ===================================================== */
+
+/* Page wrapper */
 .add-user-page {
     display: flex;
     min-height: 100vh;
-    background: linear-gradient(135deg, hsl(210, 50%, 30%) 0%, hsl(200, 55%, 35%) 50%, hsl(190, 50%, 32%) 100%);
+    background: #f8fafc;
+    /* Same light grey as other admin pages */
 }
 
-/* Sidebar */
+/* ---- Sidebar ---- */
 .add-user-sidebar {
     width: 280px;
-    background: hsl(200, 40%, 18%);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.03);
     display: flex;
     flex-direction: column;
     position: fixed;
     height: 100vh;
     left: 0;
     top: 0;
+    z-index: 50;
 }
 
 .add-user-sidebar .sidebar-header {
     padding: 2rem 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .add-user-sidebar .sidebar-header .logo {
@@ -35,6 +43,7 @@
 .add-user-sidebar .sidebar-nav {
     flex: 1;
     padding: 1.5rem 0;
+    overflow-y: auto;
 }
 
 .add-user-sidebar .nav-item {
@@ -42,7 +51,7 @@
     align-items: center;
     gap: 1rem;
     padding: 1rem 1.5rem;
-    color: var(--color-gray);
+    color: #64748b;
     text-decoration: none;
     transition: all var(--transition-fast);
     font-weight: 500;
@@ -50,14 +59,14 @@
 }
 
 .add-user-sidebar .nav-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--color-light);
+    background: #f8fafc;
+    color: #0f172a;
 }
 
 .add-user-sidebar .nav-item.active {
-    background: rgba(0, 162, 255, 0.1);
-    color: var(--color-primary-light);
-    border-left-color: var(--color-primary);
+    background: #f0f9ff;
+    color: #0284c7;
+    border-left-color: #0ea5e9;
 }
 
 .add-user-sidebar .logout-btn {
@@ -66,22 +75,25 @@
     gap: 1rem;
     padding: 1rem 1.5rem;
     margin: 1rem;
-    background: rgba(255, 59, 48, 0.1);
-    color: #ff3b30;
-    border: 1px solid rgba(255, 59, 48, 0.2);
+    background: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fee2e2;
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: all var(--transition-fast);
     font-weight: 600;
     font-family: var(--font-primary);
     font-size: 1rem;
+    width: calc(100% - 2rem);
+    justify-content: center;
 }
 
 .add-user-sidebar .logout-btn:hover {
-    background: rgba(255, 59, 48, 0.2);
+    background: #fee2e2;
+    border-color: #fca5a5;
 }
 
-/* Main Content */
+/* ---- Main Content ---- */
 .add-user-main {
     margin-left: 280px;
     flex: 1;
@@ -89,47 +101,66 @@
     width: calc(100% - 280px);
 }
 
+/* ---- Header ---- */
 .add-user-header {
     margin-bottom: 2rem;
 }
 
+.add-user-header .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
 .add-user-header h1 {
     margin: 0;
-    font-size: 2.5rem;
-    color: var(--color-light);
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    /* Dark text, not white */
 }
 
 .add-user-header p {
-    margin: 0.5rem 0 0 0;
-    color: var(--color-gray);
+    margin: 0.4rem 0 0 0;
+    color: #64748b;
+    /* Muted grey, not bright */
+    font-size: 1rem;
 }
 
+/* ---- Form Content Area ---- */
 .add-user-content {
-    max-width: 800px;
+    max-width: 860px;
 }
 
-/* Form Styling */
 .add-user-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
+/* ---- Form Sections (cards) ---- */
 .form-section {
-    background: hsl(200, 45%, 22%);
+    background: #ffffff;
+    /* White card, not dark teal */
     padding: 2rem;
-    border-radius: var(--radius-lg);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
 }
 
 .form-section h2 {
     margin: 0 0 1.5rem 0;
-    font-size: 1.25rem;
-    color: var(--color-light);
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    /* Dark heading, not white */
+    padding-bottom: 0.875rem;
+    border-bottom: 1px solid #f1f5f9;
 }
 
+/* ---- Form Fields ---- */
 .form-group {
     margin-bottom: 1.25rem;
 }
@@ -141,19 +172,22 @@
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    color: var(--color-light);
+    color: #334155;
+    /* Slate 700 — clearly visible on white */
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 0.875rem 1rem;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-md);
-    color: var(--color-light);
+    padding: 0.75rem 1rem;
+    background: #f8fafc;
+    /* Very light grey field, not dark */
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #1e293b;
+    /* Dark text in inputs */
     font-family: var(--font-primary);
     font-size: 1rem;
     transition: all var(--transition-fast);
@@ -162,51 +196,56 @@
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--color-primary);
-    background: rgba(255, 255, 255, 0.1);
+    border-color: #0ea5e9;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
 .form-group input::placeholder {
-    color: var(--color-gray);
+    color: #94a3b8;
+    /* Light slate placeholder */
 }
 
 .form-group select {
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23aaa' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+    /* Dark arrow for light background */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
+    background-color: #f8fafc;
     padding-right: 2.5rem;
 }
 
 .form-group select option {
-    background: hsl(200, 40%, 18%);
-    color: var(--color-light);
+    background: #ffffff;
+    color: #1e293b;
 }
 
+/* ---- Two-column row ---- */
 .form-row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    gap: 1.25rem;
 }
 
 .form-row .form-group {
     margin-bottom: 0;
 }
 
-/* Form Actions */
+/* ---- Form Action Buttons ---- */
 .form-actions {
     display: flex;
     gap: 1rem;
     justify-content: flex-end;
-    padding-top: 1rem;
+    padding-top: 0.5rem;
 }
 
 .form-actions .btn {
     padding: 0.875rem 2rem;
 }
 
-/* Responsive */
+/* ---- Responsive ---- */
 @media (max-width: 1024px) {
     .add-user-sidebar {
         width: 240px;
