@@ -102,13 +102,44 @@
     border-color: #fca5a5;
 }
 
+/* Dashboard header — full-width flex row */
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.dashboard-header .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    width: 100%;
+}
+
+.dashboard-header .header-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.dashboard-header .header-right {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
 /* Dashboard header text — dark on white */
 .dashboard-header h1 {
     color: #0f172a;
+    font-size: 1.85rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .dashboard-header p {
     color: #64748b;
+    margin: 0.3rem 0 0 0;
+    font-size: 0.9rem;
 }
 
 /* Table section headers */
