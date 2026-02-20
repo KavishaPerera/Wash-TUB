@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
+import Swal from 'sweetalert2';
 
 const AllOrders = () => {
     const navigate = useNavigate();
@@ -188,13 +189,13 @@ const AllOrders = () => {
                                             <td className="actions-cell">
                                                 <button
                                                     className="btn-action btn-view"
-                                                    onClick={() => alert(`View details for ${order.id}`)}
+                                                    onClick={() => Swal.fire({ icon: 'info', title: 'Order Details', text: `Viewing details for order ${order.id}`, confirmButtonColor: '#0ea5e9' })}
                                                 >
                                                     View
                                                 </button>
                                                 <button
                                                     className="btn-action btn-edit"
-                                                    onClick={() => alert(`Edit status for ${order.id}`)}
+                                                    onClick={() => Swal.fire({ icon: 'info', title: 'Edit Order Status', text: `Updating status for order ${order.id}`, confirmButtonColor: '#0ea5e9' })}
                                                 >
                                                     Update
                                                 </button>

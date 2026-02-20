@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './AddUser.css';
+import Swal from 'sweetalert2';
 
 const AddUser = () => {
     const navigate = useNavigate();
@@ -29,19 +30,39 @@ const AddUser = () => {
 
         // Validation
         if (formData.password !== formData.confirmPassword) {
-            alert('Passwords do not match!');
+            Swal.fire({
+                icon: 'error',
+                title: 'Password Mismatch',
+                text: 'Passwords do not match. Please try again.',
+                confirmButtonColor: '#0ea5e9',
+                borderRadius: '12px',
+            });
             return;
         }
 
         if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
-            alert('Please fill in all required fields.');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Missing Fields',
+                text: 'Please fill in all required fields.',
+                confirmButtonColor: '#0ea5e9',
+            });
             return;
         }
 
         // Here you would typically send data to backend
         console.log('New user data:', formData);
-        alert('User created successfully!');
-        navigate('/user-management');
+        Swal.fire({
+            icon: 'success',
+            title: 'User Created!',
+            text: 'The new user account has been created successfully.',
+            confirmButtonColor: '#0ea5e9',
+            timer: 2000,
+            timerProgressBar: true,
+        }).then(() => {
+            navigate('/user-management');
+        });
+        return;
     };
 
     const handleCancel = () => {

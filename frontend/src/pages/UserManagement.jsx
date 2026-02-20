@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
+import Swal from 'sweetalert2';
 
 const UserManagement = () => {
     const navigate = useNavigate();
@@ -207,7 +208,7 @@ const UserManagement = () => {
                                             <td className="actions-cell">
                                                 <button
                                                     className="btn-action btn-edit"
-                                                    onClick={() => alert(`Edit user ${user.name}`)}
+                                                    onClick={() => Swal.fire({ icon: 'info', title: 'Edit User', text: `Editing user: ${user.name}`, confirmButtonColor: '#0ea5e9' })}
                                                 >
                                                     Edit
                                                 </button>

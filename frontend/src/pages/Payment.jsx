@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
+import Swal from 'sweetalert2';
 
 const Payment = () => {
     const navigate = useNavigate();
@@ -200,14 +201,14 @@ const Payment = () => {
                                             <td className="actions-cell">
                                                 <button
                                                     className="btn-action btn-view"
-                                                    onClick={() => alert(`View details for ${payment.id}`)}
+                                                    onClick={() => Swal.fire({ icon: 'info', title: 'Payment Details', text: `Viewing details for payment ${payment.id}`, confirmButtonColor: '#0ea5e9' })}
                                                 >
                                                     View
                                                 </button>
                                                 {payment.status === 'completed' && (
                                                     <button
                                                         className="btn-action btn-refund"
-                                                        onClick={() => alert(`Initiate refund for ${payment.id}`)}
+                                                        onClick={() => Swal.fire({ icon: 'warning', title: 'Initiate Refund?', text: `Are you sure you want to refund payment ${payment.id}?`, showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Yes, Refund', cancelButtonText: 'Cancel' })}
                                                     >
                                                         Refund
                                                     </button>
