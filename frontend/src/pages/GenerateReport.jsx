@@ -178,7 +178,7 @@ const GenerateReport = () => {
 
                     {/* Generator Section */}
                     <section className="dashboard-form-section">
-                        <h2>Create New Report</h2>
+                        <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0 0 1.25rem 0' }}>Create New Report</h2>
 
                         <div className="report-types">
                             <label className={`report-type-card ${selectedReport === 'sales' ? 'selected' : ''}`}>
