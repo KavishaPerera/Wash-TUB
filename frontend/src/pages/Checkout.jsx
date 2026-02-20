@@ -278,10 +278,12 @@ const Checkout = () => {
                                         <span>Sub-total</span>
                                         <span>LKR {totalAmount.toFixed(2)}</span>
                                     </div>
-                                    <div className="summary-row">
-                                        <span>Delivery Fee</span>
-                                        <span>{deliveryFee === 0 ? 'Free' : `LKR ${deliveryFee.toFixed(2)}`}</span>
-                                    </div>
+                                    {formData.deliveryOption === 'delivery' && (
+                                        <div className="summary-row">
+                                            <span>Delivery Fee</span>
+                                            <span>LKR {DELIVERY_FEE}.00</span>
+                                        </div>
+                                    )}
                                     <div className="summary-row total">
                                         <span>Total</span>
                                         <span>LKR {grandTotal.toFixed(2)}</span>
