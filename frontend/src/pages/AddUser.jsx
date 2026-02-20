@@ -13,8 +13,7 @@ const AddUser = () => {
         confirmPassword: '',
         role: 'customer',
         address: '',
-        city: '',
-        postalCode: ''
+        city: ''
     });
 
     const handleChange = (e) => {
@@ -222,29 +221,16 @@ const AddUser = () => {
                                 />
                             </div>
 
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label htmlFor="city">City</label>
-                                    <input
-                                        type="text"
-                                        id="city"
-                                        name="city"
-                                        value={formData.city}
-                                        onChange={handleChange}
-                                        placeholder="Enter city"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="postalCode">Postal Code</label>
-                                    <input
-                                        type="text"
-                                        id="postalCode"
-                                        name="postalCode"
-                                        value={formData.postalCode}
-                                        onChange={handleChange}
-                                        placeholder="Enter postal code"
-                                    />
-                                </div>
+                            <div className="form-group">
+                                <label htmlFor="city">City</label>
+                                <input
+                                    type="text"
+                                    id="city"
+                                    name="city"
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                    placeholder="Enter city"
+                                />
                             </div>
                         </section>
 

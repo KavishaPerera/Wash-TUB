@@ -154,28 +154,6 @@ const GenerateReport = () => {
                 </header>
 
                 <div className="dashboard-content report-content">
-                    {/* Stats */}
-                    <section className="stats-section admin-stats">
-                        <div className="stat-card">
-                            <div className="stat-icon" style={{ background: 'rgba(0, 122, 255, 0.2)', color: '#007aff' }}>
-                                <span>📄</span>
-                            </div>
-                            <div className="stat-info">
-                                <h3 className="stat-value">12</h3>
-                                <p className="stat-label">Reports This Month</p>
-                            </div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon" style={{ background: 'rgba(52, 199, 89, 0.2)', color: '#34c759' }}>
-                                <span>📊</span>
-                            </div>
-                            <div className="stat-info">
-                                <h3 className="stat-value">Sales</h3>
-                                <p className="stat-label">Most Popular</p>
-                            </div>
-                        </div>
-                    </section>
-
                     {/* Generator Section */}
                     <section className="dashboard-form-section">
                         <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0 0 1.25rem 0' }}>Create New Report</h2>
