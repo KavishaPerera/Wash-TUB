@@ -1,0 +1,96 @@
+/* =====================================================
+   AdminDashboard.css — Overrides on top of CustomerDashboard.css
+   Forces the 4 stat cards into a single compact horizontal row
+   ===================================================== */
+
+/* ---- 4-column grid: always one row ---- */
+.stats-section.admin-stats {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+/* ---- Compact card sizing ---- */
+.admin-stats .stat-card {
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    min-height: unset;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: flex-start;
+}
+
+.admin-stats .stat-card:hover {
+    transform: translateY(-3px);
+}
+
+/* ---- Compact label ---- */
+.admin-stats .stat-label {
+    font-size: 0.72rem;
+    margin: 0 0 0.2rem 0;
+    letter-spacing: 0.06em;
+}
+
+/* ---- Compact value ---- */
+.admin-stats .stat-value {
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* ---- Responsive: stack on smaller screens ---- */
+@media (max-width: 1100px) {
+    .stats-section.admin-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .stats-section.admin-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =====================================================
+   White sidebar override (in case CustomerDashboard.css
+   dark colours bleed through on admin pages)
+   ===================================================== */
+.dashboard-sidebar {
+    background: #fff;
+    border-right: 1px solid #e2e8f0;
+}
+
+.nav-item {
+    color: #64748b;
+}
+
+.nav-item:hover {
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.nav-item.active {
+    background: #f0f9ff;
+    color: #0284c7;
+    border-left-color: #0ea5e9;
+}
+
+.logout-btn {
+    background: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fee2e2;
+}
+
+.logout-btn:hover {
+    background: #fee2e2;
+}
+
+/* Make the main dashboard area light */
+.dashboard {
+    background: #f8fafc;
+}
+
+.dashboard-main {
+    background: #f8fafc;
+}
