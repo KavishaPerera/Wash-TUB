@@ -150,12 +150,23 @@ const GenerateReport = () => {
                             <h1>Generate Reports</h1>
                             <p>Create and download detailed system reports</p>
                         </div>
+                        <div className="header-right">
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => {
+                                    document.getElementById('report-form-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }}
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1.4rem', fontSize: '0.95rem', borderRadius: '10px' }}
+                            >
+                                <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>+</span> Add New Report
+                            </button>
+                        </div>
                     </div>
                 </header>
 
                 <div className="dashboard-content report-content">
                     {/* Generator Section */}
-                    <section className="dashboard-form-section">
+                    <section id="report-form-section" className="dashboard-form-section">
                         <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', margin: '0 0 1.25rem 0' }}>Create New Report</h2>
 
                         <div className="report-types">
