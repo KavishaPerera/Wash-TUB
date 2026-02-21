@@ -2,6 +2,7 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Home, MapPin, Phone, User, Truck, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import './Checkout.css';
+import Swal from 'sweetalert2';
 
 const Checkout = () => {
     const location = useLocation();
@@ -48,10 +49,44 @@ const Checkout = () => {
 
     const handleDeliverySubmit = (e) => {
         e.preventDefault();
-        // Validate delivery form before proceeding
-        if (formData.fullName && formData.phone && formData.address && formData.city && formData.postalCode && formData.pickupDate && formData.pickupTime) {
-            setCurrentStep(2);
+
+        const isDelivery = formData.deliveryOption === 'delivery';
+
+        // Contact fields always required
+        if (!formData.fullName || !formData.phone) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Contact Details Required',
+                text: 'Please enter your full name and phone number.',
+                confirmButtonColor: '#0ea5e9',
+            });
+            return;
         }
+
+        // Address fields required only for Home Delivery
+        if (isDelivery && (!formData.address || !formData.city || !formData.postalCode)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Delivery Address Required',
+                text: 'Please fill in your address, city, and postal code for home delivery.',
+                confirmButtonColor: '#0ea5e9',
+            });
+            return;
+        }
+
+        // Schedule always required
+        if (!formData.pickupDate || !formData.pickupTime) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pickup Schedule Required',
+                text: 'Please select your preferred pickup date and time.',
+                confirmButtonColor: '#0ea5e9',
+            });
+            return;
+        }
+
+        // All good — proceed to payment
+        setCurrentStep(2);
     };
 
     const handlePaymentSubmit = (e) => {
