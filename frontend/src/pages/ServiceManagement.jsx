@@ -166,7 +166,6 @@ const ServiceManagement = () => {
                                             <th>Item Name</th>
                                             <th>Category</th>
                                             <th>Price (Rs.)</th>
-                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -180,19 +179,11 @@ const ServiceManagement = () => {
                                                     </span>
                                                 </td>
                                                 <td>Rs. {service.price.toFixed(2)}</td>
-                                                <td>
-                                                    <button 
-                                                        className="btn-delete" 
-                                                        onClick={() => handleDeleteItem(service.id)}
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </td>
                                             </tr>
                                         ))}
                                         {services.length === 0 && (
                                             <tr>
-                                                <td colSpan="5" className="text-center">No services found. Add some items above.</td>
+                                                <td colSpan="4" className="text-center">No services found. Add some items above.</td>
                                             </tr>
                                         )}
                                     </tbody>
