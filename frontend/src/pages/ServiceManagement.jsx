@@ -16,22 +16,19 @@ const ServiceManagement = () => {
         { id: 'SRV-006', name: 'Bed Sheet', category: 'Pressing', price: 300 },
     ]);
 
-    const [newItem, setNewItem] = useState({
-        name: '',
-        category: 'Wash & Dry',
-        price: ''
-    });
+    const [newItem, setNewItem] = useState({ name: '', category: 'Wash & Dry', price: '' });
+    const [editingItem, setEditingItem] = useState(null);
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    const handleLogout = () => navigate('/signin');
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setNewItem(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        setNewItem(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleEditInputChange = (e) => {
+        const { name, value } = e.target;
+        setEditingItem(prev => ({ ...prev, [name]: value }));
     };
 
     const handleAddItem = (e) => {
@@ -40,14 +37,12 @@ const ServiceManagement = () => {
             alert('Please fill in all fields');
             return;
         }
-
         const newService = {
-            id: `SRV-00${services.length + 1}`,
+            id: `SRV-${String(services.length + 1).padStart(3, '0')}`,
             name: newItem.name,
             category: newItem.category,
             price: parseFloat(newItem.price)
         };
-
         setServices([...services, newService]);
         setNewItem({ name: '', category: 'Wash & Dry', price: '' });
     };
@@ -57,6 +52,26 @@ const ServiceManagement = () => {
             setServices(services.filter(service => service.id !== id));
         }
     };
+
+    const handleEditStart = (service) => {
+        setEditingItem({ ...service });
+    };
+
+    const handleEditSave = (e) => {
+        e.preventDefault();
+        if (!editingItem.name || !editingItem.price) {
+            alert('Please fill in all fields');
+            return;
+        }
+        setServices(services.map(s =>
+            s.id === editingItem.id
+                ? { ...editingItem, price: parseFloat(editingItem.price) }
+                : s
+        ));
+        setEditingItem(null);
+    };
+
+    const handleEditCancel = () => setEditingItem(null);
 
     return (
         <div className="dashboard">
@@ -166,6 +181,7 @@ const ServiceManagement = () => {
                                             <th>Item Name</th>
                                             <th>Category</th>
                                             <th>Price (Rs.)</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -179,11 +195,25 @@ const ServiceManagement = () => {
                                                     </span>
                                                 </td>
                                                 <td>Rs. {service.price.toFixed(2)}</td>
+                                                <td className="svc-actions-cell">
+                                                    <button
+                                                        className="svc-btn-edit"
+                                                        onClick={() => handleEditStart(service)}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        className="svc-btn-delete"
+                                                        onClick={() => handleDeleteItem(service.id)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))}
                                         {services.length === 0 && (
                                             <tr>
-                                                <td colSpan="4" className="text-center">No services found. Add some items above.</td>
+                                                <td colSpan="5" className="text-center">No services found. Add some items above.</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -193,6 +223,61 @@ const ServiceManagement = () => {
                     </div>
                 </div>
             </main>
+
+            {/* Edit Modal */}
+            {editingItem && (
+                <div className="svc-modal-overlay" onClick={handleEditCancel}>
+                    <div className="svc-modal" onClick={e => e.stopPropagation()}>
+                        <div className="svc-modal-header">
+                            <h3>Edit Service Item</h3>
+                            <button className="svc-modal-close" onClick={handleEditCancel}>✕</button>
+                        </div>
+                        <form onSubmit={handleEditSave}>
+                            <div className="svc-modal-body">
+                                <div className="form-group">
+                                    <label>Item Name</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={editingItem.name}
+                                        onChange={handleEditInputChange}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Category</label>
+                                    <select
+                                        name="category"
+                                        value={editingItem.category}
+                                        onChange={handleEditInputChange}
+                                    >
+                                        <option value="Wash &amp; Dry">Wash &amp; Dry</option>
+                                        <option value="Dry Cleaning">Dry Cleaning</option>
+                                        <option value="Ironing">Ironing</option>
+                                        <option value="Pressing">Pressing</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>Price (Rs.)</label>
+                                    <input
+                                        type="number"
+                                        name="price"
+                                        value={editingItem.price}
+                                        onChange={handleEditInputChange}
+                                        min="0"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="svc-modal-footer">
+                                <button type="button" className="svc-btn-cancel" onClick={handleEditCancel}>Cancel</button>
+                                <button type="submit" className="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
