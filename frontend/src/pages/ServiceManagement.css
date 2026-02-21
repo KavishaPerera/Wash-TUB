@@ -1,0 +1,136 @@
+.service-management-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.add-service-section,
+.services-list-section {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.add-service-section h2,
+.services-list-section h2 {
+    color: #0f172a;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.75rem;
+}
+
+.add-service-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    align-items: end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #1e293b;
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.form-group select option {
+    background: white;
+    color: #1e293b;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+}
+
+.form-actions .btn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+}
+
+/* Category Badges */
+.category-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.category-badge.wash-and-dry {
+    background: #eff6ff;
+    color: #0284c7;
+}
+
+.category-badge.dry-cleaning {
+    background: #fdf4ff;
+    color: #a21caf;
+}
+
+.category-badge.ironing {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.category-badge.pressing {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+/* Delete Button */
+.btn-delete {
+    background: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fee2e2;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-delete:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+.text-center {
+    text-align: center;
+    color: #64748b;
+    padding: 3rem !important;
+}
+
+@media (max-width: 768px) {
+    .add-service-form {
+        grid-template-columns: 1fr;
+    }
+}

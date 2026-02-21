@@ -67,6 +67,9 @@ const UserManagement = () => {
                     <a href="#" className="nav-item active">
                         <span>User Management</span>
                     </a>
+                    <Link to="/service-management" className="nav-item">
+                        <span>Service Management</span>
+                    </Link>
                     <Link to="/all-orders" className="nav-item">
                         <span>All Orders</span>
                     </Link>

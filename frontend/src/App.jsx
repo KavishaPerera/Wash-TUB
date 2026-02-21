@@ -23,6 +23,7 @@ import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
 import GenerateReport from './pages/GenerateReport';
 import UserManagement from './pages/UserManagement';
+import ServiceManagement from './pages/ServiceManagement';
 import AddUser from './pages/AddUser';
 import AllOrders from './pages/AllOrders';
 import Payment from './pages/Payment';
@@ -64,6 +65,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/generate-report" element={<GenerateReport />} />
           <Route path="/user-management" element={<UserManagement />} />
+          <Route path="/service-management" element={<ServiceManagement />} />
           <Route path="/add-user" element={<AddUser />} />
           <Route path="/all-orders" element={<AllOrders />} />
           <Route path="/payment" element={<Payment />} />

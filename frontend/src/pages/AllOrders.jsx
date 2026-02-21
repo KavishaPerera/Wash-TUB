@@ -53,6 +53,9 @@ const AllOrders = () => {
                     <Link to="/user-management" className="nav-item">
                         <span>User Management</span>
                     </Link>
+                    <Link to="/service-management" className="nav-item">
+                        <span>Service Management</span>
+                    </Link>
                     <a href="#" className="nav-item active">
                         <span>All Orders</span>
                     </a>

@@ -70,6 +70,9 @@ const SystemSettings = () => {
                     <Link to="/user-management" className="nav-item">
                         <span>User Management</span>
                     </Link>
+                    <Link to="/service-management" className="nav-item">
+                        <span>Service Management</span>
+                    </Link>
                     <Link to="/all-orders" className="nav-item">
                         <span>All Orders</span>
                     </Link>
