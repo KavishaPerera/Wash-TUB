@@ -15,9 +15,7 @@ const GenerateReport = () => {
         { id: 3, name: 'Inventory_Log.html', type: 'Inventory', date: 'Jan 15, 2026', size: '850 KB' },
     ]);
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
 
     const handlePrintReport = () => {
         setIsGenerating(true);

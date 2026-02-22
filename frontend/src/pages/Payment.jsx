@@ -16,9 +16,7 @@ const Payment = () => {
         { id: 'PAY-005', orderId: 'ORD-006', customer: 'Ruwan Jayasena', amount: 'Rs. 1,200', method: 'cash', status: 'refunded', date: 'Jan 12, 2026' },
     ]);
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
 
     const filteredPayments = payments.filter(payment => {
         const matchesSearch = payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||

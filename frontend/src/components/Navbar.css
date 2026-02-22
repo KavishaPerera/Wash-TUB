@@ -141,6 +141,22 @@
     box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);
 }
 
+/* Logged-in logout button in navbar */
+.nav-btn-logout {
+    background: transparent;
+    color: #ef4444;
+    border: 1.5px solid #ef4444;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.nav-btn-logout:hover {
+    background: #ef4444;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
 .nav-btn:active {
     transform: translateY(0);
 }

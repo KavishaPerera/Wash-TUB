@@ -7,9 +7,7 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
     const [adminName] = useState('Admin');
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
 
     return (
         <div className="dashboard">

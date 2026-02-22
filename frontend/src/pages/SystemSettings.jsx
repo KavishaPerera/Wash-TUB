@@ -37,9 +37,7 @@ const SystemSettings = () => {
         pickupEnd: '18:00'
     });
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
 
     const handlePriceChange = (id, field, value) => {
         setPrices(prices.map(item =>

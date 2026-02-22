@@ -20,7 +20,11 @@ const CustomerDashboard = () => {
     };
 
     const handleLogout = () => {
-        // Handle logout logic
+        // Clear session data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         navigate('/signin');
     };
 

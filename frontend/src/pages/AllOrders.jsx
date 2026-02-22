@@ -16,9 +16,7 @@ const AllOrders = () => {
         { id: 'ORD-005', customer: 'Supun Mendis', service: 'Dry Cleaning', items: 5, total: 'Rs. 3,000', status: 'cancelled', date: 'Jan 10, 2026' },
     ]);
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
 
     const filteredOrders = orders.filter(order => {
         const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||

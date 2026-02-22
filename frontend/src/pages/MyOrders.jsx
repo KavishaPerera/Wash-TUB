@@ -25,9 +25,7 @@ const MyOrders = () => {
         return `status-${status.toLowerCase()}`;
     };
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
 
     return (
         <div className="dashboard">

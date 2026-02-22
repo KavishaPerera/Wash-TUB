@@ -114,7 +114,7 @@ const ServiceManagement = () => {
         } catch { } finally { setHistoryLoading(false); }
     };
 
-    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); navigate('/signin'); };
+    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
     const formatDate = (d) => d ? new Date(d).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
 
     return (

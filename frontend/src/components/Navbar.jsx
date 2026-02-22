@@ -1,10 +1,40 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // Detect login state (re-evaluated on each render)
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  let user = null;
+  try {
+    const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+    if (userStr) user = JSON.parse(userStr);
+  } catch { /* ignore */ }
+
+  const isLoggedIn = !!token && !!user;
+
+  const getDashboardPath = () => {
+    if (!user) return '/customer-dashboard';
+    switch (user.role) {
+      case 'admin': return '/admin-dashboard';
+      case 'staff': return '/staff-dashboard';
+      case 'delivery': return '/delivery-dashboard';
+      default: return '/customer-dashboard';
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    setMenuOpen(false); // close mobile menu
+    navigate('/signin');
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,8 +67,21 @@ const Navbar = () => {
 
           {/* CTA Buttons */}
           <div className="navbar-actions">
-            <Link to="/signin" className="nav-btn nav-btn-signin">Sign In</Link>
-            <Link to="/signup" className="nav-btn nav-btn-start">Get Started</Link>
+            {isLoggedIn ? (
+              <>
+                <Link to={getDashboardPath()} className="nav-btn nav-btn-signin">
+                  {user?.name ? user.name.split(' ')[0] : 'My Account'}
+                </Link>
+                <button className="nav-btn nav-btn-logout" onClick={handleLogout}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/signin" className="nav-btn nav-btn-signin">Sign In</Link>
+                <Link to="/signup" className="nav-btn nav-btn-start">Get Started</Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -61,8 +104,21 @@ const Navbar = () => {
             <li><Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link></li>
           </ul>
           <div className="mobile-menu-actions">
-            <Link to="/signin" className="nav-btn nav-btn-signin" onClick={() => setMenuOpen(false)}>Sign In</Link>
-            <Link to="/signup" className="nav-btn nav-btn-start" onClick={() => setMenuOpen(false)}>Get Started</Link>
+            {isLoggedIn ? (
+              <>
+                <Link to={getDashboardPath()} className="nav-btn nav-btn-signin" onClick={() => setMenuOpen(false)}>
+                  {user?.name ? user.name.split(' ')[0] : 'My Account'}
+                </Link>
+                <button className="nav-btn nav-btn-logout" onClick={handleLogout}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/signin" className="nav-btn nav-btn-signin" onClick={() => setMenuOpen(false)}>Sign In</Link>
+                <Link to="/signup" className="nav-btn nav-btn-start" onClick={() => setMenuOpen(false)}>Get Started</Link>
+              </>
+            )}
           </div>
         </div>
       </div>

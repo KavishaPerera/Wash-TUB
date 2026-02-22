@@ -58,9 +58,7 @@ const Profile = () => {
         alert('Password changed successfully!');
     };
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
 
     return (
         <div className="dashboard">

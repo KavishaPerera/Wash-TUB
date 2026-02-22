@@ -108,9 +108,7 @@ const Notifications = () => {
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
 
     const getTypeClass = (type) => {
         const typeClasses = {
