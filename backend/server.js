@@ -7,6 +7,8 @@ dotenv.config();
 
 const authRoutes = require('./routes/auth.routes');
 const adminRoutes = require('./routes/admin.routes');
+const serviceRoutes = require('./routes/service.routes');
+const publicServiceRoutes = require('./routes/publicService.routes');
 const db = require('./config/db.config');
 
 const app = express();
@@ -29,6 +31,8 @@ db.getConnection()
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/services', serviceRoutes);
+app.use('/api/services', publicServiceRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

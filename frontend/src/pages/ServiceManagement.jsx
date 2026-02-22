@@ -1,280 +1,292 @@
-import { useState } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
 import './ServiceManagement.css';
+import Swal from 'sweetalert2';
+
+const API_URL = 'http://localhost:5000/api';
+const UNIT_LABELS = { KG: 'per KG', PIECE: 'per Piece', ITEM: 'per Item' };
+const EMPTY_FORM = { name: '', description: '', unitType: 'ITEM', price: '' };
 
 const ServiceManagement = () => {
     const navigate = useNavigate();
-    
-    const [services, setServices] = useState([
-        { id: 'SRV-001', name: 'T-Shirt', category: 'Wash & Dry', price: 150 },
-        { id: 'SRV-002', name: 'Trousers', category: 'Wash & Dry', price: 200 },
-        { id: 'SRV-003', name: 'Suit', category: 'Dry Cleaning', price: 1500 },
-        { id: 'SRV-004', name: 'Dress', category: 'Dry Cleaning', price: 1200 },
-        { id: 'SRV-005', name: 'Shirt', category: 'Ironing', price: 100 },
-        { id: 'SRV-006', name: 'Bed Sheet', category: 'Pressing', price: 300 },
-    ]);
-
-    const [newItem, setNewItem] = useState({ name: '', category: 'Wash & Dry', price: '' });
+    const [services, setServices] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+    const [newItem, setNewItem] = useState(EMPTY_FORM);
     const [editingItem, setEditingItem] = useState(null);
+    const [historyModal, setHistoryModal] = useState(null);
+    const [historyLoading, setHistoryLoading] = useState(false);
 
-    const handleLogout = () => navigate('/signin');
+    const getToken = () => localStorage.getItem('token');
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewItem(prev => ({ ...prev, [name]: value }));
-    };
+    const fetchServices = useCallback(async () => {
+        setLoading(true); setError('');
+        try {
+            const res = await fetch(`${API_URL}/admin/services`, { headers: { Authorization: `Bearer ${getToken()}` } });
+            const data = await res.json();
+            if (res.ok && data.success) setServices(data.services);
+            else if (res.status === 401 || res.status === 403) navigate('/signin');
+            else setError(data.message || 'Failed to load services.');
+        } catch { setError('Unable to connect to the server.'); }
+        finally { setLoading(false); }
+    }, [navigate]);
 
-    const handleEditInputChange = (e) => {
-        const { name, value } = e.target;
-        setEditingItem(prev => ({ ...prev, [name]: value }));
-    };
+    useEffect(() => { fetchServices(); }, [fetchServices]);
 
-    const handleAddItem = (e) => {
+    const handleAddItem = async (e) => {
         e.preventDefault();
-        if (!newItem.name || !newItem.price) {
-            alert('Please fill in all fields');
-            return;
-        }
-        const newService = {
-            id: `SRV-${String(services.length + 1).padStart(3, '0')}`,
-            name: newItem.name,
-            category: newItem.category,
-            price: parseFloat(newItem.price)
-        };
-        setServices([...services, newService]);
-        setNewItem({ name: '', category: 'Wash & Dry', price: '' });
+        if (!newItem.name || !newItem.price) { Swal.fire({ icon: 'warning', title: 'Missing Fields', text: 'Item name and price are required.', confirmButtonColor: '#0ea5e9' }); return; }
+        setSubmitting(true);
+        try {
+            const res = await fetch(`${API_URL}/admin/services`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+                body: JSON.stringify({ serviceName: newItem.name, description: newItem.description || null, unitType: newItem.unitType, pricePerUnit: newItem.price }),
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setServices(prev => [...prev, data.service]);
+                setNewItem(EMPTY_FORM);
+                Swal.fire({ icon: 'success', title: 'Service Added!', text: data.message, timer: 1600, timerProgressBar: true, showConfirmButton: false });
+            } else Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#0ea5e9' });
+        } catch { Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Unable to reach the server.', confirmButtonColor: '#0ea5e9' }); }
+        finally { setSubmitting(false); }
     };
 
-    const handleDeleteItem = (id) => {
-        if (window.confirm('Are you sure you want to delete this service item?')) {
-            setServices(services.filter(service => service.id !== id));
-        }
-    };
+    const handleEditStart = (service) => setEditingItem({ id: service.id, name: service.name, description: service.description || '', unitType: service.unitType, price: service.price !== null ? String(service.price) : '' });
 
-    const handleEditStart = (service) => {
-        setEditingItem({ ...service });
-    };
-
-    const handleEditSave = (e) => {
+    const handleEditSave = async (e) => {
         e.preventDefault();
-        if (!editingItem.name || !editingItem.price) {
-            alert('Please fill in all fields');
-            return;
-        }
-        setServices(services.map(s =>
-            s.id === editingItem.id
-                ? { ...editingItem, price: parseFloat(editingItem.price) }
-                : s
-        ));
-        setEditingItem(null);
+        if (!editingItem.name || !editingItem.price) { Swal.fire({ icon: 'warning', title: 'Missing Fields', text: 'Item name and price are required.', confirmButtonColor: '#0ea5e9' }); return; }
+        setSubmitting(true);
+        try {
+            const res = await fetch(`${API_URL}/admin/services/${editingItem.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+                body: JSON.stringify({ serviceName: editingItem.name, description: editingItem.description || null, unitType: editingItem.unitType, pricePerUnit: editingItem.price }),
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setServices(prev => prev.map(s => s.id === editingItem.id ? data.service : s));
+                setEditingItem(null);
+                Swal.fire({ icon: 'success', title: 'Updated!', text: data.message, timer: 1600, timerProgressBar: true, showConfirmButton: false });
+            } else Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#0ea5e9' });
+        } catch { Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Unable to reach the server.', confirmButtonColor: '#0ea5e9' }); }
+        finally { setSubmitting(false); }
     };
 
-    const handleEditCancel = () => setEditingItem(null);
+    const handleToggleStatus = async (service) => {
+        const action = service.isActive ? 'deactivate' : 'activate';
+        const confirm = await Swal.fire({ icon: 'question', title: `${action.charAt(0).toUpperCase() + action.slice(1)} Service?`, text: `Are you sure you want to ${action} "${service.name}"?`, showCancelButton: true, confirmButtonColor: service.isActive ? '#ef4444' : '#22c55e', cancelButtonColor: '#94a3b8', confirmButtonText: `Yes, ${action}` });
+        if (!confirm.isConfirmed) return;
+        try {
+            const res = await fetch(`${API_URL}/admin/services/${service.id}/toggle-status`, { method: 'PATCH', headers: { Authorization: `Bearer ${getToken()}` } });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setServices(prev => prev.map(s => s.id === service.id ? { ...s, isActive: data.isActive } : s));
+                Swal.fire({ icon: 'success', title: 'Done', text: data.message, timer: 1500, timerProgressBar: true, showConfirmButton: false });
+            } else Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#0ea5e9' });
+        } catch { Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Unable to reach the server.', confirmButtonColor: '#0ea5e9' }); }
+    };
+
+    const handleDeleteItem = async (service) => {
+        const confirm = await Swal.fire({ icon: 'warning', title: 'Delete Service?', html: `This will permanently delete <strong>${service.name}</strong> and its price history.`, showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#94a3b8', confirmButtonText: 'Yes, delete' });
+        if (!confirm.isConfirmed) return;
+        try {
+            const res = await fetch(`${API_URL}/admin/services/${service.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${getToken()}` } });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setServices(prev => prev.filter(s => s.id !== service.id));
+                Swal.fire({ icon: 'success', title: 'Deleted', text: data.message, timer: 1500, timerProgressBar: true, showConfirmButton: false });
+            } else Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#0ea5e9' });
+        } catch { Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Unable to reach the server.', confirmButtonColor: '#0ea5e9' }); }
+    };
+
+    const handleViewHistory = async (service) => {
+        setHistoryLoading(true); setHistoryModal({ serviceName: service.name, history: [] });
+        try {
+            const res = await fetch(`${API_URL}/admin/services/${service.id}/price-history`, { headers: { Authorization: `Bearer ${getToken()}` } });
+            const data = await res.json();
+            if (res.ok && data.success) setHistoryModal({ serviceName: data.serviceName, history: data.history });
+        } catch { } finally { setHistoryLoading(false); }
+    };
+
+    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); navigate('/signin'); };
+    const formatDate = (d) => d ? new Date(d).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
 
     return (
         <div className="dashboard">
-            {/* Sidebar */}
             <aside className="dashboard-sidebar">
-                <div className="sidebar-header">
-                    <h2 className="logo">WashTub</h2>
-                </div>
-
+                <div className="sidebar-header"><h2 className="logo">WashTub</h2></div>
                 <nav className="sidebar-nav">
-                    <Link to="/admin-dashboard" className="nav-item">
-                        <span>Overview</span>
-                    </Link>
-                    <Link to="/user-management" className="nav-item">
-                        <span>User Management</span>
-                    </Link>
-                    <Link to="/service-management" className="nav-item active">
-                        <span>Service Management</span>
-                    </Link>
-                    <Link to="/all-orders" className="nav-item">
-                        <span>All Orders</span>
-                    </Link>
-                    <Link to="/payment" className="nav-item">
-                        <span>Payment</span>
-                    </Link>
-                    <Link to="/generate-report" className="nav-item">
-                        <span>Generate Reports</span>
-                    </Link>
-                    <Link to="/system-settings" className="nav-item">
-                        <span>System Settings</span>
-                    </Link>
+                    <Link to="/admin-dashboard" className="nav-item"><span>Overview</span></Link>
+                    <Link to="/user-management" className="nav-item"><span>User Management</span></Link>
+                    <Link to="/service-management" className="nav-item active"><span>Service Management</span></Link>
+                    <Link to="/all-orders" className="nav-item"><span>All Orders</span></Link>
+                    <Link to="/payment" className="nav-item"><span>Payment</span></Link>
+                    <Link to="/generate-report" className="nav-item"><span>Generate Reports</span></Link>
+                    <Link to="/system-settings" className="nav-item"><span>System Settings</span></Link>
                 </nav>
-
-                <button className="logout-btn" onClick={handleLogout}>
-                    <span>Logout</span>
-                </button>
+                <button className="logout-btn" onClick={handleLogout}><span>Logout</span></button>
             </aside>
 
-            {/* Main Content */}
             <main className="dashboard-main">
                 <header className="dashboard-header">
                     <div className="header-content">
-                        <div className="header-left">
-                            <h1>Service Management</h1>
-                            <p>Manage laundry services and pricing</p>
-                        </div>
+                        <div className="header-left"><h1>Service Management</h1><p>Manage laundry services and pricing</p></div>
                     </div>
                 </header>
-
                 <div className="dashboard-content">
+                    {error && (
+                        <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '12px 20px', borderRadius: '8px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>{error}</span>
+                            <button onClick={fetchServices} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Retry</button>
+                        </div>
+                    )}
                     <div className="service-management-container">
-                        {/* Add New Item Form */}
+                        <section className="stats-section admin-stats">
+                            <div className="stat-card"><div className="stat-info"><p className="stat-label">Total Services</p><h3 className="stat-value">{services.length}</h3></div></div>
+                            <div className="stat-card"><div className="stat-info"><p className="stat-label">Active</p><h3 className="stat-value">{services.filter(s => s.isActive).length}</h3></div></div>
+                            <div className="stat-card"><div className="stat-info"><p className="stat-label">Inactive</p><h3 className="stat-value">{services.filter(s => !s.isActive).length}</h3></div></div>
+                        </section>
+
                         <section className="add-service-section">
                             <h2>Add New Service Item</h2>
                             <form className="add-service-form" onSubmit={handleAddItem}>
                                 <div className="form-group">
-                                    <label>Item Name</label>
-                                    <input 
-                                        type="text" 
-                                        name="name" 
-                                        value={newItem.name} 
-                                        onChange={handleInputChange} 
-                                        placeholder="e.g. T-Shirt, Blanket"
-                                        required 
-                                    />
+                                    <label>Item Name *</label>
+                                    <input type="text" value={newItem.name} onChange={e => setNewItem(p => ({ ...p, name: e.target.value }))} placeholder="e.g. T-Shirt, Blanket" required disabled={submitting} />
                                 </div>
                                 <div className="form-group">
                                     <label>Category</label>
-                                    <select 
-                                        name="category" 
-                                        value={newItem.category} 
-                                        onChange={handleInputChange}
-                                    >
-                                        <option value="Wash & Dry">Wash & Dry</option>
-                                        <option value="Dry Cleaning">Dry Cleaning</option>
+                                    <select value={newItem.description} onChange={e => setNewItem(p => ({ ...p, description: e.target.value }))} disabled={submitting}>
+                                        <option value="">-- Select Category --</option>
+                                        <option value="Wash &amp; Dry">Wash &amp; Dry</option>
                                         <option value="Ironing">Ironing</option>
+                                        <option value="Dry Cleaning">Dry Cleaning</option>
                                         <option value="Pressing">Pressing</option>
                                     </select>
                                 </div>
                                 <div className="form-group">
-                                    <label>Price (Rs.)</label>
-                                    <input 
-                                        type="number" 
-                                        name="price" 
-                                        value={newItem.price} 
-                                        onChange={handleInputChange} 
-                                        placeholder="0.00"
-                                        min="0"
-                                        step="0.01"
-                                        required 
-                                    />
+                                    <label>Unit Type *</label>
+                                    <select value={newItem.unitType} onChange={e => setNewItem(p => ({ ...p, unitType: e.target.value }))} disabled={submitting}>
+                                        <option value="ITEM">Item (per item)</option>
+                                        <option value="PIECE">Piece (per piece)</option>
+                                        <option value="KG">KG (per kilogram)</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>Price (Rs.) *</label>
+                                    <input type="number" value={newItem.price} onChange={e => setNewItem(p => ({ ...p, price: e.target.value }))} placeholder="0.00" min="0" step="0.01" required disabled={submitting} />
                                 </div>
                                 <div className="form-actions">
-                                    <button type="submit" className="btn btn-primary">Add Item</button>
+                                    <button type="submit" className="btn btn-primary" disabled={submitting}>{submitting ? 'Adding...' : '+ Add Item'}</button>
                                 </div>
                             </form>
                         </section>
 
-                        {/* Services List */}
                         <section className="services-list-section">
-                            <h2>Current Services</h2>
+                            <h2>Current Services ({services.length})</h2>
                             <div className="table-container">
-                                <table className="dashboard-table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Item Name</th>
-                                            <th>Category</th>
-                                            <th>Price (Rs.)</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {services.map(service => (
-                                            <tr key={service.id}>
-                                                <td>{service.id}</td>
-                                                <td>{service.name}</td>
-                                                <td>
-                                                    <span className={`category-badge ${service.category.replace(/\s+/g, '-').replace('&', 'and').toLowerCase()}`}>
-                                                        {service.category}
-                                                    </span>
-                                                </td>
-                                                <td>Rs. {service.price.toFixed(2)}</td>
-                                                <td className="svc-actions-cell">
-                                                    <button
-                                                        className="svc-btn-edit"
-                                                        onClick={() => handleEditStart(service)}
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button
-                                                        className="svc-btn-delete"
-                                                        onClick={() => handleDeleteItem(service.id)}
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {services.length === 0 && (
+                                {loading ? (
+                                    <div className="no-data"><p>Loading services...</p></div>
+                                ) : (
+                                    <table className="dashboard-table">
+                                        <thead>
                                             <tr>
-                                                <td colSpan="5" className="text-center">No services found. Add some items above.</td>
+                                                <th>#</th><th>Item Name</th><th>Description</th><th>Unit</th><th>Price (Rs.)</th><th>Status</th><th>Actions</th>
                                             </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {services.map((service, i) => (
+                                                <tr key={service.id} style={{ opacity: service.isActive ? 1 : 0.55 }}>
+                                                    <td>{i + 1}</td>
+                                                    <td style={{ fontWeight: 600 }}>{service.name}</td>
+                                                    <td>{service.description ? <span className="category-badge" style={{ background: '#f0f9ff', color: '#0369a1' }}>{service.description}</span> : '—'}</td>
+                                                    <td><span className="category-badge" style={{ background: '#f8fafc', color: '#475569' }}>{UNIT_LABELS[service.unitType] || service.unitType}</span></td>
+                                                    <td style={{ fontWeight: 700, color: '#0f172a' }}>Rs. {service.price !== null ? Number(service.price).toFixed(2) : '—'}</td>
+                                                    <td><span className={`status-badge ${service.isActive ? 'status-active' : 'status-inactive'}`}>{service.isActive ? 'Active' : 'Inactive'}</span></td>
+                                                    <td className="svc-actions-cell">
+                                                        <button className="svc-btn-edit" onClick={() => handleEditStart(service)}>Edit</button>
+                                                        <button className={`svc-btn-edit ${service.isActive ? 'svc-btn-deactivate' : 'svc-btn-activate'}`} onClick={() => handleToggleStatus(service)}>{service.isActive ? 'Deactivate' : 'Activate'}</button>
+                                                        <button className="svc-btn-history" onClick={() => handleViewHistory(service)}>History</button>
+                                                        <button className="svc-btn-delete" onClick={() => handleDeleteItem(service)}>Delete</button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {!loading && services.length === 0 && (
+                                                <tr><td colSpan="7" className="text-center">No services found. Add some items above.</td></tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                )}
                             </div>
                         </section>
                     </div>
                 </div>
             </main>
 
-            {/* Edit Modal */}
             {editingItem && (
-                <div className="svc-modal-overlay" onClick={handleEditCancel}>
+                <div className="svc-modal-overlay" onClick={() => setEditingItem(null)}>
                     <div className="svc-modal" onClick={e => e.stopPropagation()}>
                         <div className="svc-modal-header">
                             <h3>Edit Service Item</h3>
-                            <button className="svc-modal-close" onClick={handleEditCancel}>✕</button>
+                            <button className="svc-modal-close" onClick={() => setEditingItem(null)}>x</button>
                         </div>
                         <form onSubmit={handleEditSave}>
                             <div className="svc-modal-body">
-                                <div className="form-group">
-                                    <label>Item Name</label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={editingItem.name}
-                                        onChange={handleEditInputChange}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Category</label>
-                                    <select
-                                        name="category"
-                                        value={editingItem.category}
-                                        onChange={handleEditInputChange}
-                                    >
-                                        <option value="Wash &amp; Dry">Wash &amp; Dry</option>
-                                        <option value="Dry Cleaning">Dry Cleaning</option>
-                                        <option value="Ironing">Ironing</option>
-                                        <option value="Pressing">Pressing</option>
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label>Price (Rs.)</label>
-                                    <input
-                                        type="number"
-                                        name="price"
-                                        value={editingItem.price}
-                                        onChange={handleEditInputChange}
-                                        min="0"
-                                        step="0.01"
-                                        required
-                                    />
-                                </div>
+                                <div className="form-group"><label>Item Name *</label><input type="text" value={editingItem.name} onChange={e => setEditingItem(p => ({ ...p, name: e.target.value }))} required disabled={submitting} /></div>
+                                <div className="form-group"><label>Category</label><select value={editingItem.description} onChange={e => setEditingItem(p => ({ ...p, description: e.target.value }))} disabled={submitting}><option value="">-- Select Category --</option><option value="Wash &amp; Dry">Wash &amp; Dry</option><option value="Ironing">Ironing</option><option value="Dry Cleaning">Dry Cleaning</option><option value="Pressing">Pressing</option></select></div>
+                                <div className="form-group"><label>Unit Type *</label><select value={editingItem.unitType} onChange={e => setEditingItem(p => ({ ...p, unitType: e.target.value }))} disabled={submitting}><option value="ITEM">Item (per item)</option><option value="PIECE">Piece (per piece)</option><option value="KG">KG (per kilogram)</option></select></div>
+                                <div className="form-group"><label>Price (Rs.) *</label><input type="number" value={editingItem.price} onChange={e => setEditingItem(p => ({ ...p, price: e.target.value }))} min="0" step="0.01" required disabled={submitting} /></div>
+                                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, background: '#f8fafc', padding: '8px 12px', borderRadius: '6px' }}>Changing the price will archive the old price to history and set a new current price.</p>
                             </div>
                             <div className="svc-modal-footer">
-                                <button type="button" className="svc-btn-cancel" onClick={handleEditCancel}>Cancel</button>
-                                <button type="submit" className="btn btn-primary">Save Changes</button>
+                                <button type="button" className="svc-btn-cancel" onClick={() => setEditingItem(null)} disabled={submitting}>Cancel</button>
+                                <button type="submit" className="btn btn-primary" disabled={submitting}>{submitting ? 'Saving...' : 'Save Changes'}</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {historyModal && (
+                <div className="svc-modal-overlay" onClick={() => setHistoryModal(null)}>
+                    <div className="svc-modal" style={{ maxWidth: 560 }} onClick={e => e.stopPropagation()}>
+                        <div className="svc-modal-header">
+                            <h3>Price History - {historyModal.serviceName}</h3>
+                            <button className="svc-modal-close" onClick={() => setHistoryModal(null)}>x</button>
+                        </div>
+                        <div className="svc-modal-body" style={{ maxHeight: 400, overflowY: 'auto' }}>
+                            {historyLoading ? (
+                                <p style={{ textAlign: 'center', color: '#64748b' }}>Loading...</p>
+                            ) : historyModal.history.length === 0 ? (
+                                <p style={{ textAlign: 'center', color: '#64748b' }}>No price history available.</p>
+                            ) : (
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                    <thead>
+                                        <tr style={{ background: '#f8fafc' }}>
+                                            <th style={{ padding: '8px 12px', textAlign: 'left', color: '#64748b', fontWeight: 600, borderBottom: '1px solid #e2e8f0' }}>Price (Rs.)</th>
+                                            <th style={{ padding: '8px 12px', textAlign: 'left', color: '#64748b', fontWeight: 600, borderBottom: '1px solid #e2e8f0' }}>Effective From</th>
+                                            <th style={{ padding: '8px 12px', textAlign: 'left', color: '#64748b', fontWeight: 600, borderBottom: '1px solid #e2e8f0' }}>Effective To</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {historyModal.history.map((h, i) => (
+                                            <tr key={h.service_price_id} style={{ background: i % 2 === 0 ? '#fff' : '#f8fafc' }}>
+                                                <td style={{ padding: '8px 12px', fontWeight: 700, color: '#0f172a', borderBottom: '1px solid #f1f5f9' }}>Rs. {Number(h.price_per_unit).toFixed(2)}</td>
+                                                <td style={{ padding: '8px 12px', color: '#475569', borderBottom: '1px solid #f1f5f9' }}>{formatDate(h.effective_from)}</td>
+                                                <td style={{ padding: '8px 12px', borderBottom: '1px solid #f1f5f9' }}>{h.effective_to ? <span style={{ color: '#475569' }}>{formatDate(h.effective_to)}</span> : <span style={{ background: '#dcfce7', color: '#16a34a', padding: '2px 8px', borderRadius: '99px', fontSize: '0.78rem', fontWeight: 700 }}>Current</span>}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                        <div className="svc-modal-footer"><button className="svc-btn-cancel" onClick={() => setHistoryModal(null)}>Close</button></div>
                     </div>
                 </div>
             )}

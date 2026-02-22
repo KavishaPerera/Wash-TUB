@@ -145,6 +145,41 @@
     border-color: #dc2626;
 }
 
+.svc-btn-deactivate {
+    color: #d97706 !important;
+    border-color: #fcd34d !important;
+}
+.svc-btn-deactivate:hover {
+    background: #fffbeb !important;
+    border-color: #d97706 !important;
+}
+
+.svc-btn-activate {
+    color: #16a34a !important;
+    border-color: #86efac !important;
+}
+.svc-btn-activate:hover {
+    background: #f0fdf4 !important;
+    border-color: #16a34a !important;
+}
+
+.svc-btn-history {
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 1px solid #c4b5fd;
+    background: white;
+    color: #7c3aed;
+}
+.svc-btn-history:hover {
+    background: #f5f3ff;
+    border-color: #7c3aed;
+}
+
 /* Edit Modal */
 .svc-modal-overlay {
     position: fixed;

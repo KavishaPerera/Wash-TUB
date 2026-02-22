@@ -1,85 +1,71 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CustomizeModal from '../components/CustomizeModal';
 import './Pricing.css';
 
-const categories = [
-    { id: 'all', name: 'All Items' },
-    { id: 'gents-casual', name: 'Gents Casual Wear' },
-    { id: 'gents-formal', name: 'Gents Formal Wear' },
-    { id: 'ladies-casual', name: 'Ladies Casual Wear' },
-    { id: 'ladies-formal', name: 'Ladies Formal Wear' },
-    { id: 'kids', name: 'Kids' },
-    { id: 'household', name: 'Household' },
-    { id: 'traditional', name: 'Traditional' }
-];
+const API_URL = 'http://localhost:5000/api';
+const PREFERRED_CATEGORIES = ['Wash & Dry', 'Ironing', 'Dry Cleaning', 'Pressing'];
 
-const pricingItems = [
-    // Gents Casual Wear
-    { id: 1, name: 'T-Shirt', price: 150, category: 'gents-casual' },
-    { id: 2, name: 'Shirt', price: 200, category: 'gents-casual' },
-    { id: 3, name: 'Shorts', price: 180, category: 'gents-casual' },
-    { id: 4, name: 'Jeans', price: 250, category: 'gents-casual' },
-    { id: 5, name: 'Jacket', price: 400, category: 'gents-casual' },
-    { id: 6, name: 'Hoodie', price: 350, category: 'gents-casual' },
-
-    // Gents Formal Wear
-    { id: 7, name: 'Suit (2 Pcs)', price: 800, category: 'gents-formal' },
-    { id: 8, name: 'Suit (3 Pcs)', price: 1000, category: 'gents-formal' },
-    { id: 9, name: 'Blazer', price: 500, category: 'gents-formal' },
-    { id: 10, name: 'Formal Shirt', price: 250, category: 'gents-formal' },
-    { id: 11, name: 'Formal Trousers', price: 300, category: 'gents-formal' },
-    { id: 12, name: 'Tie', price: 100, category: 'gents-formal' },
-
-    // Ladies Casual Wear
-    { id: 13, name: 'Blouse', price: 200, category: 'ladies-casual' },
-    { id: 14, name: 'T-Shirt', price: 150, category: 'ladies-casual' },
-    { id: 15, name: 'Jeans', price: 250, category: 'ladies-casual' },
-    { id: 16, name: 'Skirt', price: 220, category: 'ladies-casual' },
-    { id: 17, name: 'Frock', price: 300, category: 'ladies-casual' },
-    { id: 18, name: 'Jacket', price: 400, category: 'ladies-casual' },
-
-    // Ladies Formal Wear
-    { id: 19, name: 'Formal Dress', price: 450, category: 'ladies-formal' },
-    { id: 20, name: 'Formal Blouse', price: 250, category: 'ladies-formal' },
-    { id: 21, name: 'Formal Skirt', price: 280, category: 'ladies-formal' },
-    { id: 22, name: 'Blazer', price: 500, category: 'ladies-formal' },
-    { id: 23, name: 'Formal Trousers', price: 300, category: 'ladies-formal' },
-
-    // Kids
-    { id: 24, name: 'Kids T-Shirt', price: 100, category: 'kids' },
-    { id: 25, name: 'Kids Shorts', price: 120, category: 'kids' },
-    { id: 26, name: 'Kids Dress', price: 200, category: 'kids' },
-    { id: 27, name: 'Kids Jeans', price: 180, category: 'kids' },
-    { id: 28, name: 'School Uniform', price: 250, category: 'kids' },
-
-    // Household
-    { id: 29, name: 'Bed Sheet (S)', price: 200, category: 'household' },
-    { id: 30, name: 'Bed Sheet (L)', price: 300, category: 'household' },
-    { id: 31, name: 'Pillow Case', price: 80, category: 'household' },
-    { id: 32, name: 'Bath Towel', price: 150, category: 'household' },
-    { id: 33, name: 'Hand Towel', price: 80, category: 'household' },
-    { id: 34, name: 'Curtain (Per Kg)', price: 400, category: 'household' },
-    { id: 35, name: 'Table Cloth', price: 250, category: 'household' },
-    { id: 36, name: 'Blanket', price: 500, category: 'household' },
-
-    // Traditional
-    { id: 37, name: 'Saree', price: 350, category: 'traditional' },
-    { id: 38, name: 'Saree Blouse', price: 200, category: 'traditional' },
-    { id: 39, name: 'Kurta', price: 250, category: 'traditional' },
-    { id: 40, name: 'Salwar', price: 200, category: 'traditional' },
-    { id: 41, name: 'Sherwani', price: 800, category: 'traditional' },
-    { id: 42, name: 'Lehenga', price: 600, category: 'traditional' }
-];
+const getCategoryName = (description) => (description || '').trim() || 'Other';
 
 const Pricing = () => {
     const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState('all');
+    const [services, setServices] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [basket, setBasket] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [showModal, setShowModal] = useState(false);
+
+    const fetchServices = useCallback(async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const res = await fetch(`${API_URL}/services`);
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                setServices(Array.isArray(data.services) ? data.services : []);
+            } else {
+                setError(data.message || 'Failed to load services.');
+            }
+        } catch {
+            setError('Unable to connect to the server.');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => { fetchServices(); }, [fetchServices]);
+
+    const categories = useMemo(() => {
+        const available = new Set(services.map(s => getCategoryName(s.description)));
+
+        const ordered = [
+            ...PREFERRED_CATEGORIES.filter(c => available.has(c)),
+            ...Array.from(available).filter(c => !PREFERRED_CATEGORIES.includes(c)).sort((a, b) => a.localeCompare(b))
+        ];
+
+        return [
+            { id: 'all', name: 'All Items' },
+            ...ordered.map(c => ({ id: c, name: c }))
+        ];
+    }, [services]);
+
+    const pricingItems = useMemo(() => {
+        return services
+            .filter(s => typeof s.price === 'number')
+            .map(s => ({
+                id: s.id,
+                name: s.name,
+                price: s.price,
+                category: getCategoryName(s.description),
+                unitType: s.unitType,
+            }));
+    }, [services]);
 
     const filteredItems = activeCategory === 'all'
         ? pricingItems
@@ -117,6 +103,13 @@ const Pricing = () => {
             <section className="pricing-section">
                 <div className="pricing-container">
 
+                    {error && (
+                        <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '12px 20px', borderRadius: '8px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>{error}</span>
+                            <button onClick={fetchServices} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Retry</button>
+                        </div>
+                    )}
+
                     {/* Category Tabs */}
                     <div className="category-tabs">
                         {categories.map((category) => (
@@ -132,22 +125,38 @@ const Pricing = () => {
 
                     {/* Items Grid */}
                     <div className="items-grid">
-                        {filteredItems.map((item) => (
-                            <div key={item.id} className="item-card">
-                                <div className="item-info">
-                                    <div className="item-details">
-                                        <div className="item-name">{item.name}</div>
-                                        <div className="item-price">LKR {item.price.toFixed(2)}</div>
-                                    </div>
-                                    <button
-                                        className="btn-add"
-                                        onClick={() => handleAddClick(item)}
-                                    >
-                                        Add
-                                    </button>
+                        {loading ? (
+                            <div className="item-card" style={{ gridColumn: '1 / -1' }}>
+                                <div className="item-info" style={{ justifyContent: 'center' }}>
+                                    <div className="item-name" style={{ margin: 0 }}>Loading services...</div>
                                 </div>
                             </div>
-                        ))}
+                        ) : (
+                            filteredItems.map((item) => (
+                                <div key={item.id} className="item-card">
+                                    <div className="item-info">
+                                        <div className="item-details">
+                                            <div className="item-name">{item.name}</div>
+                                            <div className="item-price">LKR {item.price.toFixed(2)}</div>
+                                        </div>
+                                        <button
+                                            className="btn-add"
+                                            onClick={() => handleAddClick(item)}
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+
+                        {!loading && !error && filteredItems.length === 0 && (
+                            <div className="item-card" style={{ gridColumn: '1 / -1' }}>
+                                <div className="item-info" style={{ justifyContent: 'center' }}>
+                                    <div className="item-name" style={{ margin: 0 }}>No services found.</div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>
