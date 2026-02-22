@@ -231,22 +231,115 @@ const ServiceManagement = () => {
 
             {editingItem && (
                 <div className="svc-modal-overlay" onClick={() => setEditingItem(null)}>
-                    <div className="svc-modal" onClick={e => e.stopPropagation()}>
-                        <div className="svc-modal-header">
-                            <h3>Edit Service Item</h3>
-                            <button className="svc-modal-close" onClick={() => setEditingItem(null)}>x</button>
-                        </div>
-                        <form onSubmit={handleEditSave}>
-                            <div className="svc-modal-body">
-                                <div className="form-group"><label>Item Name *</label><input type="text" value={editingItem.name} onChange={e => setEditingItem(p => ({ ...p, name: e.target.value }))} required disabled={submitting} /></div>
-                                <div className="form-group"><label>Category</label><select value={editingItem.description} onChange={e => setEditingItem(p => ({ ...p, description: e.target.value }))} disabled={submitting}><option value="">-- Select Category --</option><option value="Wash &amp; Dry">Wash &amp; Dry</option><option value="Ironing">Ironing</option><option value="Dry Cleaning">Dry Cleaning</option><option value="Pressing">Pressing</option></select></div>
-                                <div className="form-group"><label>Unit Type *</label><select value={editingItem.unitType} onChange={e => setEditingItem(p => ({ ...p, unitType: e.target.value }))} disabled={submitting}><option value="ITEM">Item (per item)</option><option value="PIECE">Piece (per piece)</option><option value="KG">KG (per kilogram)</option></select></div>
-                                <div className="form-group"><label>Price (Rs.) *</label><input type="number" value={editingItem.price} onChange={e => setEditingItem(p => ({ ...p, price: e.target.value }))} min="0" step="0.01" required disabled={submitting} /></div>
-                                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, background: '#f8fafc', padding: '8px 12px', borderRadius: '6px' }}>Changing the price will archive the old price to history and set a new current price.</p>
+                    <div className="svc-edit-modal" onClick={e => e.stopPropagation()}>
+                        <div className="svc-edit-header">
+                            <div className="svc-edit-header-left">
+                                <div className="svc-edit-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </div>
+                                <div>
+                                    <h3>Edit Service</h3>
+                                    <span className="svc-edit-subtitle">Update details for this service item</span>
+                                </div>
                             </div>
-                            <div className="svc-modal-footer">
-                                <button type="button" className="svc-btn-cancel" onClick={() => setEditingItem(null)} disabled={submitting}>Cancel</button>
-                                <button type="submit" className="btn btn-primary" disabled={submitting}>{submitting ? 'Saving...' : 'Save Changes'}</button>
+                            <button className="svc-edit-close" onClick={() => setEditingItem(null)} aria-label="Close">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleEditSave}>
+                            <div className="svc-edit-body">
+                                <div className="svc-edit-section">
+                                    <div className="svc-edit-section-label">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                                        <span>Service Details</span>
+                                    </div>
+                                    <div className="svc-edit-field">
+                                        <label className="svc-edit-label">Item Name <span className="svc-required">*</span></label>
+                                        <input
+                                            type="text"
+                                            className="svc-edit-input"
+                                            value={editingItem.name}
+                                            onChange={e => setEditingItem(p => ({ ...p, name: e.target.value }))}
+                                            placeholder="e.g. T-Shirt, Blanket"
+                                            required
+                                            disabled={submitting}
+                                        />
+                                    </div>
+                                    <div className="svc-edit-row">
+                                        <div className="svc-edit-field">
+                                            <label className="svc-edit-label">Category</label>
+                                            <select
+                                                className="svc-edit-input"
+                                                value={editingItem.description}
+                                                onChange={e => setEditingItem(p => ({ ...p, description: e.target.value }))}
+                                                disabled={submitting}
+                                            >
+                                                <option value="">-- Select --</option>
+                                                <option value="Wash &amp; Dry">Wash &amp; Dry</option>
+                                                <option value="Ironing">Ironing</option>
+                                                <option value="Dry Cleaning">Dry Cleaning</option>
+                                                <option value="Pressing">Pressing</option>
+                                            </select>
+                                        </div>
+                                        <div className="svc-edit-field">
+                                            <label className="svc-edit-label">Unit Type <span className="svc-required">*</span></label>
+                                            <select
+                                                className="svc-edit-input"
+                                                value={editingItem.unitType}
+                                                onChange={e => setEditingItem(p => ({ ...p, unitType: e.target.value }))}
+                                                disabled={submitting}
+                                            >
+                                                <option value="ITEM">Item (per item)</option>
+                                                <option value="PIECE">Piece (per piece)</option>
+                                                <option value="KG">KG (per kilogram)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="svc-edit-divider"></div>
+
+                                <div className="svc-edit-section">
+                                    <div className="svc-edit-section-label">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                        <span>Pricing</span>
+                                    </div>
+                                    <div className="svc-edit-field">
+                                        <label className="svc-edit-label">Price (Rs.) <span className="svc-required">*</span></label>
+                                        <div className="svc-edit-price-wrapper">
+                                            <span className="svc-edit-price-prefix">Rs.</span>
+                                            <input
+                                                type="number"
+                                                className="svc-edit-input svc-edit-price-input"
+                                                value={editingItem.price}
+                                                onChange={e => setEditingItem(p => ({ ...p, price: e.target.value }))}
+                                                min="0"
+                                                step="0.01"
+                                                placeholder="0.00"
+                                                required
+                                                disabled={submitting}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="svc-edit-price-notice">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                        <span>Changing the price will archive the old price to history and set a new current price.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="svc-edit-footer">
+                                <button type="button" className="svc-edit-btn-cancel" onClick={() => setEditingItem(null)} disabled={submitting}>
+                                    Cancel
+                                </button>
+                                <button type="submit" className="svc-edit-btn-save" disabled={submitting}>
+                                    {submitting ? (
+                                        <><span className="svc-edit-spinner"></span> Saving...</>
+                                    ) : (
+                                        <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Changes</>
+                                    )}
+                                </button>
                             </div>
                         </form>
                     </div>

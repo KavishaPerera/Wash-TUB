@@ -180,18 +180,36 @@
     border-color: #7c3aed;
 }
 
-/* Edit Modal */
+/* Edit Modal - Overlay */
 .svc-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(15, 23, 42, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 2000;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(6px);
+    animation: svc-overlay-in 0.2s ease-out;
 }
 
+@keyframes svc-overlay-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes svc-modal-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* History modal (kept for compatibility) */
 .svc-modal {
     background: white;
     border-radius: var(--radius-lg);
@@ -199,6 +217,7 @@
     max-width: 480px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     overflow: hidden;
+    animation: svc-modal-slide-in 0.25s ease-out;
 }
 
 .svc-modal-header {
@@ -264,6 +283,316 @@
 .svc-btn-cancel:hover {
     background: #f1f5f9;
     border-color: #cbd5e1;
+}
+
+/* ============================
+   Redesigned Edit Modal
+   ============================ */
+.svc-edit-modal {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.03),
+        0 24px 48px -12px rgba(0, 0, 0, 0.18),
+        0 8px 16px -6px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    animation: svc-modal-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Header */
+.svc-edit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: white;
+}
+
+.svc-edit-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+}
+
+.svc-edit-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.svc-edit-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.svc-edit-subtitle {
+    font-size: 0.78rem;
+    opacity: 0.8;
+    font-weight: 400;
+    margin-top: 1px;
+    display: block;
+}
+
+.svc-edit-close {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    cursor: pointer;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.svc-edit-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Body */
+.svc-edit-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Sections */
+.svc-edit-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+}
+
+.svc-edit-section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+    margin-bottom: 0.125rem;
+}
+
+.svc-edit-section-label svg {
+    color: #94a3b8;
+}
+
+.svc-edit-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 1.25rem 0;
+}
+
+/* Fields */
+.svc-edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.svc-edit-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.svc-required {
+    color: #ef4444;
+    margin-left: 1px;
+}
+
+.svc-edit-input {
+    padding: 0.7rem 0.875rem;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    color: #1e293b;
+    font-family: var(--font-primary);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.svc-edit-input:focus {
+    outline: none;
+    border-color: #0284c7;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+}
+
+.svc-edit-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Two-column row */
+.svc-edit-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+}
+
+/* Price wrapper */
+.svc-edit-price-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.svc-edit-price-prefix {
+    position: absolute;
+    left: 0.875rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #64748b;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.svc-edit-price-input {
+    padding-left: 2.75rem !important;
+    font-weight: 600;
+    font-size: 1.1rem !important;
+    letter-spacing: 0.01em;
+}
+
+/* Price notice */
+.svc-edit-price-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem 0.875rem;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    color: #92400e;
+    line-height: 1.45;
+}
+
+.svc-edit-price-notice svg {
+    color: #d97706;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* Footer */
+.svc-edit-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.svc-edit-btn-cancel {
+    padding: 0.65rem 1.35rem;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.svc-edit-btn-cancel:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+.svc-edit-btn-cancel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.svc-edit-btn-save {
+    padding: 0.65rem 1.5rem;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+
+.svc-edit-btn-save:hover {
+    background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+    transform: translateY(-1px);
+}
+
+.svc-edit-btn-save:active {
+    transform: translateY(0);
+}
+
+.svc-edit-btn-save:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Save spinner */
+.svc-edit-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: svc-spin 0.6s linear infinite;
+}
+
+@keyframes svc-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 540px) {
+    .svc-edit-modal {
+        max-width: calc(100vw - 32px);
+        margin: 0 16px;
+    }
+
+    .svc-edit-row {
+        grid-template-columns: 1fr;
+    }
+
+    .svc-edit-header {
+        padding: 1rem 1.25rem;
+    }
+
+    .svc-edit-body {
+        padding: 1.25rem;
+    }
 }
 
 .text-center {
