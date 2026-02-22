@@ -1,10 +1,13 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './AddUser.css';
 import Swal from 'sweetalert2';
 
+const API_URL = 'http://localhost:5000/api';
+
 const AddUser = () => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -25,22 +28,11 @@ const AddUser = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validation
-        if (formData.password !== formData.confirmPassword) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Password Mismatch',
-                text: 'Passwords do not match. Please try again.',
-                confirmButtonColor: '#0ea5e9',
-                borderRadius: '12px',
-            });
-            return;
-        }
-
-        if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
+        // Client-side validation
+        if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.role) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Missing Fields',
@@ -50,19 +42,84 @@ const AddUser = () => {
             return;
         }
 
-        // Here you would typically send data to backend
-        console.log('New user data:', formData);
-        Swal.fire({
-            icon: 'success',
-            title: 'User Created!',
-            text: 'The new user account has been created successfully.',
-            confirmButtonColor: '#0ea5e9',
-            timer: 2000,
-            timerProgressBar: true,
-        }).then(() => {
-            navigate('/user-management');
-        });
-        return;
+        if (formData.password !== formData.confirmPassword) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Password Mismatch',
+                text: 'The passwords you entered do not match. Please try again.',
+                confirmButtonColor: '#0ea5e9',
+            });
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Weak Password',
+                text: 'Password must be at least 6 characters.',
+                confirmButtonColor: '#0ea5e9',
+            });
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const token = localStorage.getItem('token');
+            const fullAddress = [formData.address, formData.city].filter(Boolean).join(', ');
+
+            const response = await fetch(`${API_URL}/admin/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    email: formData.email,
+                    password: formData.password,
+                    phone: formData.phone || undefined,
+                    address: fullAddress || undefined,
+                    role: formData.role,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Account Created!',
+                    html: `
+                        <p style="margin-bottom:8px">The account has been created successfully.</p>
+                        <p style="font-size:0.9rem;color:#475569">
+                            Login credentials have been <strong>emailed to</strong><br/>
+                            <span style="color:#0ea5e9;font-weight:600">${formData.email}</span>
+                        </p>`,
+                    confirmButtonColor: '#0ea5e9',
+                    confirmButtonText: 'Go to User Management',
+                });
+                navigate('/user-management');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to Create User',
+                    text: data.message || 'An unexpected error occurred.',
+                    confirmButtonColor: '#0ea5e9',
+                });
+            }
+        } catch (err) {
+            console.error('Create user error:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Connection Error',
+                text: 'Unable to reach the server. Please make sure the backend is running.',
+                confirmButtonColor: '#0ea5e9',
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleCancel = () => {
@@ -70,6 +127,8 @@ const AddUser = () => {
     };
 
     const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         navigate('/signin');
     };
 
@@ -113,7 +172,7 @@ const AddUser = () => {
                     <div className="header-content">
                         <div className="header-left">
                             <h1>Add New User</h1>
-                            <p>Create a new user account</p>
+                            <p>Create an account and email credentials to the user</p>
                         </div>
                     </div>
                 </header>
@@ -135,6 +194,7 @@ const AddUser = () => {
                                         onChange={handleChange}
                                         placeholder="Enter first name"
                                         required
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="form-group">
@@ -147,6 +207,7 @@ const AddUser = () => {
                                         onChange={handleChange}
                                         placeholder="Enter last name"
                                         required
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
@@ -162,6 +223,7 @@ const AddUser = () => {
                                         onChange={handleChange}
                                         placeholder="Enter email address"
                                         required
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="form-group">
@@ -173,6 +235,7 @@ const AddUser = () => {
                                         value={formData.phone}
                                         onChange={handleChange}
                                         placeholder="Enter phone number"
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
@@ -190,11 +253,12 @@ const AddUser = () => {
                                     value={formData.role}
                                     onChange={handleChange}
                                     required
+                                    disabled={loading}
                                 >
                                     <option value="customer">Customer</option>
                                     <option value="staff">Staff</option>
                                     <option value="delivery">Delivery Personnel</option>
-                                    <option value="admin">Admin</option>
+                                    <option value="owner">Admin</option>
                                 </select>
                             </div>
 
@@ -207,8 +271,9 @@ const AddUser = () => {
                                         name="password"
                                         value={formData.password}
                                         onChange={handleChange}
-                                        placeholder="Enter password"
+                                        placeholder="Enter password (min. 6 characters)"
                                         required
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="form-group">
@@ -221,6 +286,7 @@ const AddUser = () => {
                                         onChange={handleChange}
                                         placeholder="Confirm password"
                                         required
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
@@ -239,6 +305,7 @@ const AddUser = () => {
                                     value={formData.address}
                                     onChange={handleChange}
                                     placeholder="Enter street address"
+                                    disabled={loading}
                                 />
                             </div>
 
@@ -251,17 +318,27 @@ const AddUser = () => {
                                     value={formData.city}
                                     onChange={handleChange}
                                     placeholder="Enter city"
+                                    disabled={loading}
                                 />
                             </div>
                         </section>
 
                         {/* Form Actions */}
                         <div className="form-actions">
-                            <button type="button" className="btn btn-secondary" onClick={handleCancel}>
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={handleCancel}
+                                disabled={loading}
+                            >
                                 Cancel
                             </button>
-                            <button type="submit" className="btn btn-primary">
-                                Create User
+                            <button
+                                type="submit"
+                                className="btn btn-primary"
+                                disabled={loading}
+                            >
+                                {loading ? 'Creating Account...' : 'Create User & Send Credentials'}
                             </button>
                         </div>
                     </form>

@@ -1,55 +1,168 @@
-import { useState } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
 import Swal from 'sweetalert2';
 
+const API_URL = 'http://localhost:5000/api';
+
+// Map DB role values to display labels
+const ROLE_LABELS = {
+    owner: 'Admin',
+    staff: 'Staff',
+    delivery: 'Delivery',
+    customer: 'Customer',
+};
+
 const UserManagement = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterRole, setFilterRole] = useState('all');
-    const [users, setUsers] = useState([
-        { id: 'USR-001', name: 'Amandi Perera', email: 'amandi@email.com', role: 'customer', status: 'active', joinDate: 'Jan 15, 2026' },
-        { id: 'USR-002', name: 'Kasun Silva', email: 'kasun@washtub.com', role: 'staff', status: 'active', joinDate: 'Jan 10, 2026' },
-        { id: 'USR-003', name: 'Nilantha Pieris', email: 'nilantha@washtub.com', role: 'staff', status: 'active', joinDate: 'Jan 08, 2026' },
-        { id: 'USR-004', name: 'Bandu Perera', email: 'bandu@email.com', role: 'customer', status: 'inactive', joinDate: 'Jan 05, 2026' },
-        { id: 'USR-005', name: 'Supun Mendis', email: 'supun@washtub.com', role: 'delivery', status: 'active', joinDate: 'Jan 03, 2026' },
-        { id: 'USR-006', name: 'Ruwan Jayasena', email: 'ruwan@washtub.com', role: 'admin', status: 'active', joinDate: 'Jan 01, 2026' },
-    ]);
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    const handleLogout = () => {
-        navigate('/signin');
-    };
+    const getToken = () => localStorage.getItem('token');
 
-    const handleDeleteUser = (userId) => {
-        if (window.confirm('Are you sure you want to delete this user?')) {
-            setUsers(prev => prev.filter(user => user.id !== userId));
+    // -----------------------------------------------------------
+    // Fetch all users from backend
+    // -----------------------------------------------------------
+    const fetchUsers = useCallback(async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await fetch(`${API_URL}/admin/users`, {
+                headers: { Authorization: `Bearer ${getToken()}` },
+            });
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setUsers(data.users);
+            } else if (response.status === 401 || response.status === 403) {
+                navigate('/signin');
+            } else {
+                setError(data.message || 'Failed to load users.');
+            }
+        } catch {
+            setError('Unable to connect to the server.');
+        } finally {
+            setLoading(false);
+        }
+    }, [navigate]);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
+
+    // -----------------------------------------------------------
+    // Toggle active / inactive
+    // -----------------------------------------------------------
+    const handleToggleStatus = async (userId, currentStatus, userName) => {
+        const action = currentStatus ? 'deactivate' : 'activate';
+        const confirm = await Swal.fire({
+            icon: 'question',
+            title: `${action.charAt(0).toUpperCase() + action.slice(1)} User?`,
+            text: `Are you sure you want to ${action} ${userName}?`,
+            showCancelButton: true,
+            confirmButtonColor: currentStatus ? '#ef4444' : '#22c55e',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: `Yes, ${action}`,
+        });
+        if (!confirm.isConfirmed) return;
+
+        try {
+            const response = await fetch(`${API_URL}/admin/users/${userId}/toggle-status`, {
+                method: 'PATCH',
+                headers: { Authorization: `Bearer ${getToken()}` },
+            });
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setUsers(prev =>
+                    prev.map(u => u.id === userId ? { ...u, isActive: data.isActive } : u)
+                );
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Status Updated',
+                    text: data.message,
+                    timer: 1800,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#0ea5e9' });
+            }
+        } catch {
+            Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Unable to reach the server.', confirmButtonColor: '#0ea5e9' });
         }
     };
 
-    const handleToggleStatus = (userId) => {
-        setUsers(prev => prev.map(user =>
-            user.id === userId
-                ? { ...user, status: user.status === 'active' ? 'inactive' : 'active' }
-                : user
-        ));
+    // -----------------------------------------------------------
+    // Delete user
+    // -----------------------------------------------------------
+    const handleDeleteUser = async (userId, userName) => {
+        const confirm = await Swal.fire({
+            icon: 'warning',
+            title: 'Delete User?',
+            html: `This will <strong>permanently delete</strong> the account for <strong>${userName}</strong>. This cannot be undone.`,
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Yes, delete',
+        });
+        if (!confirm.isConfirmed) return;
+
+        try {
+            const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${getToken()}` },
+            });
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setUsers(prev => prev.filter(u => u.id !== userId));
+                Swal.fire({
+                    icon: 'success',
+                    title: 'User Deleted',
+                    text: data.message,
+                    timer: 1800,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#0ea5e9' });
+            }
+        } catch {
+            Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Unable to reach the server.', confirmButtonColor: '#0ea5e9' });
+        }
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/signin');
+    };
+
+    // -----------------------------------------------------------
+    // Filtered list
+    // -----------------------------------------------------------
     const filteredUsers = users.filter(user => {
-        const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        const matchesSearch =
+            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesRole = filterRole === 'all' || user.role === filterRole;
+        // 'admin' filter tab maps to 'owner' DB role
+        const roleFilter = filterRole === 'admin' ? 'owner' : filterRole;
+        const matchesRole = filterRole === 'all' || user.role === roleFilter;
         return matchesSearch && matchesRole;
     });
 
     const getRoleBadgeClass = (role) => {
-        const classes = {
-            admin: 'role-admin',
-            staff: 'role-staff',
-            delivery: 'role-delivery',
-            customer: 'role-customer'
-        };
-        return classes[role] || '';
+        return { owner: 'role-admin', staff: 'role-staff', delivery: 'role-delivery', customer: 'role-customer' }[role] || '';
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return 'â€”';
+        return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
 
     return (
@@ -104,6 +217,14 @@ const UserManagement = () => {
                 </header>
 
                 <div className="dashboard-content">
+                    {/* Error banner */}
+                    {error && (
+                        <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '12px 20px', borderRadius: '8px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>{error}</span>
+                            <button onClick={fetchUsers} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Retry</button>
+                        </div>
+                    )}
+
                     {/* Stats Cards */}
                     <section className="stats-section admin-stats">
                         <div className="stat-card">
@@ -127,7 +248,7 @@ const UserManagement = () => {
                         <div className="stat-card">
                             <div className="stat-info">
                                 <p className="stat-label">Active Users</p>
-                                <h3 className="stat-value">{users.filter(u => u.status === 'active').length}</h3>
+                                <h3 className="stat-value">{users.filter(u => u.isActive).length}</h3>
                             </div>
                         </div>
                     </section>
@@ -143,96 +264,75 @@ const UserManagement = () => {
                             />
                         </div>
                         <div className="filter-tabs">
-                            <button
-                                className={`filter-tab ${filterRole === 'all' ? 'active' : ''}`}
-                                onClick={() => setFilterRole('all')}
-                            >
-                                All
-                            </button>
-                            <button
-                                className={`filter-tab ${filterRole === 'customer' ? 'active' : ''}`}
-                                onClick={() => setFilterRole('customer')}
-                            >
-                                Customers
-                            </button>
-                            <button
-                                className={`filter-tab ${filterRole === 'staff' ? 'active' : ''}`}
-                                onClick={() => setFilterRole('staff')}
-                            >
-                                Staff
-                            </button>
-                            <button
-                                className={`filter-tab ${filterRole === 'delivery' ? 'active' : ''}`}
-                                onClick={() => setFilterRole('delivery')}
-                            >
-                                Delivery
-                            </button>
-                            <button
-                                className={`filter-tab ${filterRole === 'admin' ? 'active' : ''}`}
-                                onClick={() => setFilterRole('admin')}
-                            >
-                                Admin
-                            </button>
+                            {['all', 'customer', 'staff', 'delivery', 'admin'].map(tab => (
+                                <button
+                                    key={tab}
+                                    className={`filter-tab ${filterRole === tab ? 'active' : ''}`}
+                                    onClick={() => setFilterRole(tab)}
+                                >
+                                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                </button>
+                            ))}
                         </div>
                     </section>
 
                     {/* Users Table */}
                     <section className="dashboard-table-section">
                         <div className="table-container">
-                            <table className="dashboard-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Status</th>
-                                        <th>Join Date</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredUsers.map(user => (
-                                        <tr key={user.id}>
-                                            <td>{user.id}</td>
-                                            <td>{user.name}</td>
-                                            <td>{user.email}</td>
-                                            <td>
-                                                <span className={`role-badge ${getRoleBadgeClass(user.role)}`}>
-                                                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span className={`status-badge ${user.status === 'active' ? 'status-active' : 'status-inactive'}`}>
-                                                    {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                                                </span>
-                                            </td>
-                                            <td>{user.joinDate}</td>
-                                            <td className="actions-cell">
-                                                <button
-                                                    className="btn-action btn-edit"
-                                                    onClick={() => Swal.fire({ icon: 'info', title: 'Edit User', text: `Editing user: ${user.name}`, confirmButtonColor: '#0ea5e9' })}
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    className="btn-action btn-toggle"
-                                                    onClick={() => handleToggleStatus(user.id)}
-                                                >
-                                                    {user.status === 'active' ? 'Deactivate' : 'Activate'}
-                                                </button>
-                                                <button
-                                                    className="btn-action btn-delete"
-                                                    onClick={() => handleDeleteUser(user.id)}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
+                            {loading ? (
+                                <div className="no-data"><p>Loading users...</p></div>
+                            ) : (
+                                <table className="dashboard-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                            <th>Role</th>
+                                            <th>Status</th>
+                                            <th>Joined</th>
+                                            <th>Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {filteredUsers.length === 0 && (
+                                    </thead>
+                                    <tbody>
+                                        {filteredUsers.map((user, index) => (
+                                            <tr key={user.id}>
+                                                <td>{index + 1}</td>
+                                                <td>{user.name}</td>
+                                                <td>{user.email}</td>
+                                                <td>{user.phone || 'â€”'}</td>
+                                                <td>
+                                                    <span className={`role-badge ${getRoleBadgeClass(user.role)}`}>
+                                                        {ROLE_LABELS[user.role] || user.role}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className={`status-badge ${user.isActive ? 'status-active' : 'status-inactive'}`}>
+                                                        {user.isActive ? 'Active' : 'Inactive'}
+                                                    </span>
+                                                </td>
+                                                <td>{formatDate(user.createdAt)}</td>
+                                                <td className="actions-cell">
+                                                    <button
+                                                        className={`btn-action ${user.isActive ? 'btn-toggle' : 'btn-edit'}`}
+                                                        onClick={() => handleToggleStatus(user.id, user.isActive, user.name)}
+                                                    >
+                                                        {user.isActive ? 'Deactivate' : 'Activate'}
+                                                    </button>
+                                                    <button
+                                                        className="btn-action btn-delete"
+                                                        onClick={() => handleDeleteUser(user.id, user.name)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                            {!loading && filteredUsers.length === 0 && (
                                 <div className="no-data">
                                     <p>No users found matching your criteria.</p>
                                 </div>

@@ -66,7 +66,7 @@ const User = {
 
   // Find user by ID
   async findById(id) {
-    const sql = 'SELECT id, first_name, last_name, email, phone, address, role, created_at FROM users WHERE id = ?';
+    const sql = 'SELECT id, first_name, last_name, email, phone, address, role, is_active, created_at FROM users WHERE id = ?';
     const [rows] = await db.execute(sql, [id]);
     return rows[0];
   },
@@ -106,6 +106,43 @@ const User = {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     const sql = 'UPDATE users SET password = ?, reset_password_code = NULL, reset_password_expires = NULL WHERE email = ?';
     await db.execute(sql, [hashedPassword, email]);
+  },
+
+  // Get all users (admin)
+  async getAllUsers() {
+    const sql = `
+      SELECT id, first_name, last_name, email, phone, address, role, is_active, created_at
+      FROM users
+      ORDER BY created_at DESC
+    `;
+    const [rows] = await db.execute(sql);
+    return rows;
+  },
+
+  // Set user active/inactive (admin)
+  async setActive(id, isActive) {
+    const sql = 'UPDATE users SET is_active = ? WHERE id = ?';
+    const [result] = await db.execute(sql, [isActive, id]);
+    return result;
+  },
+
+  // Delete user by ID (admin)
+  async deleteById(id) {
+    const sql = 'DELETE FROM users WHERE id = ?';
+    const [result] = await db.execute(sql, [id]);
+    return result;
+  },
+
+  // Update user details (admin)
+  async adminUpdate(id, userData) {
+    const { firstName, lastName, phone, address, role, isActive } = userData;
+    const sql = `
+      UPDATE users
+      SET first_name = ?, last_name = ?, phone = ?, address = ?, role = ?, is_active = ?
+      WHERE id = ?
+    `;
+    const [result] = await db.execute(sql, [firstName, lastName, phone || null, address || null, role, isActive, id]);
+    return result;
   }
 };
 
