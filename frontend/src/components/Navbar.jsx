@@ -37,8 +37,8 @@ const Navbar = () => {
 
           {/* CTA Buttons */}
           <div className="navbar-actions">
-            <Link to="/signin" className="btn btn-secondary btn-xs" style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Sign In</Link>
-            <Link to="/signup" className="btn btn-primary btn-xs">Get Started</Link>
+            <Link to="/signin" className="nav-btn nav-btn-signin">Sign In</Link>
+            <Link to="/signup" className="nav-btn nav-btn-start">Get Started</Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -61,8 +61,8 @@ const Navbar = () => {
             <li><Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link></li>
           </ul>
           <div className="mobile-menu-actions">
-            <Link to="/signin" className="btn btn-secondary btn-small" style={{ width: '100%', textDecoration: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center' }} onClick={() => setMenuOpen(false)}>Sign In</Link>
-            <Link to="/signup" className="btn btn-primary btn-small" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }} onClick={() => setMenuOpen(false)}>Get Started</Link>
+            <Link to="/signin" className="nav-btn nav-btn-signin" onClick={() => setMenuOpen(false)}>Sign In</Link>
+            <Link to="/signup" className="nav-btn nav-btn-start" onClick={() => setMenuOpen(false)}>Get Started</Link>
           </div>
         </div>
       </div>
