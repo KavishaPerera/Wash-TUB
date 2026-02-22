@@ -67,9 +67,30 @@ const Pricing = () => {
             }));
     }, [services]);
 
-    const filteredItems = activeCategory === 'all'
-        ? pricingItems
-        : pricingItems.filter(item => item.category === activeCategory);
+    // Group items by name so we only show one card per item name
+    const uniqueItems = useMemo(() => {
+        const grouped = new Map();
+        
+        // If a specific category is selected, only consider items in that category
+        const itemsToGroup = activeCategory === 'all' 
+            ? pricingItems 
+            : pricingItems.filter(item => item.category === activeCategory);
+
+        itemsToGroup.forEach(item => {
+            if (!grouped.has(item.name)) {
+                grouped.set(item.name, item);
+            } else {
+                // If we already have this item, we might want to show the lowest price
+                // or just keep the first one we found. Let's keep the lowest price.
+                const existing = grouped.get(item.name);
+                if (item.price < existing.price) {
+                    grouped.set(item.name, item);
+                }
+            }
+        });
+
+        return Array.from(grouped.values());
+    }, [pricingItems, activeCategory]);
 
     const handleAddClick = (item) => {
         setSelectedItem(item);
@@ -132,7 +153,7 @@ const Pricing = () => {
                                 </div>
                             </div>
                         ) : (
-                            filteredItems.map((item) => (
+                            uniqueItems.map((item) => (
                                 <div key={item.id} className="item-card">
                                     <div className="item-info">
                                         <div className="item-details">
@@ -150,7 +171,7 @@ const Pricing = () => {
                             ))
                         )}
 
-                        {!loading && !error && filteredItems.length === 0 && (
+                        {!loading && !error && uniqueItems.length === 0 && (
                             <div className="item-card" style={{ gridColumn: '1 / -1' }}>
                                 <div className="item-info" style={{ justifyContent: 'center' }}>
                                     <div className="item-name" style={{ margin: 0 }}>No services found.</div>
