@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, ArrowLeft, ShoppingCart, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import Swal from 'sweetalert2';
 import './Cart.css';
 
 const Cart = () => {
@@ -83,7 +84,44 @@ const Cart = () => {
                                 <span>Total Amount:</span>
                                 <span>LKR {totalAmount.toFixed(2)}</span>
                             </div>
-                            <button className="btn-checkout" onClick={() => navigate('/checkout')}>
+                            <button className="btn-checkout" onClick={() => {
+                                const token = localStorage.getItem('token');
+                                if (!token) {
+                                    Swal.fire({
+                                        icon: 'info',
+                                        title: 'Login Required',
+                                        text: 'Please sign in to your customer account before proceeding to checkout.',
+                                        confirmButtonText: 'Sign In',
+                                        showCancelButton: true,
+                                        cancelButtonText: 'Cancel',
+                                        confirmButtonColor: '#0ea5e9',
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            navigate('/signin?redirect=/checkout');
+                                        }
+                                    });
+                                    return;
+                                }
+                                // Check that the user is a customer
+                                try {
+                                    const user = JSON.parse(localStorage.getItem('user'));
+                                    if (user && user.role && user.role !== 'customer') {
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            title: 'Customer Account Required',
+                                            text: 'Only customer accounts can place orders. Please sign in with a customer account.',
+                                            confirmButtonText: 'Sign In',
+                                            confirmButtonColor: '#0ea5e9',
+                                        }).then(() => {
+                                            localStorage.removeItem('token');
+                                            localStorage.removeItem('user');
+                                            navigate('/signin?redirect=/checkout');
+                                        });
+                                        return;
+                                    }
+                                } catch { /* ignore */ }
+                                navigate('/checkout');
+                            }}>
                                 Proceed to Checkout
                             </button>
                         </div>

@@ -12,6 +12,21 @@ const Checkout = () => {
     const { cartItems, totalAmount, clearCart } = useCart();
     const [currentStep, setCurrentStep] = useState(1); // 1 = Delivery Details, 2 = Payment
     const [submitting, setSubmitting] = useState(false);
+
+    // Auth guard — must be logged in as a customer to access checkout
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // Not logged in at all — redirect to sign in with return URL
+        navigate('/signin?redirect=/checkout', { replace: true });
+        return null;
+    }
+    try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.role && user.role !== 'customer') {
+            navigate('/', { replace: true });
+            return null;
+        }
+    } catch { /* ignore */ }
     const [formData, setFormData] = useState({
         // Delivery Details
         fullName: '',

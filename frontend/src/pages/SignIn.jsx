@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import './SignUp.css'; // Reusing SignUp styles for consistency
 
@@ -7,6 +7,8 @@ const API_URL = 'http://localhost:5000/api';
 
 const SignIn = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const redirectPath = searchParams.get('redirect');
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -58,8 +60,13 @@ const SignIn = () => {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
 
-                // Navigate to the appropriate dashboard based on role
-                navigate(data.redirectPath || '/customer-dashboard');
+                // If there's a redirect param (e.g. from checkout), go there;
+                // otherwise navigate to the appropriate dashboard based on role
+                if (redirectPath && data.user?.role === 'customer') {
+                    navigate(redirectPath);
+                } else {
+                    navigate(data.redirectPath || '/customer-dashboard');
+                }
             } else {
                 setError(data.message || 'Invalid email or password');
             }
