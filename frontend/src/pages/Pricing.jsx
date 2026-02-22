@@ -178,6 +178,7 @@ const Pricing = () => {
             {showModal && selectedItem && (
                 <CustomizeModal
                     item={selectedItem}
+                    allServices={pricingItems}
                     onClose={handleCloseModal}
                     onAddToBasket={handleAddToBasket}
                 />

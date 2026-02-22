@@ -37,16 +37,36 @@ const methods = [
     { id: 4, name: 'Ironing', Icon: Shirt }
 ];
 
-const CustomizeModal = ({ item, onClose, onAddToBasket }) => {
-    const [selectedMethod, setSelectedMethod] = useState(0);
+const CustomizeModal = ({ item, allServices = [], onClose, onAddToBasket }) => {
+    // Find all services with the same name
+    const availableServices = allServices.filter(s => s.name === item.name);
+    
+    // If availableServices is empty (e.g. allServices not passed), just use the item itself
+    const servicesToUse = availableServices.length > 0 ? availableServices : [item];
+
+    // Map services to methods
+    const availableMethods = servicesToUse.map(s => {
+        const matchedMethod = methods.find(m => m.name === s.category);
+        return {
+            ...s,
+            methodName: s.category || 'Other',
+            Icon: matchedMethod ? matchedMethod.Icon : Shirt
+        };
+    });
+
+    const [selectedMethodIndex, setSelectedMethodIndex] = useState(() => {
+        const index = availableMethods.findIndex(m => m.methodName === item.category);
+        return index >= 0 ? index : 0;
+    });
+
     const [quantity, setQuantity] = useState(1);
 
     const handlePrevMethod = () => {
-        setSelectedMethod((prev) => (prev === 0 ? methods.length - 1 : prev - 1));
+        setSelectedMethodIndex((prev) => (prev === 0 ? availableMethods.length - 1 : prev - 1));
     };
 
     const handleNextMethod = () => {
-        setSelectedMethod((prev) => (prev === methods.length - 1 ? 0 : prev + 1));
+        setSelectedMethodIndex((prev) => (prev === availableMethods.length - 1 ? 0 : prev + 1));
     };
 
     const handleDecrease = () => {
@@ -57,19 +77,22 @@ const CustomizeModal = ({ item, onClose, onAddToBasket }) => {
         setQuantity(quantity + 1);
     };
 
+    const currentMethod = availableMethods[selectedMethodIndex];
+    const currentPrice = currentMethod.price;
+
     const handleAddToBasket = () => {
         if (quantity > 0) {
             onAddToBasket({
-                ...item,
-                method: methods[selectedMethod].name,
+                ...currentMethod,
+                method: currentMethod.methodName,
                 quantity,
-                totalPrice: item.price * quantity
+                totalPrice: currentPrice * quantity
             });
         }
         onClose();
     };
 
-    const MethodIcon = methods[selectedMethod].Icon;
+    const MethodIcon = currentMethod.Icon;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -85,10 +108,10 @@ const CustomizeModal = ({ item, onClose, onAddToBasket }) => {
                     <div className="item-preview">
                         <div className="item-preview-info">
                             <div className="item-preview-details">
-                                <h3>{item.name}</h3>
+                                <h3>{currentMethod.name}</h3>
                             </div>
                             <div className="item-preview-price">
-                                LKR {(item.price * quantity).toFixed(2)}
+                                LKR {(currentPrice * quantity).toFixed(2)}
                             </div>
                         </div>
                     </div>
@@ -97,16 +120,16 @@ const CustomizeModal = ({ item, onClose, onAddToBasket }) => {
                         <div className="option-group">
                             <label>Select Method</label>
                             <div className="option-selector">
-                                <button className="btn-nav" onClick={handlePrevMethod}>
+                                <button className="btn-nav" onClick={handlePrevMethod} disabled={availableMethods.length <= 1} style={{ opacity: availableMethods.length <= 1 ? 0.5 : 1 }}>
                                     <ChevronLeft size={20} />
                                 </button>
                                 <div className="option-display">
                                     <div className="option-icon">
                                         <MethodIcon size={32} />
                                     </div>
-                                    <span className="option-name">{methods[selectedMethod].name}</span>
+                                    <span className="option-name">{currentMethod.methodName}</span>
                                 </div>
-                                <button className="btn-nav" onClick={handleNextMethod}>
+                                <button className="btn-nav" onClick={handleNextMethod} disabled={availableMethods.length <= 1} style={{ opacity: availableMethods.length <= 1 ? 0.5 : 1 }}>
                                     <ChevronRight size={20} />
                                 </button>
                             </div>
