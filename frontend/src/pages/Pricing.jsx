@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CustomizeModal from '../components/CustomizeModal';
+import { useCart } from '../context/CartContext';
 import './Pricing.css';
 
 const API_URL = 'http://localhost:5000/api';
@@ -12,13 +13,14 @@ const getCategoryName = (description) => (description || '').trim() || 'Other';
 
 const Pricing = () => {
     const navigate = useNavigate();
+    const { cartItems, itemCount, totalAmount, addToCart } = useCart();
     const [activeCategory, setActiveCategory] = useState('all');
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [basket, setBasket] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [toastMsg, setToastMsg] = useState('');
 
     const fetchServices = useCallback(async () => {
         setLoading(true);
@@ -103,10 +105,10 @@ const Pricing = () => {
     };
 
     const handleAddToBasket = (customizedItem) => {
-        setBasket([...basket, customizedItem]);
+        addToCart(customizedItem);
+        setToastMsg(`${customizedItem.name} added to basket`);
+        setTimeout(() => setToastMsg(''), 2500);
     };
-
-    const totalAmount = basket.reduce((sum, item) => sum + (item.totalPrice || item.price), 0);
 
     return (
         <div className="pricing-page">
@@ -183,15 +185,20 @@ const Pricing = () => {
             </section>
 
             {/* Floating Basket Footer */}
-            {basket.length > 0 && (
+            {itemCount > 0 && (
                 <div className="basket-footer">
                     <div className="basket-total">
                         Total : LKR {totalAmount.toFixed(2)}
                     </div>
-                    <button className="btn-basket" onClick={() => navigate('/cart', { state: { basket } })}>
-                        Your Basket ({basket.length})
+                    <button className="btn-basket" onClick={() => navigate('/cart')}>
+                        Your Basket ({itemCount})
                     </button>
                 </div>
+            )}
+
+            {/* Toast Notification */}
+            {toastMsg && (
+                <div className="pricing-toast">{toastMsg}</div>
             )}
 
             <Footer />

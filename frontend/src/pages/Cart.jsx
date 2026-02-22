@@ -1,26 +1,11 @@
-import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Trash2, ArrowLeft, ShoppingCart } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Trash2, ArrowLeft, ShoppingCart, Plus, Minus } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 import './Cart.css';
 
 const Cart = () => {
-    const location = useLocation();
     const navigate = useNavigate();
-    const [cartItems, setCartItems] = useState([]);
-
-    useEffect(() => {
-        if (location.state?.basket) {
-            setCartItems(location.state.basket);
-        }
-    }, [location.state]);
-
-    const removeItem = (index) => {
-        const newItems = cartItems.filter((_, i) => i !== index);
-        setCartItems(newItems);
-    };
-
-    const totalAmount = cartItems.reduce((sum, item) => sum + (item.totalPrice || item.price), 0);
-    const totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const { cartItems, itemCount, totalAmount, removeFromCart, updateQuantity } = useCart();
 
     return (
         <div className="cart-page">
@@ -31,6 +16,9 @@ const Cart = () => {
                         Back to Price List
                     </Link>
                     <h1>Your Basket</h1>
+                    {cartItems.length > 0 && (
+                        <span className="cart-badge">{itemCount} item{itemCount !== 1 ? 's' : ''}</span>
+                    )}
                 </div>
 
                 {cartItems.length === 0 ? (
@@ -58,16 +46,27 @@ const Cart = () => {
                                         <span className="item-name">{item.name}</span>
                                     </div>
                                     <div className="col-method">
-                                        <span className="item-method">{item.method || 'Wash & Dry'}</span>
+                                        <span className="item-method">{item.method || item.category || 'Wash & Dry'}</span>
                                     </div>
                                     <div className="col-qty">
-                                        <span className="item-qty">{item.quantity || 1}</span>
+                                        <div className="qty-controls">
+                                            <button className="qty-btn" onClick={() => updateQuantity(index, item.quantity - 1)}>
+                                                <Minus size={14} />
+                                            </button>
+                                            <span className="qty-value">{item.quantity}</span>
+                                            <button className="qty-btn" onClick={() => updateQuantity(index, item.quantity + 1)}>
+                                                <Plus size={14} />
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="col-price">
-                                        <span className="item-price">LKR {(item.totalPrice || item.price).toFixed(2)}</span>
+                                        <span className="item-price">LKR {(item.totalPrice || item.price * item.quantity).toFixed(2)}</span>
+                                        {item.quantity > 1 && (
+                                            <span className="item-unit-price">LKR {item.price.toFixed(2)} each</span>
+                                        )}
                                     </div>
                                     <div className="col-action">
-                                        <button className="btn-remove" onClick={() => removeItem(index)}>
+                                        <button className="btn-remove" onClick={() => removeFromCart(index)}>
                                             <Trash2 size={18} />
                                         </button>
                                     </div>
@@ -78,13 +77,13 @@ const Cart = () => {
                         <div className="cart-summary">
                             <div className="summary-row">
                                 <span>Total Items:</span>
-                                <span>{totalItems}</span>
+                                <span>{itemCount}</span>
                             </div>
                             <div className="summary-row total">
                                 <span>Total Amount:</span>
                                 <span>LKR {totalAmount.toFixed(2)}</span>
                             </div>
-                            <button className="btn-checkout" onClick={() => navigate('/checkout', { state: { cartItems } })}>
+                            <button className="btn-checkout" onClick={() => navigate('/checkout')}>
                                 Proceed to Checkout
                             </button>
                         </div>

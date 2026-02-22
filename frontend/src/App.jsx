@@ -34,10 +34,13 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import OrderSuccess from './pages/OrderSuccess';
+import { CartProvider } from './context/CartContext';
 import './App.css';
 
 function App() {
   return (
+    <CartProvider>
     <Router>
       <div className="App">
         <Routes>
@@ -74,11 +77,13 @@ function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-success/:id" element={<OrderSuccess />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </div>
     </Router>
+    </CartProvider>
   );
 }
 

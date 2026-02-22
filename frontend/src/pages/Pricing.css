@@ -232,3 +232,26 @@
         padding-bottom: 1rem;
     }
 }
+
+/* Toast Notification */
+.pricing-toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0f172a;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 3000;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    animation: toastSlideUp 0.3s ease-out;
+    pointer-events: none;
+}
+
+@keyframes toastSlideUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

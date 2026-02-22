@@ -1,16 +1,17 @@
-import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, Home, MapPin, Phone, User, Truck, Calendar } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Check, Home, MapPin, Phone, User, Truck, Calendar, Loader } from 'lucide-react';
+import { useState } from 'react';
+import { useCart } from '../context/CartContext';
 import './Checkout.css';
 import Swal from 'sweetalert2';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const Checkout = () => {
-    const location = useLocation();
     const navigate = useNavigate();
-    const [cartItems, setCartItems] = useState([]);
-    const [orderSuccess, setOrderSuccess] = useState(false);
-    const [orderId, setOrderId] = useState('');
+    const { cartItems, totalAmount, clearCart } = useCart();
     const [currentStep, setCurrentStep] = useState(1); // 1 = Delivery Details, 2 = Payment
+    const [submitting, setSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         // Delivery Details
         fullName: '',
@@ -21,8 +22,9 @@ const Checkout = () => {
         deliveryOption: 'delivery',
         pickupDate: '',
         pickupTime: '',
+        specialInstructions: '',
         // Payment Details
-        paymentMethod: 'visa',
+        paymentMethod: 'cash',
         cardName: '',
         cardNumber: '',
         expireDate: '',
@@ -31,18 +33,26 @@ const Checkout = () => {
 
     const DELIVERY_FEE = 200;
 
-    useEffect(() => {
-        if (location.state?.cartItems) {
-            setCartItems(location.state.cartItems);
-        }
-    }, [location.state]);
+    // Redirect if cart is empty (but not while submitting — clearCart fires before navigate)
+    if (cartItems.length === 0 && !submitting) {
+        return (
+            <div className="checkout-page">
+                <div className="checkout-container" style={{ textAlign: 'center', paddingTop: '4rem' }}>
+                    <h2 style={{ color: '#2d3748', marginBottom: '1rem' }}>Your cart is empty</h2>
+                    <p style={{ color: '#718096', marginBottom: '2rem' }}>Add some services before checking out.</p>
+                    <Link to="/pricing" className="btn-proceed" style={{ display: 'inline-flex', textDecoration: 'none' }}>
+                        Browse Services
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const totalAmount = cartItems.reduce((sum, item) => sum + (item.totalPrice || item.price), 0);
     const deliveryFee = formData.deliveryOption === 'delivery' ? DELIVERY_FEE : 0;
     const discounts = 0;
     const grandTotal = totalAmount + deliveryFee - discounts;
@@ -89,51 +99,97 @@ const Checkout = () => {
         setCurrentStep(2);
     };
 
-    const handlePaymentSubmit = (e) => {
+    const handlePaymentSubmit = async (e) => {
         e.preventDefault();
-        // Generate a mock order ID
-        const newOrderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-        setOrderId(newOrderId);
-        setOrderSuccess(true);
-    };
 
-    const handleGoToDashboard = () => {
-        navigate('/customer-dashboard');
-    };
+        // Validate card details if paying by card
+        if (formData.paymentMethod !== 'cash') {
+            if (!formData.cardName || !formData.cardNumber || !formData.expireDate || !formData.cvc) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Card Details Required',
+                    text: 'Please fill in all card details.',
+                    confirmButtonColor: '#0ea5e9',
+                });
+                return;
+            }
+        }
 
-    const handleViewOrder = () => {
-        navigate('/my-orders');
+        setSubmitting(true);
+
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Not Logged In',
+                    text: 'Please sign in to place an order.',
+                    confirmButtonColor: '#0ea5e9',
+                });
+                navigate('/signin');
+                return;
+            }
+
+            const payload = {
+                deliveryDetails: {
+                    fullName: formData.fullName,
+                    phone: formData.phone,
+                    address: formData.address,
+                    city: formData.city,
+                    postalCode: formData.postalCode,
+                    deliveryOption: formData.deliveryOption,
+                    pickupDate: formData.pickupDate,
+                    pickupTime: formData.pickupTime,
+                    specialInstructions: formData.specialInstructions,
+                    paymentMethod: formData.paymentMethod,
+                },
+                items: cartItems.map(item => ({
+                    serviceId: item.serviceId,
+                    name: item.name,
+                    method: item.method,
+                    unitType: item.unitType,
+                    price: item.price,
+                    quantity: item.quantity,
+                    totalPrice: item.totalPrice,
+                })),
+            };
+
+            const res = await fetch(`${API}/orders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || 'Failed to place order');
+            }
+
+            // Success!
+            clearCart();
+            navigate(`/order-success/${data.orderId}`, {
+                state: { orderNumber: data.orderNumber, total: data.total },
+            });
+        } catch (err) {
+            console.error('Order error:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Order Failed',
+                text: err.message || 'Something went wrong. Please try again.',
+                confirmButtonColor: '#0ea5e9',
+            });
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const handleBackToDelivery = () => {
         setCurrentStep(1);
     };
-
-    // Success Screen
-    if (orderSuccess) {
-        return (
-            <div className="checkout-page">
-                <div className="success-container">
-                    <div className="success-content">
-                        <div className="success-icon">
-                            <Check size={40} strokeWidth={2} />
-                        </div>
-                        <h2 className="success-title">Your order is successfully placed</h2>
-                        <div className="success-actions">
-                            <button className="btn-dashboard" onClick={handleGoToDashboard}>
-                                <Home size={18} />
-                                GO TO DASHBOARD
-                            </button>
-                            <button className="btn-view-order" onClick={handleViewOrder}>
-                                VIEW ORDER
-                                <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     // Step 1: Delivery Details
     if (currentStep === 1) {
@@ -214,45 +270,47 @@ const Checkout = () => {
                                 </div>
                             </div>
 
-                            {/* Delivery Address */}
-                            <div className="form-card">
-                                <h2 className="section-title"><MapPin size={20} /> Delivery Address</h2>
-                                <div className="form-group">
-                                    <label>Address</label>
-                                    <input
-                                        type="text"
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Enter your address"
-                                    />
-                                </div>
-                                <div className="form-row">
+                            {/* Delivery Address - only show for home delivery */}
+                            {formData.deliveryOption === 'delivery' && (
+                                <div className="form-card">
+                                    <h2 className="section-title"><MapPin size={20} /> Delivery Address</h2>
                                     <div className="form-group">
-                                        <label>City</label>
+                                        <label>Address</label>
                                         <input
                                             type="text"
-                                            name="city"
-                                            value={formData.city}
+                                            name="address"
+                                            value={formData.address}
                                             onChange={handleInputChange}
                                             required
-                                            placeholder="Enter your city"
+                                            placeholder="Enter your address"
                                         />
                                     </div>
-                                    <div className="form-group">
-                                        <label>Postal Code</label>
-                                        <input
-                                            type="text"
-                                            name="postalCode"
-                                            value={formData.postalCode}
-                                            onChange={handleInputChange}
-                                            required
-                                            placeholder="Enter postal code"
-                                        />
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>City</label>
+                                            <input
+                                                type="text"
+                                                name="city"
+                                                value={formData.city}
+                                                onChange={handleInputChange}
+                                                required
+                                                placeholder="Enter your city"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Postal Code</label>
+                                            <input
+                                                type="text"
+                                                name="postalCode"
+                                                value={formData.postalCode}
+                                                onChange={handleInputChange}
+                                                required
+                                                placeholder="Enter postal code"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Pickup Schedule */}
                             <div className="form-card">
@@ -265,6 +323,7 @@ const Checkout = () => {
                                             name="pickupDate"
                                             value={formData.pickupDate}
                                             onChange={handleInputChange}
+                                            min={new Date().toISOString().split('T')[0]}
                                             required
                                         />
                                     </div>
@@ -294,6 +353,29 @@ const Checkout = () => {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Special Instructions */}
+                            <div className="form-card">
+                                <h2 className="section-title">Special Instructions</h2>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <textarea
+                                        name="specialInstructions"
+                                        value={formData.specialInstructions}
+                                        onChange={handleInputChange}
+                                        placeholder="Any special instructions for your order? (optional)"
+                                        rows={3}
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.875rem 1rem',
+                                            border: '1px solid #d4e4ec',
+                                            borderRadius: '4px',
+                                            fontSize: '1rem',
+                                            fontFamily: 'inherit',
+                                            resize: 'vertical',
+                                        }}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Order Summary */}
@@ -303,8 +385,8 @@ const Checkout = () => {
                                 <div className="summary-items">
                                     {cartItems.map((item, index) => (
                                         <div key={index} className="summary-item">
-                                            <span>{item.name} x{item.quantity || 1}</span>
-                                            <span>LKR {(item.totalPrice || item.price).toFixed(2)}</span>
+                                            <span>{item.name} {item.method ? `(${item.method})` : ''} x{item.quantity}</span>
+                                            <span>LKR {(item.totalPrice || item.price * item.quantity).toFixed(2)}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -356,10 +438,25 @@ const Checkout = () => {
                     {/* Payment Options Section */}
                     <div className="payment-form-section">
                         <div className="payment-card">
-                            <h2 className="section-title">Payment Option</h2>
+                            <h2 className="section-title">Payment Method</h2>
 
-                            {/* Payment Methods - Visa and Mastercard */}
+                            {/* Payment Methods */}
                             <div className="payment-methods">
+                                <label
+                                    className={`payment-method-option ${formData.paymentMethod === 'cash' ? 'selected' : ''}`}
+                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cash' }))}
+                                >
+                                    <div className="method-icon cash-icon">💵</div>
+                                    <span className="method-name">Cash on Delivery</span>
+                                    <input
+                                        type="radio"
+                                        name="paymentMethod"
+                                        value="cash"
+                                        checked={formData.paymentMethod === 'cash'}
+                                        onChange={() => setFormData(prev => ({ ...prev, paymentMethod: 'cash' }))}
+                                    />
+                                </label>
+
                                 <label
                                     className={`payment-method-option ${formData.paymentMethod === 'visa' ? 'selected' : ''}`}
                                     onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'visa' }))}
@@ -398,7 +495,7 @@ const Checkout = () => {
                                 </label>
                             </div>
 
-                            {/* Card Details Form */}
+                            {/* Card Details Form - only when card selected */}
                             {(formData.paymentMethod === 'visa' || formData.paymentMethod === 'mastercard') && (
                                 <div className="card-details-form">
                                     <div className="form-group">
@@ -477,9 +574,18 @@ const Checkout = () => {
                                     <span className="totals-value total-amount">LKR {grandTotal.toFixed(2)}</span>
                                 </div>
                             </div>
-                            <button type="submit" className="btn-confirm-payment">
-                                CONFIRM PAYMENT
-                                <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
+                            <button type="submit" className="btn-confirm-payment" disabled={submitting}>
+                                {submitting ? (
+                                    <>
+                                        <Loader size={18} className="spin" />
+                                        Placing Order...
+                                    </>
+                                ) : (
+                                    <>
+                                        CONFIRM PAYMENT
+                                        <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>

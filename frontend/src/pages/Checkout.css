@@ -595,3 +595,28 @@
         padding: 1.5rem;
     }
 }
+
+/* Spinner for loading button */
+.spin {
+    animation: spinAnim 0.8s linear infinite;
+}
+
+@keyframes spinAnim {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.btn-confirm-payment:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Cash on Delivery icon */
+.cash-icon {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 32px;
+}

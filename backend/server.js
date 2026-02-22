@@ -9,7 +9,9 @@ const authRoutes = require('./routes/auth.routes');
 const adminRoutes = require('./routes/admin.routes');
 const serviceRoutes = require('./routes/service.routes');
 const publicServiceRoutes = require('./routes/publicService.routes');
+const orderRoutes = require('./routes/order.routes');
 const db = require('./config/db.config');
+const Order = require('./models/order.model');
 
 const app = express();
 
@@ -20,9 +22,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Test database connection
 db.getConnection()
-  .then((connection) => {
+  .then(async (connection) => {
     console.log('✅ Database connected successfully');
     connection.release();
+    // Auto-create order tables
+    await Order.createTables();
+    console.log('✅ Order tables ready');
   })
   .catch((err) => {
     console.error('❌ Database connection failed:', err.message);
@@ -33,6 +38,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/services', serviceRoutes);
 app.use('/api/services', publicServiceRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
