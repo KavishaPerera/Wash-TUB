@@ -45,6 +45,59 @@
     /* Space for footer */
 }
 
+/* Search Bar */
+.pricing-search-bar {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    padding: 0.6rem 1rem;
+    margin-bottom: 1.5rem;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pricing-search-bar:focus-within {
+    border-color: #0ea5e9;
+    box-shadow: 0 4px 20px rgba(14, 165, 233, 0.12);
+}
+
+.pricing-search-icon {
+    color: #94a3b8;
+    flex-shrink: 0;
+    margin-right: 0.6rem;
+}
+
+.pricing-search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.95rem;
+    color: #2d3748;
+    background: transparent;
+    padding: 0.4rem 0;
+}
+
+.pricing-search-input::placeholder {
+    color: #a0aec0;
+}
+
+.pricing-search-clear {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0 0.3rem;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.pricing-search-clear:hover {
+    color: #ef4444;
+}
+
 /* Category Tabs - Refined to match theme */
 .category-tabs {
     display: flex;

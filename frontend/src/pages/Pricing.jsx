@@ -21,6 +21,7 @@ const Pricing = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const fetchServices = useCallback(async () => {
         setLoading(true);
@@ -82,8 +83,6 @@ const Pricing = () => {
             if (!grouped.has(item.name)) {
                 grouped.set(item.name, item);
             } else {
-                // If we already have this item, we might want to show the lowest price
-                // or just keep the first one we found. Let's keep the lowest price.
                 const existing = grouped.get(item.name);
                 if (item.price < existing.price) {
                     grouped.set(item.name, item);
@@ -91,8 +90,18 @@ const Pricing = () => {
             }
         });
 
-        return Array.from(grouped.values());
-    }, [pricingItems, activeCategory]);
+        // Apply search filter
+        let results = Array.from(grouped.values());
+        if (searchQuery.trim()) {
+            const query = searchQuery.trim().toLowerCase();
+            results = results.filter(item =>
+                item.name.toLowerCase().includes(query) ||
+                item.category.toLowerCase().includes(query)
+            );
+        }
+
+        return results;
+    }, [pricingItems, activeCategory, searchQuery]);
 
     const handleAddClick = (item) => {
         setSelectedItem(item);
@@ -132,6 +141,23 @@ const Pricing = () => {
                             <button onClick={fetchServices} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>Retry</button>
                         </div>
                     )}
+
+                    {/* Search Bar */}
+                    <div className="pricing-search-bar">
+                        <svg className="pricing-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input
+                            type="text"
+                            className="pricing-search-input"
+                            placeholder="Search items... (e.g. T-shirt, Saree, Trouser)"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        {searchQuery && (
+                            <button className="pricing-search-clear" onClick={() => setSearchQuery('')} title="Clear search">
+                                &times;
+                            </button>
+                        )}
+                    </div>
 
                     {/* Category Tabs */}
                     <div className="category-tabs">
