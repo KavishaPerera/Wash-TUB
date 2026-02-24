@@ -439,6 +439,44 @@
     color: #dc2626;
 }
 
+/* All backend order status colours */
+.status-pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.status-confirmed {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.status-pickup-scheduled,
+.status-picked-up {
+    background: #fdf4ff;
+    color: #a21caf;
+}
+
+.status-processing {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.status-ready {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.status-out-for-delivery {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.status-delivered {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+
 /* Quick Actions */
 .quick-actions-section {
     margin-bottom: 2.5rem;

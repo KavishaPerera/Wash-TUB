@@ -1,32 +1,83 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Friendly label mapping for backend status values
+const STATUS_LABEL = {
+    pending: 'Pending',
+    confirmed: 'Confirmed',
+    pickup_scheduled: 'Pickup Scheduled',
+    picked_up: 'Picked Up',
+    processing: 'Processing',
+    ready: 'Ready',
+    out_for_delivery: 'Out for Delivery',
+    delivered: 'Delivered',
+    cancelled: 'Cancelled',
+};
+
+const ACTIVE_STATUSES = ['pending', 'confirmed', 'pickup_scheduled', 'picked_up', 'processing', 'ready', 'out_for_delivery'];
+
 const CustomerDashboard = () => {
-    // Navigations 
     const navigate = useNavigate();
-    const [userName] = useState('Amandi');
 
-    // Recent Orders Data
-    const recentOrders = [
-        { id: 'ORD-1234', service: 'Wash & Fold', date: 'Jan 20, 2026', status: 'Processing', amount: 'Rs.450' },
-        { id: 'ORD-1233', service: 'Dry Cleaning', date: 'Jan 18, 2026', status: 'Completed', amount: 'Rs.850' },
-        { id: 'ORD-1232', service: 'Iron & Press', date: 'Jan 15, 2026', status: 'Delivered', amount: 'Rs.300' },
-        { id: 'ORD-1231', service: 'Wash & Fold', date: 'Jan 12, 2026', status: 'Completed', amount: 'Rs.500' },
-    ];
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [userName, setUserName] = useState('');
 
-    const getStatusClass = (status) => {
-        return `status-${status.toLowerCase()}`;
+    useEffect(() => {
+        // Read name from stored user info
+        try {
+            const stored = localStorage.getItem('user');
+            if (stored) {
+                const u = JSON.parse(stored);
+                setUserName(u.first_name || u.name || '');
+            }
+        } catch (_) { }
+
+        fetchOrders();
+    }, []);
+
+    const fetchOrders = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API}/orders/my-orders`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error('Failed to fetch orders');
+            const data = await res.json();
+            setOrders(data);
+        } catch (err) {
+            setError('Could not load orders. Please refresh.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleLogout = () => {
-        // Clear session data
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         sessionStorage.removeItem('token');
         sessionStorage.removeItem('user');
         navigate('/signin');
     };
+
+    // ── Computed stats from real data ────────────────────────────────────
+    const totalOrders = orders.length;
+    const activeOrders = orders.filter(o => ACTIVE_STATUSES.includes(o.status)).length;
+    const completedOrders = orders.filter(o => o.status === 'delivered').length;
+    const recentOrders = orders.slice(0, 4); // already sorted newest-first by backend
+
+    const fmtDate = (iso) => {
+        if (!iso) return '—';
+        return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    };
+
+    const statusClass = (status) => `status-${status?.replace(/_/g, '-')}`;
 
     return (
         <div className="dashboard">
@@ -35,29 +86,21 @@ const CustomerDashboard = () => {
                 <div className="sidebar-header">
                     <h2 className="logo">WashTub</h2>
                 </div>
-
                 <nav className="sidebar-nav">
                     <a href="#overview" className="nav-item active">
-                        {/* <span className="nav-icon">📊</span> */}
                         <span>Overview</span>
                     </a>
                     <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/my-orders'); }}>
-                        {/* <span className="nav-icon">📦</span> */}
                         <span>My Orders</span>
                     </a>
                     <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/pricing'); }}>
-                        {/* <span className="nav-icon">➕</span> */}
                         <span>New Order</span>
                     </a>
-
                     <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>
-                        {/* <span className="nav-icon">⚙️</span> */}
                         <span>Notifications</span>
                     </a>
                 </nav>
-
                 <button className="logout-btn" onClick={handleLogout}>
-                    {/* <span className="nav-icon">🚪</span> */}
                     <span>Logout</span>
                 </button>
             </aside>
@@ -68,13 +111,12 @@ const CustomerDashboard = () => {
                 <header className="dashboard-header">
                     <div className="header-content">
                         <div className="header-left">
-                            <h1>Welcome back!</h1>
+                            <h1>Welcome back{userName ? `, ${userName}` : ''}!</h1>
                             <p>Manage your laundry orders and profile</p>
                         </div>
                         <div className="header-right">
                             <div className="notification-bell">
                                 <span className="bell-icon">🔔</span>
-                                <span className="notification-badge">3</span>
                             </div>
                         </div>
                     </div>
@@ -85,24 +127,19 @@ const CustomerDashboard = () => {
                     <div className="stat-card">
                         <div className="stat-info">
                             <p className="stat-label">Total Orders</p>
-                            <h3 className="stat-value">24</h3>
-                            {/* <span className="stat-change positive">+3 this month</span> */}
+                            <h3 className="stat-value">{loading ? '—' : totalOrders}</h3>
                         </div>
                     </div>
-
                     <div className="stat-card">
                         <div className="stat-info">
                             <p className="stat-label">Active Orders</p>
-                            <h3 className="stat-value">3</h3>
-                            {/*<span className="stat-change">In progress</span>*/}
+                            <h3 className="stat-value">{loading ? '—' : activeOrders}</h3>
                         </div>
                     </div>
-
                     <div className="stat-card">
                         <div className="stat-info">
                             <p className="stat-label">Completed</p>
-                            <h3 className="stat-value">21</h3>
-                            {/*<span className="stat-change positive">87.5% success</span>*/}
+                            <h3 className="stat-value">{loading ? '—' : completedOrders}</h3>
                         </div>
                     </div>
                 </section>
@@ -111,61 +148,80 @@ const CustomerDashboard = () => {
                 <section className="orders-section">
                     <div className="section-header">
                         <h2>Recent Orders</h2>
-                        <a href="#all-orders" className="view-all">View All →</a>
+                        <button
+                            className="view-all"
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-primary)', fontWeight: 600 }}
+                            onClick={() => navigate('/my-orders')}
+                        >
+                            View All →
+                        </button>
                     </div>
 
-                    <div className="orders-grid">
-                        {recentOrders.map((order) => (
-                            <div key={order.id} className="order-card">
-                                <div className="order-header">
-                                    <span className="order-id">{order.id}</span>
-                                    <span className={`order-status ${getStatusClass(order.status)}`}>{order.status}</span>
-                                </div>
-                                <div className="order-details">
-                                    <h3>{order.service}</h3>
-                                    <p>📅 {order.date}</p>
-                                    <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
-                                        💰 {order.amount}
-                                    </p>
-                                </div>
-                                <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
-                                    <span className={`order-type type-${order.status === 'Processing' ? 'pickup' : 'delivery'}`}>
-                                        {order.status === 'Processing' ? 'Pickup' : 'Delivery'}
-                                    </span>
-                                </div>
-                                <div className="card-actions">
-                                    <button className="btn-card-outline">Details</button>
-                                    <button className="btn-card-primary">
-                                        {order.status === 'Processing' ? 'Track Order' : 'View Receipt'}
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
+                    {loading && (
+                        <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                            Loading orders…
+                        </div>
+                    )}
 
-                {/* Quick Actions */}
-                <section className="quick-actions-section">
-                    <div className="section-header">
-                        <h2>Quick Actions</h2>
-                    </div>
-                    <div className="quick-actions-grid">
-                        <div className="action-card">
-                            <h3>Schedule Pickup</h3>
-                            <p>Book a convenient time for pickup</p>
-                            <button className="btn btn-secondary btn-small">Schedule</button>
+                    {error && (
+                        <div style={{ textAlign: 'center', padding: '2rem', color: '#ef4444' }}>
+                            {error}
+                            <button
+                                onClick={fetchOrders}
+                                style={{ marginLeft: '1rem', color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+                            >
+                                Retry
+                            </button>
                         </div>
-                        <div className="action-card">
-                            <h3>Payment Methods</h3>
-                            <p>Manage your payment options</p>
-                            <button className="btn btn-secondary btn-small">Manage</button>
+                    )}
+
+                    {!loading && !error && recentOrders.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                            <p style={{ color: '#94a3b8', marginBottom: '1rem' }}>You haven't placed any orders yet.</p>
+                            <button className="btn btn-primary" onClick={() => navigate('/pricing')}>
+                                Place Your First Order
+                            </button>
                         </div>
-                        <div className="action-card">
-                            <h3>Addresses</h3>
-                            <p>Update delivery locations</p>
-                            <button className="btn btn-secondary btn-small">Update</button>
+                    )}
+
+                    {!loading && !error && recentOrders.length > 0 && (
+                        <div className="orders-grid">
+                            {recentOrders.map((order) => (
+                                <div key={order.id} className="order-card">
+                                    <div className="order-header">
+                                        <span className="order-id">{order.order_number}</span>
+                                        <span className={`order-status ${statusClass(order.status)}`}>
+                                            {STATUS_LABEL[order.status] || order.status}
+                                        </span>
+                                    </div>
+                                    <div className="order-details">
+                                        <h3>
+                                            {order.items && order.items.length > 0
+                                                ? order.items.map(i => i.item_name).join(', ')
+                                                : 'Laundry Order'}
+                                        </h3>
+                                        <p>📅 {fmtDate(order.created_at)}</p>
+                                        <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+                                            💰 LKR {parseFloat(order.total).toFixed(2)}
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+                                        <span className={`order-type type-${order.delivery_option}`}>
+                                            {order.delivery_option === 'delivery' ? 'Home Delivery' : 'Self Pickup'}
+                                        </span>
+                                    </div>
+                                    <div className="card-actions">
+                                        <button
+                                            className="btn-card-primary"
+                                            onClick={() => navigate(`/my-orders`)}
+                                        >
+                                            View Details
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    </div>
+                    )}
                 </section>
             </main>
         </div>
