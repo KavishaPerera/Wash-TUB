@@ -42,7 +42,7 @@ const MyOrders = () => {
                     <a href="#" className="nav-item active">
                         <span>My Orders</span>
                     </a>
-                    <Link to="/new-order" className="nav-item">
+                    <Link to="/pricing" className="nav-item">
                         <span>New Order</span>
                     </Link>
                     <Link to="/notifications" className="nav-item">
@@ -63,9 +63,6 @@ const MyOrders = () => {
                             <h1>My Orders</h1>
                             <p>View and track all your laundry orders</p>
                         </div>
-                        <button className="btn btn-primary" onClick={() => navigate('/new-order')}>
-                            + New Order
-                        </button>
                     </div>
                 </header>
 
@@ -110,7 +107,7 @@ const MyOrders = () => {
                             <span className="no-orders-icon">📦</span>
                             <h3>No orders found</h3>
                             <p>You don't have any {activeFilter !== 'all' ? activeFilter : ''} orders yet.</p>
-                            <button className="btn btn-primary" onClick={() => navigate('/new-order')}>
+                            <button className="btn btn-primary" onClick={() => navigate('/pricing')}>
                                 Place Your First Order
                             </button>
                         </div>

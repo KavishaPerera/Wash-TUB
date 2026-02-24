@@ -17,7 +17,6 @@ import StaffAllTasks from './pages/StaffAllTasks';
 import StaffProfile from './pages/StaffProfile';
 import StaffUpdateOrder from './pages/StaffUpdateOrder';
 import PointOfSale from './pages/PointOfSale';
-import NewOrder from './pages/NewOrder';
 import MyOrders from './pages/MyOrders';
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
@@ -63,7 +62,6 @@ function App() {
             <Route path="/staff/pos" element={<PointOfSale />} />
             <Route path="/staff/profile" element={<StaffProfile />} />
             <Route path="/staff/update-order" element={<StaffUpdateOrder />} />
-            <Route path="/new-order" element={<NewOrder />} />
             <Route path="/my-orders" element={<MyOrders />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
