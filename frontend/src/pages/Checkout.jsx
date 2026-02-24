@@ -186,8 +186,12 @@ const Checkout = () => {
 
             // Success!
             clearCart();
-            navigate(`/order-success/${data.orderId}`, {
-                state: { orderNumber: data.orderNumber, total: data.total },
+            navigate('/payment-success', {
+                state: {
+                    orderNumber: data.orderNumber,
+                    total: data.total,
+                    orderId: data.orderId,
+                },
             });
         } catch (err) {
             console.error('Order error:', err);

@@ -1,0 +1,325 @@
+/* ============================================
+   PaymentSuccess.css
+   ============================================ */
+
+/* Page wrapper */
+.ps-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 50%, #ede9fe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative blobs */
+.ps-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.ps-blob-1 {
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, #6ee7b7, #34d399);
+    top: -80px;
+    right: -80px;
+    animation: psFloat 8s ease-in-out infinite;
+}
+
+.ps-blob-2 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, #93c5fd, #60a5fa);
+    bottom: -60px;
+    left: -60px;
+    animation: psFloat 10s ease-in-out infinite reverse;
+}
+
+@keyframes psFloat {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(20px, -20px) scale(1.05);
+    }
+}
+
+/* Card */
+.ps-card {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.06);
+    max-width: 460px;
+    width: 100%;
+    padding: 3rem 2.5rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    animation: psCardIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes psCardIn {
+    0% {
+        opacity: 0;
+        transform: translateY(32px) scale(0.96);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Check icon wrapper */
+.ps-icon-wrap {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    margin-bottom: 1.5rem;
+}
+
+.ps-check-icon {
+    width: 96px;
+    height: 96px;
+    color: #16a34a;
+    animation: psPop 0.6s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes psPop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.ps-icon-ring {
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    background: rgba(22, 163, 74, 0.1);
+    animation: psRingPulse 2.5s 0.8s ease-in-out infinite;
+}
+
+@keyframes psRingPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 0;
+    }
+}
+
+/* Title & subtitle */
+.ps-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.6rem;
+    letter-spacing: -0.5px;
+    animation: psFadeUp 0.5s 0.35s both;
+}
+
+.ps-subtitle {
+    font-size: 0.95rem;
+    color: #64748b;
+    line-height: 1.6;
+    margin: 0 0 2rem;
+    animation: psFadeUp 0.5s 0.45s both;
+}
+
+@keyframes psFadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Summary strip */
+.ps-summary {
+    width: 100%;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    animation: psFadeUp 0.5s 0.55s both;
+}
+
+.ps-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.ps-summary-row:last-child {
+    border-bottom: none;
+}
+
+.ps-summary-label {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.ps-summary-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.ps-highlight {
+    color: #0284c7;
+    font-size: 0.95rem;
+}
+
+.ps-amount {
+    color: #16a34a;
+    font-size: 1.05rem;
+}
+
+.ps-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.875rem;
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #15803d;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.ps-status-badge::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #16a34a;
+    display: inline-block;
+    animation: psBlink 1.8s ease-in-out infinite;
+}
+
+@keyframes psBlink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* Action buttons */
+.ps-actions {
+    display: flex;
+    gap: 0.875rem;
+    width: 100%;
+    animation: psFadeUp 0.5s 0.65s both;
+}
+
+.ps-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.22s ease;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+}
+
+.ps-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: white;
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+}
+
+.ps-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.45);
+}
+
+.ps-btn-primary:active {
+    transform: translateY(0);
+}
+
+.ps-btn-outline {
+    background: white;
+    color: #374151;
+    border: 2px solid #e2e8f0;
+}
+
+.ps-btn-outline:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+}
+
+.ps-btn-outline:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+    .ps-card {
+        padding: 2rem 1.5rem 1.75rem;
+        border-radius: 18px;
+    }
+
+    .ps-title {
+        font-size: 1.5rem;
+    }
+
+    .ps-actions {
+        flex-direction: column;
+    }
+
+    .ps-blob-1,
+    .ps-blob-2 {
+        width: 200px;
+        height: 200px;
+    }
+}
