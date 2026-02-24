@@ -1,25 +1,25 @@
 import { useState, useMemo } from 'react';
-import { Search, Package, Clock, Check, User, Calendar, DollarSign } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Search, Package, Clock, Check, User, Calendar, DollarSign, ArrowLeft } from 'lucide-react';
 import StaffSidebar from '../components/StaffSidebar';
+import { useStaffOrders } from '../context/StaffOrdersContext';
 import './StaffDashboard.css';
 import './StaffUpdateOrder.css';
 
 const StaffUpdateOrder = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // ── Shared context (single source of truth) ──────────────────────────
+    const { orders, updateOrderStatus } = useStaffOrders();
+
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedOrderId, setSelectedOrderId] = useState(null);
 
-    // Mock Data
-    const mockOrders = [
-        { id: 'ORD-001', customer: 'Nimal perera', service: 'Wash & Dry', status: 'Pending', items: 'Curtain', date: 'Jan 24, 2026', total: 'LKR 1,500' },
-        { id: 'ORD-002', customer: 'Jane fernando', service: 'Dry Cleaning', status: 'In Progress', items: '2 Suits', date: 'Jan 25, 2026', total: 'LKR 1,200' },
-        { id: 'ORD-003', customer: 'Mewan Gunathilaka', service: 'Ironing', status: 'Completed', items: '10 Shirts', date: 'Jan 23, 2026', total: 'LKR 2,800' },
-        { id: 'ORD-005', customer: 'Mohommad Ismail', service: 'Pressing', status: 'Urgent', items: 'Silk Dress', date: 'Today', total: 'LKR 350' },
-        { id: 'ORD-006', customer: 'Samantha Abeyrathna', service: 'Dry Cleaning', status: 'Pending', items: 'Living Room Set', date: 'Yesterday', total: 'LKR 500' },
-    ];
+    // If navigated from the dashboard with a specific order, pre-select it
+    const incomingOrder = location.state?.order;
+    const [selectedOrderId, setSelectedOrderId] = useState(incomingOrder?.id || null);
 
-    const [orders, setOrders] = useState(mockOrders);
-
-    // Filter Logic
+    // Filter Logic (for split-panel view)
     const filteredOrders = useMemo(() => {
         return orders.filter(order =>
             order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,19 +27,109 @@ const StaffUpdateOrder = () => {
         );
     }, [orders, searchTerm]);
 
+    // Always derive selectedOrder from the shared context so it stays fresh
     const selectedOrder = orders.find(o => o.id === selectedOrderId);
     const workflowSteps = ['Pending', 'In Progress', 'Ready', 'Completed'];
 
     const handleStatusUpdate = (newStatus) => {
-        if (!selectedOrder) return;
-
-        const updatedOrders = orders.map(o =>
-            o.id === selectedOrderId ? { ...o, status: newStatus } : o
-        );
-        setOrders(updatedOrders);
-        alert(`Order ${selectedOrderId} updated to ${newStatus}`);
+        if (!selectedOrderId) return;
+        updateOrderStatus(selectedOrderId, newStatus); // ← writes to context
     };
 
+    // ── DETAIL-ONLY VIEW (navigated from dashboard update button) ─────────
+    if (incomingOrder && selectedOrder) {
+        return (
+            <div className="dashboard">
+                <StaffSidebar activePage="overview" />
+
+                <main className="dashboard-main">
+                    <header className="dashboard-header" style={{ marginBottom: '1.5rem' }}>
+                        <div className="header-content">
+                            <button
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: 'none', cursor: 'pointer', color: '#0284c7', fontWeight: 600, fontSize: '0.95rem', padding: 0 }}
+                                onClick={() => navigate('/staff-dashboard')}
+                            >
+                                <ArrowLeft size={18} /> Back to Dashboard
+                            </button>
+                        </div>
+                    </header>
+
+                    <div style={{ maxWidth: '700px', margin: '0 auto', padding: '0 1rem' }}>
+                        {/* Order header card */}
+                        <div style={{ background: '#fff', borderRadius: '16px', padding: '1.5rem', marginBottom: '1.25rem', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div>
+                                    <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>{selectedOrder.id}</h2>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.4rem', color: '#64748b' }}>
+                                        <User size={15} />
+                                        <span>{selectedOrder.customer}</span>
+                                    </div>
+                                </div>
+                                <span className={`large-status-badge status-${selectedOrder.status.toLowerCase().replace(' ', '-')}`}>
+                                    {selectedOrder.status}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Info grid card */}
+                        <div style={{ background: '#f8fafc', borderRadius: '16px', padding: '1.5rem', marginBottom: '1.25rem', border: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                            <div>
+                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.82rem' }}>
+                                    <Package size={14} /> Service Type
+                                </div>
+                                <p style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>{selectedOrder.service}</p>
+                            </div>
+                            <div>
+                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.82rem' }}>
+                                    <Clock size={14} /> Items
+                                </div>
+                                <p style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>{selectedOrder.items}</p>
+                            </div>
+                            <div>
+                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.82rem' }}>
+                                    <Calendar size={14} /> Date Received
+                                </div>
+                                <p style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>{selectedOrder.date}</p>
+                            </div>
+                            <div>
+                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.82rem' }}>
+                                    <DollarSign size={14} /> Total Amount
+                                </div>
+                                <p style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>{selectedOrder.total}</p>
+                            </div>
+                        </div>
+
+                        {/* Update Progress card */}
+                        <div className="status-update-section" style={{ background: '#fff', borderRadius: '16px', padding: '1.75rem', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
+                            <h3 style={{ margin: '0 0 1.75rem', fontSize: '1.35rem', fontWeight: 800, color: '#0f172a' }}>Update Progress</h3>
+                            <div className="status-workflow">
+                                {workflowSteps.map((step, index) => {
+                                    const currentIndex = workflowSteps.indexOf(selectedOrder.status);
+                                    const isCompleted = currentIndex >= index;
+                                    const isActive = selectedOrder.status === step;
+                                    return (
+                                        <div
+                                            key={step}
+                                            className={`status-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
+                                            onClick={() => handleStatusUpdate(step)}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <div className="step-circle">
+                                                {isCompleted ? <Check size={16} /> : <span>{index + 1}</span>}
+                                            </div>
+                                            <span className="step-label">{step}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
+    // ── SPLIT-PANEL VIEW (accessed directly via sidebar) ──────────────────
     return (
         <div className="dashboard">
             <StaffSidebar activePage="overview" />
@@ -134,15 +224,10 @@ const StaffUpdateOrder = () => {
 
                                 <div className="status-update-section">
                                     <h3>Update Progress</h3>
-
                                     <div className="status-workflow">
                                         {workflowSteps.map((step, index) => {
                                             const isCompleted = workflowSteps.indexOf(selectedOrder.status) >= index;
                                             const isActive = selectedOrder.status === step;
-
-                                            // Handle special 'Urgent' case visually as 'Pending' or separate? 
-                                            // For simplicity, we stick to the main workflow steps.
-
                                             return (
                                                 <div
                                                     key={step}

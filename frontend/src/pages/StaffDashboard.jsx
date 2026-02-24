@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Edit } from 'lucide-react';
 import StaffSidebar from '../components/StaffSidebar';
+import { useStaffOrders } from '../context/StaffOrdersContext';
 import './StaffDashboard.css';
 
 const StaffDashboard = () => {
     const navigate = useNavigate();
     const [staffName] = useState('Staff Member');
+    const { orders } = useStaffOrders(); // ← shared state
 
     const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
 
@@ -71,12 +73,7 @@ const StaffDashboard = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {[
-                                    { id: 'ORD-001', customer: 'Nimal perera', service: 'Wash & Dry', status: 'Pending' },
-                                    { id: 'ORD-002', customer: 'Jane fernando', service: 'Dry Cleaning', status: 'In Progress' },
-                                    { id: 'ORD-003', customer: 'Mewan Gunathilaka', service: 'Ironing', status: 'Completed' },
-                                    { id: 'ORD-004', customer: 'Mohommad Ismail', service: 'Pressing', status: 'Pending' }
-                                ].map(order => (
+                                {orders.slice(0, 5).map(order => (
                                     <tr key={order.id}>
                                         <td>{order.id}</td>
                                         <td>{order.customer}</td>
@@ -89,7 +86,7 @@ const StaffDashboard = () => {
                                         <td>
                                             <button
                                                 className="btn-action"
-                                                onClick={() => navigate('/staff/update-order')}
+                                                onClick={() => navigate('/staff/update-order', { state: { order } })}
                                                 title="Update Order Status"
                                             >
                                                 <Edit size={18} />

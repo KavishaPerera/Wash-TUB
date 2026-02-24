@@ -36,53 +36,56 @@ import Contact from './pages/Contact';
 import OrderSuccess from './pages/OrderSuccess';
 import PaymentSuccess from './pages/PaymentSuccess';
 import { CartProvider } from './context/CartContext';
+import { StaffOrdersProvider } from './context/StaffOrdersContext';
 import './App.css';
 
 function App() {
   return (
     <CartProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/verify-code" element={<VerifyCode />} />
-            <Route path="/set-new-password" element={<SetNewPassword />} />
-            <Route path="/password-reset" element={<PasswordReset />} />
-            <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-            <Route path="/staff-dashboard" element={<StaffDashboard />} />
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/delivery-dashboard" element={<DeliveryDashboard />} />
-            <Route path="/active-deliveries" element={<ActiveDeliveries />} />
-            <Route path="/delivery-history" element={<DeliveryHistory />} />
-            <Route path="/delivery-profile" element={<DeliveryProfile />} />
-            <Route path="/staff/tasks" element={<StaffAllTasks />} />
-            <Route path="/staff/pos" element={<PointOfSale />} />
-            <Route path="/staff/profile" element={<StaffProfile />} />
-            <Route path="/staff/update-order" element={<StaffUpdateOrder />} />
-            <Route path="/my-orders" element={<MyOrders />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/generate-report" element={<GenerateReport />} />
-            <Route path="/user-management" element={<UserManagement />} />
-            <Route path="/service-management" element={<ServiceManagement />} />
-            <Route path="/add-user" element={<AddUser />} />
-            <Route path="/all-orders" element={<AllOrders />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/system-settings" element={<SystemSettings />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/order-success/:id" element={<OrderSuccess />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-          </Routes>
-        </div>
-      </Router>
+      <StaffOrdersProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/verify-code" element={<VerifyCode />} />
+              <Route path="/set-new-password" element={<SetNewPassword />} />
+              <Route path="/password-reset" element={<PasswordReset />} />
+              <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+              <Route path="/staff-dashboard" element={<StaffDashboard />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/delivery-dashboard" element={<DeliveryDashboard />} />
+              <Route path="/active-deliveries" element={<ActiveDeliveries />} />
+              <Route path="/delivery-history" element={<DeliveryHistory />} />
+              <Route path="/delivery-profile" element={<DeliveryProfile />} />
+              <Route path="/staff/tasks" element={<StaffAllTasks />} />
+              <Route path="/staff/pos" element={<PointOfSale />} />
+              <Route path="/staff/profile" element={<StaffProfile />} />
+              <Route path="/staff/update-order" element={<StaffUpdateOrder />} />
+              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/generate-report" element={<GenerateReport />} />
+              <Route path="/user-management" element={<UserManagement />} />
+              <Route path="/service-management" element={<ServiceManagement />} />
+              <Route path="/add-user" element={<AddUser />} />
+              <Route path="/all-orders" element={<AllOrders />} />
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/system-settings" element={<SystemSettings />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/order-success/:id" element={<OrderSuccess />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+            </Routes>
+          </div>
+        </Router>
+      </StaffOrdersProvider>
     </CartProvider>
   );
 }
