@@ -101,29 +101,8 @@ const StaffDashboard = () => {
 
 
 
-                {/* Quick Actions */}
-                <section className="quick-actions-section">
-                    <div className="section-header">
-                        <h2>Quick Actions</h2>
-                    </div>
-                    <div className="quick-actions-grid">
-                        <div className="action-card">
-                            <h3>Update Order Status</h3>
-                            <p>Mark orders as processed or ready</p>
-                            <button className="btn btn-secondary btn-small" onClick={() => navigate('/staff/update-order')}>Update</button>
-                        </div>
-                        <div className="action-card">
-                            <h3>View Schedule</h3>
-                            <p>Check your work schedule</p>
-                            <button className="btn btn-secondary btn-small">View</button>
-                        </div>
-                        <div className="action-card">
-                            <h3>Notification</h3>
-                            <p>Send notification to customer</p>
-                            <button className="btn btn-secondary btn-small">Send</button>
-                        </div>
-                    </div>
-                </section>
+
+
             </main>
         </div>
     );
