@@ -76,9 +76,6 @@ const CustomerDashboard = () => {
                                 <span className="bell-icon">🔔</span>
                                 <span className="notification-badge">3</span>
                             </div>
-                            <button className="btn btn-primary" onClick={() => navigate('/new-order')}>
-                                + New Order
-                            </button>
                         </div>
                     </div>
                 </header>
