@@ -67,8 +67,8 @@ const AdminDashboard = () => {
                     <Link to="/admin-dashboard" className="nav-item active"><span>Overview</span></Link>
                     <Link to="/user-management" className="nav-item"><span>User Management</span></Link>
                     <Link to="/service-management" className="nav-item"><span>Service Management</span></Link>
-                    <Link to="/all-orders" className="nav-item"><span>All Orders</span></Link>
-                    <Link to="/payment" className="nav-item"><span>Payment</span></Link>
+                    <Link to="/all-orders" className="nav-item"><span>All Order Updates</span></Link>
+                    <Link to="/payment" className="nav-item"><span>Payment Updates</span></Link>
                     <Link to="/generate-report" className="nav-item"><span>Generate Reports</span></Link>
                     <Link to="/system-settings" className="nav-item"><span>System Settings</span></Link>
                 </nav>
