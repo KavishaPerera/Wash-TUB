@@ -235,6 +235,16 @@ const Order = {
     }
 
     const [orders] = await db.execute(query, params);
+
+    // Attach items to each order (so staff/admin dashboards see item details)
+    for (const order of orders) {
+      const [items] = await db.execute(
+        `SELECT * FROM order_items WHERE order_id = ?`,
+        [order.id]
+      );
+      order.items = items;
+    }
+
     return orders;
   },
 

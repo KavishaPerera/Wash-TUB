@@ -333,6 +333,59 @@
     color: white;
 }
 
+/* ── Extra status badge colours (for real backend statuses) ─── */
+.status-pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.status-confirmed {
+    background: #f0f9ff;
+    color: #0369a1;
+}
+
+.status-pickup-scheduled {
+    background: #faf5ff;
+    color: #7c3aed;
+}
+
+.status-picked-up {
+    background: #faf5ff;
+    color: #6d28d9;
+}
+
+.status-in-progress {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.status-ready {
+    background: #fefce8;
+    color: #a16207;
+}
+
+.status-out-for-delivery {
+    background: #ecfdf5;
+    color: #166534;
+}
+
+.status-cancelled {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+/* ── Refresh button spin animation ─────────────────────────── */
+@keyframes spin-refresh {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin-anim {
+    animation: spin-refresh 1s linear infinite;
+}
+
+
 
 /* Responsive */
 @media (max-width: 1024px) {
