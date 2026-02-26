@@ -191,6 +191,25 @@ const Checkout = () => {
                     orderNumber: data.orderNumber,
                     total: data.total,
                     orderId: data.orderId,
+                    customerName: formData.fullName,
+                    customerPhone: formData.phone,
+                    customerAddress: formData.deliveryOption === 'delivery'
+                        ? `${formData.address}, ${formData.city}, ${formData.postalCode}`
+                        : 'Store Pickup',
+                    deliveryOption: formData.deliveryOption,
+                    paymentMethod: formData.paymentMethod,
+                    pickupDate: formData.pickupDate,
+                    pickupTime: formData.pickupTime,
+                    items: cartItems.map(item => ({
+                        name: item.name,
+                        method: item.method,
+                        unitType: item.unitType,
+                        quantity: item.quantity,
+                        price: item.price,
+                        totalPrice: item.totalPrice,
+                    })),
+                    subtotal: totalAmount,
+                    deliveryFee,
                 },
             });
         } catch (err) {
