@@ -49,6 +49,16 @@ const Checkout = () => {
     const DELIVERY_FEE = 350;
     const PICKUP_FEE = 200;
 
+    const CITY_POSTAL_MAP = {
+        'Battaramulla': '10120',
+        'Hokandara': '10118',
+        'Koswatta': '10120',
+        'Malabe': '10115',
+        'Pelawatta': '10120',
+        'Sri Jayawardenapura': '10100',
+        'Thalawathugoda': '10116',
+    };
+
     // Redirect if cart is empty (but not while submitting — clearCart fires before navigate)
     if (cartItems.length === 0 && !submitting) {
         return (
@@ -66,7 +76,11 @@ const Checkout = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        if (name === 'city') {
+            setFormData(prev => ({ ...prev, city: value, postalCode: CITY_POSTAL_MAP[value] || '' }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const deliveryFee = formData.deliveryOption === 'delivery' ? DELIVERY_FEE : PICKUP_FEE;
@@ -327,14 +341,26 @@ const Checkout = () => {
                                     <div className="form-row">
                                         <div className="form-group">
                                             <label>City</label>
-                                            <input
-                                                type="text"
+                                            <select
                                                 name="city"
                                                 value={formData.city}
                                                 onChange={handleInputChange}
                                                 required
-                                                placeholder="Enter your city"
-                                            />
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '0.875rem 1rem',
+                                                    border: '1px solid #d4e4ec',
+                                                    borderRadius: '4px',
+                                                    fontSize: '1rem',
+                                                    color: formData.city ? '#2d3748' : '#a0aec0',
+                                                    background: 'white'
+                                                }}
+                                            >
+                                                <option value="" disabled>Select your city</option>
+                                                {Object.keys(CITY_POSTAL_MAP).map(city => (
+                                                    <option key={city} value={city}>{city}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                         <div className="form-group">
                                             <label>Postal Code</label>
@@ -342,9 +368,9 @@ const Checkout = () => {
                                                 type="text"
                                                 name="postalCode"
                                                 value={formData.postalCode}
-                                                onChange={handleInputChange}
-                                                required
-                                                placeholder="Enter postal code"
+                                                readOnly
+                                                placeholder="Auto-filled based on city"
+                                                style={{ background: '#f7fafc', cursor: 'not-allowed' }}
                                             />
                                         </div>
                                     </div>
