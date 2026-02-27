@@ -33,8 +33,8 @@ const SignUp = () => {
             setError('Please fill in all required fields');
             return false;
         }
-        if (formData.password.length < 6) {
-            setError('Password must be at least 6 characters');
+        if (formData.password.length < 8) {
+            setError('Password must be at least 8 characters');
             return false;
         }
         if (formData.password !== formData.confirmPassword) {
@@ -165,7 +165,7 @@ const SignUp = () => {
                                     <label htmlFor="password">Password</label>
                                     <div className="auth-input-wrap">
                                         <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                        <input type="password" id="password" name="password" placeholder="Min 6 characters" value={formData.password} onChange={handleChange} required minLength={6} />
+                                        <input type="password" id="password" name="password" placeholder="Min 8 characters" value={formData.password} onChange={handleChange} required minLength={8} />
                                     </div>
                                 </div>
                                 <div className="auth-field">
