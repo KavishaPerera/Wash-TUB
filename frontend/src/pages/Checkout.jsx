@@ -130,12 +130,14 @@ const Checkout = () => {
             return;
         }
 
-        // Address fields required only for Home Delivery
-        if (isDelivery && (!formData.address || !formData.city || !formData.postalCode)) {
+        // Address fields required for both delivery and pickup
+        if (!formData.address || !formData.city || !formData.postalCode) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Delivery Address Required',
-                text: 'Please fill in your address, city, and postal code for home delivery.',
+                title: 'Address Required',
+                text: formData.deliveryOption === 'delivery'
+                    ? 'Please fill in your address, city, and postal code for home delivery.'
+                    : 'Please fill in your pickup address, city, and postal code.',
                 confirmButtonColor: '#0ea5e9',
             });
             return;
@@ -235,9 +237,7 @@ const Checkout = () => {
                     orderId: data.orderId,
                     customerName: formData.fullName,
                     customerPhone: formData.phone,
-                    customerAddress: formData.deliveryOption === 'delivery'
-                        ? `${formData.address}, ${formData.city}, ${formData.postalCode}`
-                        : 'Store Pickup',
+                    customerAddress: `${formData.address}, ${formData.city}, ${formData.postalCode}`,
                     deliveryOption: formData.deliveryOption,
                     paymentMethod: formData.paymentMethod,
                     pickupDate: formData.pickupDate,
@@ -350,10 +350,9 @@ const Checkout = () => {
                                 </div>
                             </div>
 
-                            {/* Delivery Address - only show for home delivery */}
-                            {formData.deliveryOption === 'delivery' && (
-                                <div className="form-card">
-                                    <h2 className="section-title"><MapPin size={20} /> Delivery Address</h2>
+                            {/* Address - required for both delivery and pickup */}
+                            <div className="form-card">
+                                <h2 className="section-title"><MapPin size={20} /> {formData.deliveryOption === 'delivery' ? 'Delivery Address' : 'Pickup Address'}</h2>
                                     <div className="form-group">
                                         <label>Address</label>
                                         <input
@@ -402,7 +401,6 @@ const Checkout = () => {
                                         </div>
                                     </div>
                                 </div>
-                            )}
 
                             {/* Pickup Schedule */}
                             <div className="form-card">
