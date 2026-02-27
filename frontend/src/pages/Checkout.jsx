@@ -46,7 +46,8 @@ const Checkout = () => {
         cvc: ''
     });
 
-    const DELIVERY_FEE = 200;
+    const DELIVERY_FEE = 350;
+    const PICKUP_FEE = 200;
 
     // Redirect if cart is empty (but not while submitting — clearCart fires before navigate)
     if (cartItems.length === 0 && !submitting) {
@@ -68,7 +69,7 @@ const Checkout = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const deliveryFee = formData.deliveryOption === 'delivery' ? DELIVERY_FEE : 0;
+    const deliveryFee = formData.deliveryOption === 'delivery' ? DELIVERY_FEE : PICKUP_FEE;
     const discounts = 0;
     const grandTotal = totalAmount + deliveryFee - discounts;
 
@@ -279,19 +280,6 @@ const Checkout = () => {
                             <div className="form-card">
                                 <h2 className="section-title"><Truck size={20} /> Delivery Option</h2>
                                 <div className="radio-group">
-                                    <label className={`radio-option ${formData.deliveryOption === 'pickup' ? 'selected' : ''}`}>
-                                        <input
-                                            type="radio"
-                                            name="deliveryOption"
-                                            value="pickup"
-                                            checked={formData.deliveryOption === 'pickup'}
-                                            onChange={handleInputChange}
-                                        />
-                                        <span className="radio-label">
-                                            <strong>Self Pickup</strong>
-                                            <small>Free - Pick up from our store</small>
-                                        </span>
-                                    </label>
                                     <label className={`radio-option ${formData.deliveryOption === 'delivery' ? 'selected' : ''}`}>
                                         <input
                                             type="radio"
@@ -301,8 +289,21 @@ const Checkout = () => {
                                             onChange={handleInputChange}
                                         />
                                         <span className="radio-label">
-                                            <strong>Home Delivery</strong>
-                                            <small>LKR {DELIVERY_FEE}.00 - Delivered to your door</small>
+                                            <strong>Pickup &amp; Delivery</strong>
+                                            <small>LKR {DELIVERY_FEE}.00 - We pick up and deliver to your door</small>
+                                        </span>
+                                    </label>
+                                    <label className={`radio-option ${formData.deliveryOption === 'pickup' ? 'selected' : ''}`}>
+                                        <input
+                                            type="radio"
+                                            name="deliveryOption"
+                                            value="pickup"
+                                            checked={formData.deliveryOption === 'pickup'}
+                                            onChange={handleInputChange}
+                                        />
+                                        <span className="radio-label">
+                                            <strong>Pickup Only</strong>
+                                            <small>LKR {PICKUP_FEE}.00 - We pick up your order from you</small>
                                         </span>
                                     </label>
                                 </div>
