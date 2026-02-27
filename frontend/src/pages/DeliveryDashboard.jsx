@@ -1,10 +1,66 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import DeliverySidebar from '../components/DeliverySidebar';
-import { Truck, MapPin, Package, Clock, RefreshCw } from 'lucide-react';
+import { Truck, MapPin, Package, Clock, RefreshCw, Calendar } from 'lucide-react';
 import './DeliveryDashboard.css';
 
 const API = 'http://localhost:5000/api';
+const TODAY = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
+// ─── Sort Helpers ────────────────────────────────────────────────
+const parseSlotMinutes = (slot) => {
+    if (!slot) return 9999;
+    const match = slot.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (!match) return 9999;
+    let [, h, m, meridiem] = match;
+    h = parseInt(h); m = parseInt(m);
+    if (meridiem.toUpperCase() === 'PM' && h !== 12) h += 12;
+    if (meridiem.toUpperCase() === 'AM' && h === 12) h = 0;
+    return h * 60 + m;
+};
+
+const pickupKey = (order) => {
+    if (!order.pickup_date) return Infinity;
+    const datePart = order.pickup_date.slice(0, 10).replace(/-/g, '');
+    const slotPart = String(parseSlotMinutes(order.pickup_time)).padStart(4, '0');
+    return Number(`${datePart}${slotPart}`);
+};
+
+const isToday = (dateStr) => dateStr && dateStr.slice(0, 10) === TODAY;
+
+const SORT_OPTIONS = [
+    { value: 'today',     label: '📅 Today First' },
+    { value: 'date_asc',  label: 'Pickup Date ↑' },
+    { value: 'date_desc', label: 'Pickup Date ↓' },
+    { value: 'newest',    label: 'Newest First' },
+    { value: 'oldest',    label: 'Oldest First' },
+];
+
+const sortOrders = (orders, mode) => {
+    const arr = [...orders];
+    if (mode === 'today') {
+        return arr.sort((a, b) => {
+            const aT = isToday(a.pickup_date) ? 0 : 1;
+            const bT = isToday(b.pickup_date) ? 0 : 1;
+            if (aT !== bT) return aT - bT;
+            return pickupKey(a) - pickupKey(b);
+        });
+    }
+    if (mode === 'date_asc')  return arr.sort((a, b) => pickupKey(a) - pickupKey(b));
+    if (mode === 'date_desc') {
+        return arr.sort((a, b) => {
+            const aK = pickupKey(a), bK = pickupKey(b);
+            if (aK === Infinity && bK === Infinity) return 0;
+            if (aK === Infinity) return 1;
+            if (bK === Infinity) return -1;
+            return bK - aK;
+        });
+    }
+    if (mode === 'newest') return arr.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    if (mode === 'oldest') return arr.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    return arr;
+};
+// ─────────────────────────────────────────────────────────────────
 
 const STATUS_LABELS = {
     pending:            'New Order',
@@ -42,6 +98,7 @@ const DeliveryDashboard = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [driverName, setDriverName] = useState('Driver');
+    const [sortMode, setSortMode] = useState('today');
 
     const token = localStorage.getItem('token');
 
@@ -79,8 +136,8 @@ const DeliveryDashboard = () => {
         ['picked_up', 'out_for_processing', 'processing', 'ready', 'out_for_delivery', 'delivery_scheduled'].includes(o.status)
     ).length;
 
-    // Show latest 6 orders on overview
-    const recentOrders = orders.slice(0, 6);
+    // Sort then show top 6 on overview
+    const recentOrders = sortOrders(orders, sortMode).slice(0, 6);
 
     return (
         <div className="dashboard">
@@ -130,7 +187,26 @@ const DeliveryDashboard = () => {
                 <section className="orders-section">
                     <div className="section-header">
                         <h2>Active Tasks</h2>
-                        <Link to="/active-deliveries" className="view-all">View All →</Link>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <select
+                                value={sortMode}
+                                onChange={(e) => setSortMode(e.target.value)}
+                                style={{
+                                    fontSize: '0.8rem',
+                                    padding: '0.35rem 0.7rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid #e2e8f0',
+                                    background: 'white',
+                                    color: '#1e293b',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                {SORT_OPTIONS.map(o => (
+                                    <option key={o.value} value={o.value}>{o.label}</option>
+                                ))}
+                            </select>
+                            <Link to="/active-deliveries" className="view-all">View All →</Link>
+                        </div>
                     </div>
 
                     {loading ? (
@@ -169,9 +245,23 @@ const DeliveryDashboard = () => {
                                         {order.address && (
                                             <p><MapPin size={14} /> {order.address}{order.city ? `, ${order.city}` : ''}</p>
                                         )}
+                                        {order.pickup_date && (
+                                            <p style={{
+                                                marginTop: '0.4rem',
+                                                fontSize: '0.85rem',
+                                                color: isToday(order.pickup_date) ? '#10b981' : '#64748b',
+                                                fontWeight: isToday(order.pickup_date) ? 600 : 400,
+                                            }}>
+                                                <Calendar size={14} />
+                                                {isToday(order.pickup_date)
+                                                    ? ' Today'
+                                                    : ` ${new Date(order.pickup_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+                                                }
+                                            </p>
+                                        )}
                                         {order.pickup_time && (
-                                            <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
-                                                <Clock size={14} /> Time Slot: {order.pickup_time}
+                                            <p style={{ marginTop: '0.25rem', fontSize: '0.85rem' }}>
+                                                <Clock size={14} /> {order.pickup_time}
                                             </p>
                                         )}
                                     </div>
