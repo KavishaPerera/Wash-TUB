@@ -114,7 +114,8 @@ const orderController = {
       const { status } = req.body;
       const validStatuses = [
         'pending', 'confirmed', 'pickup_scheduled', 'picked_up',
-        'processing', 'ready', 'out_for_delivery', 'delivered', 'cancelled',
+        'out_for_processing', 'processing', 'ready',
+        'out_for_delivery', 'delivery_scheduled', 'delivered', 'cancelled',
       ];
 
       if (!validStatuses.includes(status)) {
@@ -130,6 +131,19 @@ const orderController = {
     } catch (error) {
       console.error('Update order status error:', error);
       res.status(500).json({ message: 'Failed to update order status.' });
+    }
+  },
+
+  // ---------------------------------------------------------------
+  // GET /api/orders/delivery-orders  –  Orders for delivery personnel
+  // ---------------------------------------------------------------
+  async getDeliveryOrders(req, res) {
+    try {
+      const orders = await Order.getDeliveryOrders();
+      res.json(orders);
+    } catch (error) {
+      console.error('Get delivery orders error:', error);
+      res.status(500).json({ message: 'Failed to fetch delivery orders.' });
     }
   },
 

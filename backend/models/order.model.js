@@ -10,7 +10,7 @@ const Order = {
         id INT AUTO_INCREMENT PRIMARY KEY,
         order_number VARCHAR(20) UNIQUE NOT NULL,
         customer_id INT NOT NULL,
-        status ENUM('pending','confirmed','pickup_scheduled','picked_up','processing','ready','out_for_delivery','delivered','cancelled') DEFAULT 'pending',
+        status ENUM('pending','confirmed','pickup_scheduled','picked_up','out_for_processing','processing','ready','out_for_delivery','delivery_scheduled','delivered','cancelled') DEFAULT 'pending',
         delivery_option ENUM('pickup','delivery') DEFAULT 'delivery',
         full_name VARCHAR(100) NOT NULL,
         phone VARCHAR(20) NOT NULL,
@@ -275,6 +275,51 @@ const Order = {
       `SELECT COALESCE(SUM(total), 0) as revenue FROM orders WHERE status NOT IN ('cancelled')`
     );
     return rows[0].revenue;
+  },
+
+  // ---------------------------------------------------------------
+  // Alter tables – extend ENUM for new delivery statuses
+  // ---------------------------------------------------------------
+  async alterTables() {
+    try {
+      await db.execute(`
+        ALTER TABLE orders
+        MODIFY COLUMN status
+        ENUM('pending','confirmed','pickup_scheduled','picked_up','out_for_processing',
+             'processing','ready','out_for_delivery','delivery_scheduled','delivered','cancelled')
+        DEFAULT 'pending'
+      `);
+    } catch (err) {
+      // Ignore if column already has all values
+    }
+  },
+
+  // ---------------------------------------------------------------
+  // Get orders relevant to delivery personnel
+  // ---------------------------------------------------------------
+  async getDeliveryOrders() {
+    const deliveryStatuses = [
+      'pending', 'confirmed',
+      'pickup_scheduled', 'picked_up', 'out_for_processing',
+      'processing', 'ready',
+      'out_for_delivery', 'delivery_scheduled',
+    ];
+    const placeholders = deliveryStatuses.map(() => '?').join(',');
+    const [orders] = await db.execute(
+      `SELECT o.*, u.first_name, u.last_name, u.phone as customer_phone
+       FROM orders o
+       JOIN users u ON o.customer_id = u.id
+       WHERE o.status IN (${placeholders})
+       ORDER BY o.created_at DESC`,
+      deliveryStatuses
+    );
+    for (const order of orders) {
+      const [items] = await db.execute(
+        `SELECT * FROM order_items WHERE order_id = ?`, [order.id]
+      );
+      order.items = items;
+    }
+    return orders;
   },
 };
 

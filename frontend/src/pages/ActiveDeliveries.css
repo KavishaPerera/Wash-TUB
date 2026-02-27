@@ -1,0 +1,270 @@
+/* ── Tabs ──────────────────────────────────────────────────────── */
+.ad-tabs {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.ad-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ad-tab:hover {
+    border-color: #0ea5e9;
+    color: #0ea5e9;
+}
+
+.ad-tab-active {
+    background: #0ea5e9;
+    border-color: #0ea5e9;
+    color: white;
+}
+
+.ad-tab-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    min-width: 22px;
+    text-align: center;
+}
+
+.ad-tab:not(.ad-tab-active) .ad-tab-badge {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* ── Progress ──────────────────────────────────────────────────── */
+.ad-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.ad-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.ad-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
+
+.ad-progress-steps {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+/* ── Step Chips ────────────────────────────────────────────────── */
+.ad-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.ad-step {
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #94a3b8;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.ad-step-done {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.ad-step-current {
+    font-weight: 700;
+}
+
+/* ── Card extra ────────────────────────────────────────────────── */
+.ad-card {
+    gap: 0.9rem !important;
+}
+
+/* ── Done badge ────────────────────────────────────────────────── */
+.ad-done-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #10b981;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.ad-no-action {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+/* ── Center / Loading / Error ──────────────────────────────────── */
+.ad-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 1rem;
+    color: #64748b;
+    text-align: center;
+}
+
+.ad-error {
+    color: #ef4444;
+}
+
+.ad-spinner {
+    width: 42px;
+    height: 42px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #0ea5e9;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Modal ─────────────────────────────────────────────────────── */
+.ad-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.ad-modal {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+.ad-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.ad-modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.ad-modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+    padding: 0.25rem;
+    border-radius: 6px;
+    transition: color 0.2s;
+}
+
+.ad-modal-close:hover { color: #475569; }
+
+.ad-modal-sub {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin: 0 0 0.5rem 0;
+}
+
+.ad-modal-current {
+    font-size: 0.95rem;
+    color: #475569;
+    margin-bottom: 1.5rem;
+}
+
+.ad-modal-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.ad-modal-option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: 10px;
+    border: 2px solid;
+    background: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ad-modal-option:hover:not(:disabled) {
+    opacity: 0.85;
+    transform: translateX(4px);
+}
+
+.ad-modal-option:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ad-modal-loading {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+/* ── Toast ─────────────────────────────────────────────────────── */
+.ad-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #0f172a;
+    color: white;
+    padding: 0.85rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    z-index: 300;
+    animation: slideUp 0.25s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
