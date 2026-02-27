@@ -6,10 +6,10 @@ import './DeliveryDashboard.css'; // Reusing the dashboard styles
 const DeliveryHistory = () => {
     // Mock Data for completed deliveries
     const [history] = useState([
-        { id: 'ORD-1238', name: 'Bandu Perera', address: '789 Temple Ln', type: 'Pickup', status: 'Completed', date: 'Oct 24, 2023', time: '09:15 AM', earnings: 'Rs. 150' },
-        { id: 'ORD-1235', name: 'Nilantha Pieris', address: '321 Galle Road', type: 'Delivery', status: 'Completed', date: 'Oct 23, 2023', time: '04:30 PM', earnings: 'Rs. 200' },
-        { id: 'ORD-1230', name: 'Saman Kumara', address: '12 Kandy Road', type: 'Pickup', status: 'Completed', date: 'Oct 22, 2023', time: '11:00 AM', earnings: 'Rs. 150' },
-        { id: 'ORD-1225', name: 'Nimali Silva', address: '45 Beach Road', type: 'Delivery', status: 'Completed', date: 'Oct 21, 2023', time: '02:15 PM', earnings: 'Rs. 250' },
+        { id: 'ORD-1238', name: 'Bandu Perera', address: '789 Temple Ln', status: 'Completed', date: 'Oct 24, 2023', time: '09:15 AM' },
+        { id: 'ORD-1235', name: 'Nilantha Pieris', address: '321 Galle Road', status: 'Completed', date: 'Oct 23, 2023', time: '04:30 PM' },
+        { id: 'ORD-1230', name: 'Saman Kumara', address: '12 Kandy Road', status: 'Completed', date: 'Oct 22, 2023', time: '11:00 AM' },
+        { id: 'ORD-1225', name: 'Nimali Silva', address: '45 Beach Road', status: 'Completed', date: 'Oct 21, 2023', time: '02:15 PM' },
     ]);
 
     return (
@@ -29,13 +29,11 @@ const DeliveryHistory = () => {
                 <section className="orders-section" style={{ marginTop: '2rem' }}>
                     <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
                         {/* Table Header */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 1.2fr 100px 110px 90px', gap: '1rem', padding: '0.75rem 1.25rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: '0.8rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 1.5fr 130px', gap: '1rem', padding: '0.75rem 1.25rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: '0.8rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             <span>Order ID</span>
                             <span>Customer</span>
                             <span>Address</span>
-                            <span>Type</span>
                             <span>Date &amp; Time</span>
-                            <span style={{ textAlign: 'right' }}>Earnings</span>
                         </div>
 
                         {/* Rows */}
@@ -44,7 +42,7 @@ const DeliveryHistory = () => {
                                 key={item.id}
                                 style={{
                                     display: 'grid',
-                                    gridTemplateColumns: '120px 1fr 1.2fr 100px 110px 90px',
+                                    gridTemplateColumns: '120px 1fr 1.5fr 130px',
                                     gap: '1rem',
                                     padding: '0.85rem 1.25rem',
                                     alignItems: 'center',
@@ -69,9 +67,6 @@ const DeliveryHistory = () => {
                                     <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.address}</span>
                                 </div>
 
-                                {/* Type Badge */}
-                                <span className={`delivery-type type-${item.type.toLowerCase()}`} style={{ fontSize: '0.78rem' }}>{item.type}</span>
-
                                 {/* Date & Time */}
                                 <div style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.4' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
@@ -81,9 +76,6 @@ const DeliveryHistory = () => {
                                         <Clock size={12} /> {item.time}
                                     </div>
                                 </div>
-
-                                {/* Earnings */}
-                                <span style={{ textAlign: 'right', fontWeight: '700', color: '#10b981', fontSize: '0.9rem' }}>{item.earnings}</span>
                             </div>
                         ))}
 
