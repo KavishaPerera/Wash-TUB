@@ -106,7 +106,7 @@ const DeliveryDashboard = () => {
                             <p className="stat-label">Total Active</p>
                             <h3 className="stat-value">{loading ? '—' : orders.length}</h3>
                         </div>
-                        <Truck size={32} color="#0ea5e9" style={{ opacity: 0.8 }} />
+                        <Truck size={22} color="#0ea5e9" style={{ opacity: 0.8, flexShrink: 0 }} />
                     </div>
 
                     <div className="stat-card">
@@ -114,7 +114,7 @@ const DeliveryDashboard = () => {
                             <p className="stat-label">Pending Pickup</p>
                             <h3 className="stat-value">{loading ? '—' : pendingCount}</h3>
                         </div>
-                        <Package size={32} color="#f59e0b" style={{ opacity: 0.8 }} />
+                        <Package size={22} color="#f59e0b" style={{ opacity: 0.8, flexShrink: 0 }} />
                     </div>
 
                     <div className="stat-card">
@@ -122,7 +122,7 @@ const DeliveryDashboard = () => {
                             <p className="stat-label">In Progress</p>
                             <h3 className="stat-value">{loading ? '—' : inProgressCount}</h3>
                         </div>
-                        <Clock size={32} color="#8b5cf6" style={{ opacity: 0.8 }} />
+                        <Clock size={22} color="#8b5cf6" style={{ opacity: 0.8, flexShrink: 0 }} />
                     </div>
                 </section>
 
