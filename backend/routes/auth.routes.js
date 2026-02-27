@@ -10,5 +10,6 @@ router.get('/me', authMiddleware.verifyToken, authController.getProfile);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/verify-code', authController.verifyCode);
 router.post('/reset-password', authController.resetPassword);
+router.post('/change-password', authMiddleware.verifyToken, authController.changePassword);
 
 module.exports = router;

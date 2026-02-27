@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import DeliverySidebar from '../components/DeliverySidebar';
-import { User, Mail, Phone, MapPin, Shield, Camera, Edit2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Shield, Camera, Edit2, Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
 import './DeliveryDashboard.css'; // Reusing the dashboard styles
 
 const DeliveryProfile = () => {
@@ -14,6 +14,46 @@ const DeliveryProfile = () => {
         vehicleNumber: 'WP ABC-1234',
         licenseNumber: 'B1234567',
     });
+
+    // Change Password state
+    const [pwData, setPwData] = useState({ current: '', newPw: '', confirm: '' });
+    const [pwShow, setPwShow] = useState({ current: false, newPw: false, confirm: false });
+    const [pwLoading, setPwLoading] = useState(false);
+    const [pwMsg, setPwMsg] = useState(null); // { type: 'success'|'error', text: '' }
+
+    const token = localStorage.getItem('token');
+
+    const handlePwChange = (e) => setPwData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const toggleShow = (field) => setPwShow(prev => ({ ...prev, [field]: !prev[field] }));
+
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        setPwMsg(null);
+        if (pwData.newPw !== pwData.confirm) {
+            setPwMsg({ type: 'error', text: 'New passwords do not match.' });
+            return;
+        }
+        if (pwData.newPw.length < 6) {
+            setPwMsg({ type: 'error', text: 'Password must be at least 6 characters.' });
+            return;
+        }
+        setPwLoading(true);
+        try {
+            const res = await fetch('http://localhost:5000/api/auth/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ currentPassword: pwData.current, newPassword: pwData.newPw }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Failed to change password');
+            setPwMsg({ type: 'success', text: 'Password changed successfully!' });
+            setPwData({ current: '', newPw: '', confirm: '' });
+        } catch (err) {
+            setPwMsg({ type: 'error', text: err.message });
+        } finally {
+            setPwLoading(false);
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -188,6 +228,68 @@ const DeliveryProfile = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* ── Change Password Section ── */}
+                <div style={{ marginTop: '2rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '2rem' }}>
+                    <h3 style={{ marginBottom: '1.5rem', color: '#0f172a', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <Lock size={18} color="#38bdf8" /> Change Password
+                    </h3>
+
+                    {/* Alert */}
+                    {pwMsg && (
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '0.6rem',
+                            padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem',
+                            background: pwMsg.type === 'success' ? '#f0fdf4' : '#fef2f2',
+                            color: pwMsg.type === 'success' ? '#16a34a' : '#dc2626',
+                            fontSize: '0.9rem', fontWeight: 500,
+                        }}>
+                            {pwMsg.type === 'success'
+                                ? <CheckCircle size={16} />
+                                : <AlertCircle size={16} />}
+                            {pwMsg.text}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleChangePassword}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                            {[{ label: 'Current Password', field: 'current' }, { label: 'New Password', field: 'newPw' }, { label: 'Confirm New Password', field: 'confirm' }].map(({ label, field }) => (
+                                <div key={field} className="form-group">
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontSize: '0.9rem', fontWeight: '500' }}>{label}</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Lock size={16} color="#94a3b8" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                        <input
+                                            type={pwShow[field] ? 'text' : 'password'}
+                                            name={field}
+                                            value={pwData[field]}
+                                            onChange={handlePwChange}
+                                            placeholder={label}
+                                            required
+                                            style={{ width: '100%', padding: '0.75rem 2.5rem 0.75rem 2.5rem', border: '1px solid #cbd5e1', borderRadius: '8px', color: '#0f172a', boxSizing: 'border-box' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleShow(field)}
+                                            style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0 }}
+                                        >
+                                            {pwShow[field] ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={pwLoading}
+                            className="btn-primary"
+                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                        >
+                            <Lock size={16} />
+                            {pwLoading ? 'Updating...' : 'Update Password'}
+                        </button>
+                    </form>
                 </div>
             </main>
         </div>

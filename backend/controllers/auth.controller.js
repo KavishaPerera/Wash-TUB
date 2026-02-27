@@ -238,6 +238,44 @@ const authController = {
       console.error('Reset password error:', error);
       res.status(500).json({ message: 'Error resetting password' });
     }
+  },
+
+  // Change password (authenticated user)
+  async changePassword(req, res) {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.user.id;
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: 'Current and new password are required' });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: 'New password must be at least 6 characters' });
+      }
+
+      // Fetch full user record (includes hashed password)
+      const [rows] = await require('../config/db.config').execute(
+        'SELECT * FROM users WHERE id = ?', [userId]
+      );
+      const user = rows[0];
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+      const bcrypt = require('bcryptjs');
+      const match = await bcrypt.compare(currentPassword, user.password);
+      if (!match) {
+        return res.status(401).json({ message: 'Current password is incorrect' });
+      }
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      await require('../config/db.config').execute(
+        'UPDATE users SET password = ? WHERE id = ?', [hashed, userId]
+      );
+
+      res.json({ success: true, message: 'Password changed successfully' });
+    } catch (error) {
+      console.error('Change password error:', error);
+      res.status(500).json({ message: 'Error changing password' });
+    }
   }
 };
 
