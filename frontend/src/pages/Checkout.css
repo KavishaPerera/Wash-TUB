@@ -305,6 +305,17 @@
     border: 1px solid #e2e8f0;
 }
 
+.amex-icon {
+    background: linear-gradient(135deg, #007bc1 0%, #00549f 100%);
+}
+
+.amex-text {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 1.5px;
+}
+
 .mc-circles {
     display: flex;
     align-items: center;

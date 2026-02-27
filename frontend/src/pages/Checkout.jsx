@@ -39,7 +39,7 @@ const Checkout = () => {
         pickupTime: '',
         specialInstructions: '',
         // Payment Details
-        paymentMethod: 'cash',
+        paymentMethod: 'visa',
         cardName: '',
         cardNumber: '',
         expireDate: '',
@@ -78,6 +78,33 @@ const Checkout = () => {
         const { name, value } = e.target;
         if (name === 'city') {
             setFormData(prev => ({ ...prev, city: value, postalCode: CITY_POSTAL_MAP[value] || '' }));
+        } else if (name === 'cardNumber') {
+            const digits = value.replace(/\D/g, '');
+            let formatted = '';
+            if (formData.paymentMethod === 'amex') {
+                // 4-6-5 format, max 15 digits
+                const d = digits.slice(0, 15);
+                if (d.length <= 4) formatted = d;
+                else if (d.length <= 10) formatted = d.slice(0, 4) + ' ' + d.slice(4);
+                else formatted = d.slice(0, 4) + ' ' + d.slice(4, 10) + ' ' + d.slice(10);
+            } else {
+                // 4-4-4-4 format, max 16 digits
+                const d = digits.slice(0, 16);
+                formatted = d.match(/.{1,4}/g)?.join(' ') || d;
+            }
+            setFormData(prev => ({ ...prev, cardNumber: formatted }));
+        } else if (name === 'expireDate') {
+            const digits = value.replace(/\D/g, '').slice(0, 4);
+            let formatted = digits;
+            if (digits.length >= 3) {
+                formatted = digits.slice(0, 2) + '/' + digits.slice(2);
+            } else if (value.endsWith('/') && digits.length === 2) {
+                formatted = digits + '/';
+            }
+            setFormData(prev => ({ ...prev, expireDate: formatted }));
+        } else if (name === 'cvc') {
+            const digits = value.replace(/\D/g, '').slice(0, 3);
+            setFormData(prev => ({ ...prev, cvc: digits }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -133,7 +160,7 @@ const Checkout = () => {
         e.preventDefault();
 
         // Validate card details if paying by card
-        if (formData.paymentMethod !== 'cash') {
+        if (formData.paymentMethod === 'visa' || formData.paymentMethod === 'mastercard' || formData.paymentMethod === 'amex') {
             if (!formData.cardName || !formData.cardNumber || !formData.expireDate || !formData.cvc) {
                 Swal.fire({
                     icon: 'warning',
@@ -508,23 +535,8 @@ const Checkout = () => {
                             {/* Payment Methods */}
                             <div className="payment-methods">
                                 <label
-                                    className={`payment-method-option ${formData.paymentMethod === 'cash' ? 'selected' : ''}`}
-                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cash' }))}
-                                >
-                                    <div className="method-icon cash-icon">💵</div>
-                                    <span className="method-name">Cash on Delivery</span>
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value="cash"
-                                        checked={formData.paymentMethod === 'cash'}
-                                        onChange={() => setFormData(prev => ({ ...prev, paymentMethod: 'cash' }))}
-                                    />
-                                </label>
-
-                                <label
                                     className={`payment-method-option ${formData.paymentMethod === 'visa' ? 'selected' : ''}`}
-                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'visa' }))}
+                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'visa', cardNumber: '' }))}
                                 >
                                     <div className="method-icon visa-icon">
                                         <span className="visa-text">VISA</span>
@@ -541,7 +553,7 @@ const Checkout = () => {
 
                                 <label
                                     className={`payment-method-option ${formData.paymentMethod === 'mastercard' ? 'selected' : ''}`}
-                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'mastercard' }))}
+                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'mastercard', cardNumber: '' }))}
                                 >
                                     <div className="method-icon mastercard-icon">
                                         <div className="mc-circles">
@@ -558,10 +570,27 @@ const Checkout = () => {
                                         onChange={() => setFormData(prev => ({ ...prev, paymentMethod: 'mastercard' }))}
                                     />
                                 </label>
+
+                                <label
+                                    className={`payment-method-option ${formData.paymentMethod === 'amex' ? 'selected' : ''}`}
+                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'amex', cardNumber: '' }))}
+                                >
+                                    <div className="method-icon amex-icon">
+                                        <span className="amex-text">AMEX</span>
+                                    </div>
+                                    <span className="method-name">American Express</span>
+                                    <input
+                                        type="radio"
+                                        name="paymentMethod"
+                                        value="amex"
+                                        checked={formData.paymentMethod === 'amex'}
+                                        onChange={() => setFormData(prev => ({ ...prev, paymentMethod: 'amex' }))}
+                                    />
+                                </label>
                             </div>
 
                             {/* Card Details Form - only when card selected */}
-                            {(formData.paymentMethod === 'visa' || formData.paymentMethod === 'mastercard') && (
+                            {(formData.paymentMethod === 'visa' || formData.paymentMethod === 'mastercard' || formData.paymentMethod === 'amex') && (
                                 <div className="card-details-form">
                                     <div className="form-group">
                                         <label>Name on Card</label>
@@ -582,33 +611,33 @@ const Checkout = () => {
                                             value={formData.cardNumber}
                                             onChange={handleInputChange}
                                             required
-                                            placeholder=""
-                                            maxLength="19"
+                                            placeholder={formData.paymentMethod === 'amex' ? '1234 567890 12345' : '1234 5678 9012 3456'}
+                                            maxLength={formData.paymentMethod === 'amex' ? 17 : 19}
                                         />
                                     </div>
                                     <div className="form-row">
                                         <div className="form-group">
-                                            <label>Expire Date</label>
+                                            <label>Expiry Date</label>
                                             <input
                                                 type="text"
                                                 name="expireDate"
                                                 value={formData.expireDate}
                                                 onChange={handleInputChange}
                                                 required
-                                                placeholder="DD/YY"
+                                                placeholder="MM/YY"
                                                 maxLength="5"
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>CVC</label>
+                                            <label>CVV</label>
                                             <input
-                                                type="text"
+                                                type="password"
                                                 name="cvc"
                                                 value={formData.cvc}
                                                 onChange={handleInputChange}
                                                 required
-                                                placeholder=""
-                                                maxLength="4"
+                                                placeholder="•••"
+                                                maxLength="3"
                                             />
                                         </div>
                                     </div>

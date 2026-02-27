@@ -87,7 +87,7 @@ const PaymentSuccess = () => {
                                 customerAddress || '—'],
             ['Pickup Date',     pickupDate    || '—'],
             ['Pickup Time',     pickupTime    || '—'],
-            ['Payment Method',  paymentMethod === 'cash' ? 'Cash on Delivery' : 'Card Payment'],
+            ['Payment Method',  paymentMethod === 'visa' ? 'Visa Card' : paymentMethod === 'mastercard' ? 'Master Card' : paymentMethod === 'amex' ? 'American Express' : 'Card Payment'],
         ];
 
         details.forEach(([label, value]) => {
