@@ -134,7 +134,7 @@
 }
 
 .payment-content .stat-revenue .stat-value {
-    color: #34c759;
+    color: #000000;
 }
 
 .payment-content .stat-pending .stat-value {
@@ -248,12 +248,12 @@
 .payment-id,
 .order-id {
     font-weight: 600;
-    color: var(--color-primary-light);
+    color: #000000;
 }
 
 .payment-amount {
     font-weight: 700;
-    color: #34c759;
+    color: #000000;
 }
 
 /* Method Badges */
@@ -270,8 +270,8 @@
 }
 
 .method-cash {
-    background: rgba(52, 199, 89, 0.2);
-    color: #34c759;
+    background: rgba(176, 115, 64, 0.2);
+    color: #b07340;
 }
 
 .method-bank {
@@ -293,8 +293,8 @@
 }
 
 .status-completed {
-    background: rgba(52, 199, 89, 0.2);
-    color: #34c759;
+    background: rgba(176, 115, 64, 0.2);
+    color: #b07340;
 }
 
 .status-refunded {

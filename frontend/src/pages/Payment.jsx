@@ -104,7 +104,7 @@ const Payment = () => {
                         <div className="stat-card">
                             <div className="stat-info">
                                 <p className="stat-label">Total Revenue</p>
-                                <h3 className="stat-value" style={{ color: '#34c759' }}>Rs. 10,000</h3>
+                                <h3 className="stat-value" style={{ color: '#000000' }}>Rs. 10,000</h3>
                             </div>
                         </div>
                         <div className="stat-card">
@@ -184,10 +184,10 @@ const Payment = () => {
                                 <tbody>
                                     {filteredPayments.map(payment => (
                                         <tr key={payment.id}>
-                                            <td className="payment-id" style={{ fontWeight: '600', color: 'var(--color-primary-light)' }}>{payment.id}</td>
+                                            <td className="payment-id" style={{ fontWeight: '600', color: '#000000' }}>{payment.id}</td>
                                             <td className="order-id">{payment.orderId}</td>
                                             <td>{payment.customer}</td>
-                                            <td className="payment-amount" style={{ fontWeight: '700', color: '#34c759' }}>{payment.amount}</td>
+                                            <td className="payment-amount" style={{ fontWeight: '700', color: '#000000' }}>{payment.amount}</td>
                                             <td>
                                                 <span className={`method-badge ${getMethodBadgeClass(payment.method)}`}>
                                                     {payment.method.toUpperCase()}

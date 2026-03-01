@@ -267,8 +267,8 @@
 }
 
 .role-customer {
-    background: rgba(52, 199, 89, 0.2);
-    color: #34c759;
+    background: rgba(176, 115, 64, 0.2);
+    color: #b07340;
 }
 
 /* Status Badges */
@@ -280,8 +280,8 @@
 }
 
 .status-active {
-    background: rgba(52, 199, 89, 0.2);
-    color: #34c759;
+    background: rgba(176, 115, 64, 0.2);
+    color: #b07340;
 }
 
 .status-inactive {
