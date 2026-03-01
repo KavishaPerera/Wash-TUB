@@ -1,22 +1,67 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
 import Swal from 'sweetalert2';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const normaliseMethod = (method) => {
+    if (!method) return 'cash';
+    const m = method.toLowerCase();
+    if (m === 'visa' || m === 'mastercard' || m === 'amex') return 'card';
+    if (m === 'bank' || m === 'bank_transfer') return 'bank';
+    return 'cash';
+};
+
+const normaliseStatus = (paymentStatus) => {
+    // DB uses 'paid'; UI shows 'completed'
+    if (paymentStatus === 'paid') return 'completed';
+    return paymentStatus || 'pending';
+};
+
 const Payment = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
-    const [payments] = useState([
-        { id: 'PAY-001', orderId: 'ORD-001', customer: 'Amandi Perera', amount: 'Rs. 1,500', method: 'card', status: 'completed', date: 'Jan 15, 2026' },
-        { id: 'PAY-002', orderId: 'ORD-003', customer: 'Nilantha Pieris', amount: 'Rs. 800', method: 'cash', status: 'pending', date: 'Jan 16, 2026' },
-        { id: 'PAY-003', orderId: 'ORD-004', customer: 'Bandu Perera', amount: 'Rs. 3,500', method: 'bank', status: 'completed', date: 'Jan 14, 2026' },
-        { id: 'PAY-004', orderId: 'ORD-005', customer: 'Supun Mendis', amount: 'Rs. 3,000', method: 'card', status: 'failed', date: 'Jan 10, 2026' },
-        { id: 'PAY-005', orderId: 'ORD-006', customer: 'Ruwan Jayasena', amount: 'Rs. 1,200', method: 'cash', status: 'refunded', date: 'Jan 12, 2026' },
-    ]);
+    const [payments, setPayments] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
+
+    useEffect(() => {
+        const fetchPayments = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API}/orders`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) throw new Error('Failed to fetch orders');
+                const orders = await res.json();
+
+                const mapped = orders.map(order => ({
+                    id: `PAY-${String(order.id).padStart(3, '0')}`,
+                    orderId: order.order_number,
+                    rawOrderId: order.id,
+                    customer: `${order.first_name || ''} ${order.last_name || ''}`.trim() || order.full_name,
+                    amount: `Rs. ${Number(order.total).toLocaleString('en-LK', { minimumFractionDigits: 2 })}`,
+                    rawTotal: Number(order.total),
+                    method: normaliseMethod(order.payment_method),
+                    methodLabel: order.payment_method,
+                    status: normaliseStatus(order.payment_status),
+                    date: new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                }));
+
+                setPayments(mapped);
+            } catch (err) {
+                console.error('Fetch payments error:', err);
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load payment data.', confirmButtonColor: '#0ea5e9' });
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPayments();
+    }, []);
 
     const filteredPayments = payments.filter(payment => {
         const matchesSearch = payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,6 +89,33 @@ const Payment = () => {
         return classes[method] || '';
     };
 
+    const handleMarkPaid = async (payment) => {
+        const confirm = await Swal.fire({
+            title: 'Mark as Paid?',
+            text: `Mark payment for order ${payment.orderId} as paid?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#16a34a',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, mark as paid',
+        });
+        if (!confirm.isConfirmed) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API}/orders/${payment.rawOrderId}/payment-status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ paymentStatus: 'paid' }),
+            });
+            if (!res.ok) throw new Error('Failed to update payment status');
+            setPayments(prev => prev.map(p => p.rawOrderId === payment.rawOrderId ? { ...p, status: 'completed' } : p));
+            Swal.fire({ icon: 'success', title: 'Updated!', text: 'Payment marked as paid.', confirmButtonColor: '#0ea5e9', timer: 1800, showConfirmButton: false });
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'Error', text: err.message, confirmButtonColor: '#0ea5e9' });
+        }
+    };
+
     const handleViewPayment = (payment) => {
         const statusColors = {
             completed: '#16a34a',
@@ -51,7 +123,8 @@ const Payment = () => {
             failed: '#dc2626',
             refunded: '#7c3aed'
         };
-        const methodLabels = { card: 'Credit/Debit Card', cash: 'Cash', bank: 'Bank Transfer' };
+        const methodLabels = { card: 'Credit/Debit Card', cash: 'Cash', bank: 'Bank Transfer', visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
+        const displayMethod = methodLabels[(payment.methodLabel || '').toLowerCase()] || methodLabels[payment.method] || payment.method;
         Swal.fire({
             title: `Payment Details`,
             html: `
@@ -75,7 +148,7 @@ const Payment = () => {
                         </tr>
                         <tr style="border-bottom:1px solid #e2e8f0;">
                             <td style="padding:10px 8px; color:#64748b; font-weight:600;">Payment Method</td>
-                            <td style="padding:10px 8px;">${methodLabels[payment.method] || payment.method}</td>
+                            <td style="padding:10px 8px;">${displayMethod}</td>
                         </tr>
                         <tr style="border-bottom:1px solid #e2e8f0;">
                             <td style="padding:10px 8px; color:#64748b; font-weight:600;">Status</td>
@@ -148,16 +221,25 @@ const Payment = () => {
                         <div className="stat-card">
                             <div className="stat-info">
                                 <p className="stat-label">Total Transactions</p>
-                                <h3 className="stat-value">{payments.length}</h3>
+                                <h3 className="stat-value">{loading ? '...' : payments.length}</h3>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stat-info">
                                 <p className="stat-label">Total Revenue</p>
-                                <h3 className="stat-value" style={{ color: '#000000' }}>Rs. 10,000</h3>
+                                <h3 className="stat-value" style={{ color: '#000000' }}>
+                                    {loading ? '...' : `Rs. ${payments.filter(p => p.status === 'completed').reduce((s, p) => s + p.rawTotal, 0).toLocaleString('en-LK', { minimumFractionDigits: 2 })}`}
+                                </h3>
                             </div>
                         </div>
-
+                        <div className="stat-card">
+                            <div className="stat-info">
+                                <p className="stat-label">Pending Payments</p>
+                                <h3 className="stat-value" style={{ color: '#d97706' }}>
+                                    {loading ? '...' : payments.filter(p => p.status === 'pending').length}
+                                </h3>
+                            </div>
+                        </div>
                     </section>
 
                     {/* Filters */}
@@ -221,7 +303,9 @@ const Payment = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredPayments.map(payment => (
+                                    {loading ? (
+                                        <tr><td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Loading payments...</td></tr>
+                                    ) : filteredPayments.map(payment => (
                                         <tr key={payment.id}>
                                             <td className="payment-id" style={{ fontWeight: '600', color: '#000000' }}>{payment.id}</td>
                                             <td className="order-id">{payment.orderId}</td>
@@ -229,7 +313,7 @@ const Payment = () => {
                                             <td className="payment-amount" style={{ fontWeight: '700', color: '#000000' }}>{payment.amount}</td>
                                             <td>
                                                 <span className={`method-badge ${getMethodBadgeClass(payment.method)}`}>
-                                                    {payment.method.toUpperCase()}
+                                                    {(payment.methodLabel || payment.method).toUpperCase()}
                                                 </span>
                                             </td>
                                             <td>
@@ -245,13 +329,21 @@ const Payment = () => {
                                                 >
                                                     View
                                                 </button>
-
+                                                {payment.status === 'pending' && (
+                                                    <button
+                                                        className="btn-action btn-confirm"
+                                                        onClick={() => handleMarkPaid(payment)}
+                                                        style={{ marginLeft: '6px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontSize: '0.8rem' }}
+                                                    >
+                                                        Mark Paid
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
-                            {filteredPayments.length === 0 && (
+                            {!loading && filteredPayments.length === 0 && (
                                 <div className="no-data">
                                     <p>No payments found matching your criteria.</p>
                                 </div>

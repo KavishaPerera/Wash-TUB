@@ -135,6 +135,30 @@ const orderController = {
   },
 
   // ---------------------------------------------------------------
+  // PATCH /api/orders/:id/payment-status  –  Update payment status (owner/staff)
+  // ---------------------------------------------------------------
+  async updatePaymentStatus(req, res) {
+    try {
+      const { paymentStatus } = req.body;
+      const validStatuses = ['paid', 'pending', 'failed', 'refunded'];
+
+      if (!validStatuses.includes(paymentStatus)) {
+        return res.status(400).json({ message: 'Invalid payment status.' });
+      }
+
+      const updated = await Order.updatePaymentStatus(req.params.id, paymentStatus);
+      if (!updated) {
+        return res.status(404).json({ message: 'Order not found.' });
+      }
+
+      res.json({ message: `Payment status updated to "${paymentStatus}".` });
+    } catch (error) {
+      console.error('Update payment status error:', error);
+      res.status(500).json({ message: 'Failed to update payment status.' });
+    }
+  },
+
+  // ---------------------------------------------------------------
   // GET /api/orders/delivery-orders  –  Orders for delivery personnel
   // ---------------------------------------------------------------
   async getDeliveryOrders(req, res) {

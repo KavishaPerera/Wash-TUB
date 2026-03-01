@@ -21,6 +21,7 @@ const Order = {
         pickup_time VARCHAR(50),
         special_instructions TEXT,
         payment_method VARCHAR(30) DEFAULT 'cash',
+        payment_status ENUM('paid','pending','failed','refunded') DEFAULT 'pending',
         subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
         delivery_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
         discount DECIMAL(10,2) NOT NULL DEFAULT 0,
@@ -82,12 +83,15 @@ const Order = {
 
       const orderNumber = await this._generateOrderNumber();
 
+      const cardMethods = ['visa', 'mastercard', 'amex'];
+      const paymentStatus = cardMethods.includes(orderData.paymentMethod) ? 'paid' : 'pending';
+
       const [orderResult] = await conn.execute(
         `INSERT INTO orders
            (order_number, customer_id, delivery_option, full_name, phone,
             address, city, postal_code, pickup_date, pickup_time,
-            special_instructions, payment_method, subtotal, delivery_fee, discount, total)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            special_instructions, payment_method, payment_status, subtotal, delivery_fee, discount, total)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           orderNumber,
           customerId,
@@ -101,6 +105,7 @@ const Order = {
           orderData.pickupTime || null,
           orderData.specialInstructions || null,
           orderData.paymentMethod || 'cash',
+          paymentStatus,
           orderData.subtotal,
           orderData.deliveryFee || 0,
           orderData.discount || 0,
@@ -270,6 +275,17 @@ const Order = {
     return rows[0].count;
   },
 
+  // ---------------------------------------------------------------
+  // Update payment status
+  // ---------------------------------------------------------------
+  async updatePaymentStatus(orderId, paymentStatus) {
+    const [result] = await db.execute(
+      `UPDATE orders SET payment_status = ? WHERE id = ?`,
+      [paymentStatus, orderId]
+    );
+    return result.affectedRows > 0;
+  },
+
   async totalRevenue() {
     const [rows] = await db.execute(
       `SELECT COALESCE(SUM(total), 0) as revenue FROM orders WHERE status NOT IN ('cancelled')`
@@ -291,6 +307,26 @@ const Order = {
       `);
     } catch (err) {
       // Ignore if column already has all values
+    }
+    try {
+      await db.execute(`
+        ALTER TABLE orders
+        ADD COLUMN payment_status
+        ENUM('paid','pending','failed','refunded') DEFAULT 'pending'
+      `);
+    } catch (err) {
+      // Ignore — column already exists
+    }
+    // Backfill: card-based orders should be marked paid
+    try {
+      await db.execute(`
+        UPDATE orders
+        SET payment_status = 'paid'
+        WHERE payment_method IN ('visa','mastercard','amex')
+          AND (payment_status IS NULL OR payment_status = 'pending')
+      `);
+    } catch (err) {
+      // Ignore
     }
   },
 

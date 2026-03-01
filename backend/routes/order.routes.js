@@ -26,4 +26,7 @@ router.patch('/:id/status', verifyToken, (req, res, next) => {
   return res.status(403).json({ message: 'Access denied.' });
 }, orderController.updateOrderStatus);
 
+// Owner/staff can update payment status
+router.patch('/:id/payment-status', verifyToken, isStaff, orderController.updatePaymentStatus);
+
 module.exports = router;
