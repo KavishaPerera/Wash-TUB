@@ -44,6 +44,56 @@ const Payment = () => {
         return classes[method] || '';
     };
 
+    const handleViewPayment = (payment) => {
+        const statusColors = {
+            completed: '#16a34a',
+            pending: '#d97706',
+            failed: '#dc2626',
+            refunded: '#7c3aed'
+        };
+        const methodLabels = { card: 'Credit/Debit Card', cash: 'Cash', bank: 'Bank Transfer' };
+        Swal.fire({
+            title: `Payment Details`,
+            html: `
+                <div style="text-align:left; font-family: sans-serif; font-size: 0.95rem;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:10px 8px; color:#64748b; font-weight:600;">Payment ID</td>
+                            <td style="padding:10px 8px; font-weight:700; color:#0284c7;">${payment.id}</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:10px 8px; color:#64748b; font-weight:600;">Order ID</td>
+                            <td style="padding:10px 8px; font-weight:600;">${payment.orderId}</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:10px 8px; color:#64748b; font-weight:600;">Customer</td>
+                            <td style="padding:10px 8px;">${payment.customer}</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:10px 8px; color:#64748b; font-weight:600;">Amount</td>
+                            <td style="padding:10px 8px; font-weight:700; font-size:1.1rem;">${payment.amount}</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:10px 8px; color:#64748b; font-weight:600;">Payment Method</td>
+                            <td style="padding:10px 8px;">${methodLabels[payment.method] || payment.method}</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:10px 8px; color:#64748b; font-weight:600;">Status</td>
+                            <td style="padding:10px 8px;"><span style="background:${statusColors[payment.status]}22; color:${statusColors[payment.status]}; padding:4px 12px; border-radius:20px; font-weight:600; font-size:0.85rem;">${payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:10px 8px; color:#64748b; font-weight:600;">Date</td>
+                            <td style="padding:10px 8px;">${payment.date}</td>
+                        </tr>
+                    </table>
+                </div>
+            `,
+            confirmButtonColor: '#0ea5e9',
+            confirmButtonText: 'Close',
+            width: '480px',
+        });
+    };
+
     return (
         <div className="dashboard">
             {/* Sidebar */}
@@ -107,18 +157,7 @@ const Payment = () => {
                                 <h3 className="stat-value" style={{ color: '#000000' }}>Rs. 10,000</h3>
                             </div>
                         </div>
-                        <div className="stat-card">
-                            <div className="stat-info">
-                                <p className="stat-label">Pending Payments</p>
-                                <h3 className="stat-value" style={{ color: '#ff9500' }}>{payments.filter(p => p.status === 'pending').length}</h3>
-                            </div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-info">
-                                <p className="stat-label">Failed/Refunded</p>
-                                <h3 className="stat-value" style={{ color: '#ff3b30' }}>{payments.filter(p => p.status === 'failed' || p.status === 'refunded').length}</h3>
-                            </div>
-                        </div>
+
                     </section>
 
                     {/* Filters */}
@@ -202,18 +241,11 @@ const Payment = () => {
                                             <td className="actions-cell">
                                                 <button
                                                     className="btn-action btn-view"
-                                                    onClick={() => Swal.fire({ icon: 'info', title: 'Payment Details', text: `Viewing details for payment ${payment.id}`, confirmButtonColor: '#0ea5e9' })}
+                                                    onClick={() => handleViewPayment(payment)}
                                                 >
                                                     View
                                                 </button>
-                                                {payment.status === 'completed' && (
-                                                    <button
-                                                        className="btn-action btn-refund"
-                                                        onClick={() => Swal.fire({ icon: 'warning', title: 'Initiate Refund?', text: `Are you sure you want to refund payment ${payment.id}?`, showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Yes, Refund', cancelButtonText: 'Cancel' })}
-                                                    >
-                                                        Refund
-                                                    </button>
-                                                )}
+
                                             </td>
                                         </tr>
                                     ))}
