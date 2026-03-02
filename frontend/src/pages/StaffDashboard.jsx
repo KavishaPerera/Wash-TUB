@@ -1,14 +1,27 @@
-﻿import { useNavigate } from 'react-router-dom';
-import { Edit, RefreshCw, ClipboardList, Clock, CheckCircle } from 'lucide-react';
+﻿import { useNavigate, useLocation } from 'react-router-dom';
+import { Edit, RefreshCw, ClipboardList, Clock, CheckCircle, Check, User, X } from 'lucide-react';
 import StaffSidebar from '../components/StaffSidebar';
 import { useStaffOrders } from '../context/StaffOrdersContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './StaffDashboard.css';
+
+const workflowSteps = ['Pending', 'In Progress', 'Ready', 'Completed'];
 
 const StaffDashboard = () => {
     const navigate = useNavigate();
-    const { orders, loading, lastUpdated, fetchOrders } = useStaffOrders();
+    const location = useLocation();
+    const { orders, loading, lastUpdated, fetchOrders, updateOrderStatus } = useStaffOrders();
     const [refreshing, setRefreshing] = useState(false);
+    const [modalOrder, setModalOrder] = useState(null);
+
+    // Auto-open modal when navigated from All Tasks with an order
+    useEffect(() => {
+        if (location.state?.openOrder) {
+            setModalOrder(location.state.openOrder);
+            // Clear state so refresh doesn't re-open
+            window.history.replaceState({}, '');
+        }
+    }, [location.state]);
 
     const handleRefresh = async () => {
         setRefreshing(true);
@@ -122,7 +135,7 @@ const StaffDashboard = () => {
                                     <tr>
                                         <th style={{ padding: '0.6rem 1.25rem' }}>Order ID</th>
                                         <th style={{ padding: '0.6rem 0.75rem' }}>Customer</th>
-                                        <th style={{ padding: '0.6rem 0.75rem' }}>Service</th>
+                                        <th style={{ padding: '0.6rem 0.75rem' }}>Items</th>
                                         <th style={{ padding: '0.6rem 0.75rem' }}>Status</th>
                                         <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>Action</th>
                                     </tr>
@@ -141,7 +154,7 @@ const StaffDashboard = () => {
                                             <td style={{ padding: '0.55rem 0.75rem', textAlign: 'center' }}>
                                                 <button
                                                     className="btn-action"
-                                                    onClick={() => navigate('/staff/update-order', { state: { order } })}
+                                                    onClick={() => setModalOrder(order)}
                                                     title="Update Order Status"
                                                     style={{ padding: '0.3rem 0.5rem' }}
                                                 >
@@ -156,6 +169,77 @@ const StaffDashboard = () => {
                     )}
                 </section>
             </main>
+
+            {/* Update Status Modal */}
+            {modalOrder && (() => {
+                const live = orders.find(o => o.id === modalOrder.id) || modalOrder;
+                return (
+                    <div
+                        onClick={() => setModalOrder(null)}
+                        style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+                    >
+                        <div
+                            onClick={e => e.stopPropagation()}
+                            style={{ background: '#fff', borderRadius: '18px', padding: '1.75rem', width: '100%', maxWidth: '460px', boxShadow: '0 8px 40px rgba(0,0,0,0.18)', position: 'relative' }}
+                        >
+                            {/* Close */}
+                            <button
+                                onClick={() => setModalOrder(null)}
+                                style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '0.2rem' }}
+                            >
+                                <X size={20} />
+                            </button>
+
+                            {/* Order header */}
+                            <div style={{ marginBottom: '1.25rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                    <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: '#0f172a' }}>{live.id}</h2>
+                                    <span className={`status-badge status-${live.status.toLowerCase().replace(/\s+/g, '-')}`}>{live.status}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.4rem', color: '#64748b', fontSize: '0.88rem' }}>
+                                    <User size={14} />
+                                    <span>{live.customer}</span>
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div style={{ borderTop: '1px solid #f1f5f9', marginBottom: '1.25rem' }} />
+
+                            {/* Workflow */}
+                            <p style={{ margin: '0 0 1rem', fontSize: '0.9rem', fontWeight: 700, color: '#0f172a' }}>Update Progress</p>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.25rem' }}>
+                                {workflowSteps.map((step, index) => {
+                                    const currentIndex = workflowSteps.indexOf(live.status);
+                                    const isCompleted = currentIndex >= index;
+                                    const isActive = live.status === step;
+                                    return (
+                                        <div
+                                            key={step}
+                                            onClick={() => {
+                                                updateOrderStatus(live.id, step);
+                                                setModalOrder(prev => ({ ...prev, status: step }));
+                                            }}
+                                            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}
+                                        >
+                                            <div style={{
+                                                width: '38px', height: '38px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem',
+                                                background: isCompleted ? '#0284c7' : '#f1f5f9',
+                                                color: isCompleted ? '#fff' : '#94a3b8',
+                                                border: isActive ? '2.5px solid #0284c7' : '2px solid transparent',
+                                                boxShadow: isActive ? '0 0 0 3px #0284c720' : 'none',
+                                                transition: 'all 0.2s'
+                                            }}>
+                                                {isCompleted ? <Check size={16} /> : <span>{index + 1}</span>}
+                                            </div>
+                                            <span style={{ fontSize: '0.75rem', color: isActive ? '#0284c7' : '#64748b', fontWeight: isActive ? 700 : 400, textAlign: 'center' }}>{step}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
         </div>
     );
 };

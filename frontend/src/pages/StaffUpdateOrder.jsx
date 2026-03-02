@@ -71,34 +71,6 @@ const StaffUpdateOrder = () => {
                             </div>
                         </div>
 
-                        {/* Info grid card */}
-                        <div style={{ background: '#f8fafc', borderRadius: '16px', padding: '1.5rem', marginBottom: '1.25rem', border: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                            <div>
-                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.82rem' }}>
-                                    <Package size={14} /> Service Type
-                                </div>
-                                <p style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>{selectedOrder.service}</p>
-                            </div>
-                            <div>
-                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.82rem' }}>
-                                    <Clock size={14} /> Items
-                                </div>
-                                <p style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>{selectedOrder.items}</p>
-                            </div>
-                            <div>
-                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.82rem' }}>
-                                    <Calendar size={14} /> Date Received
-                                </div>
-                                <p style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>{selectedOrder.date}</p>
-                            </div>
-                            <div>
-                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.82rem' }}>
-                                    <DollarSign size={14} /> Total Amount
-                                </div>
-                                <p style={{ margin: 0, fontWeight: 700, color: '#0f172a' }}>{selectedOrder.total}</p>
-                            </div>
-                        </div>
-
                         {/* Update Progress card */}
                         <div className="status-update-section" style={{ background: '#fff', borderRadius: '16px', padding: '1.75rem', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
                             <h3 style={{ margin: '0 0 1.75rem', fontSize: '1.35rem', fontWeight: 800, color: '#0f172a' }}>Update Progress</h3>

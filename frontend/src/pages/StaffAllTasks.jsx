@@ -170,7 +170,7 @@ const StaffAllTasks = () => {
                                     <div className="task-footer">
                                         <button
                                             className="btn-update-task"
-                                            onClick={() => navigate('/staff/update-order', { state: { order: task } })}
+                                            onClick={() => navigate('/staff-dashboard', { state: { openOrder: task } })}
                                         >
                                             Update Status
                                         </button>
