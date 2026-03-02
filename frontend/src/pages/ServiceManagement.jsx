@@ -19,6 +19,7 @@ const ServiceManagement = () => {
     const [editingItem, setEditingItem] = useState(null);
     const [historyModal, setHistoryModal] = useState(null);
     const [historyLoading, setHistoryLoading] = useState(false);
+    const [showAddForm, setShowAddForm] = useState(false);
 
     const getToken = () => localStorage.getItem('token');
 
@@ -153,9 +154,16 @@ const ServiceManagement = () => {
                             <div className="stat-card"><div className="stat-info"><p className="stat-label">Inactive</p><h3 className="stat-value">{services.filter(s => !s.isActive).length}</h3></div></div>
                         </section>
 
-                        <section className="add-service-section">
-                            <h2>Add New Service Item</h2>
-                            <form className="add-service-form" onSubmit={handleAddItem}>
+                        <section className="add-service-section" style={{ marginBottom: '1.25rem' }}>
+                            <div
+                                onClick={() => setShowAddForm(p => !p)}
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none' }}
+                            >
+                                <h2 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }}>Add New Service Item</h2>
+                                <span style={{ fontSize: '0.8rem', color: '#0284c7', fontWeight: 600 }}>{showAddForm ? '▲ Collapse' : '▼ Expand'}</span>
+                            </div>
+                            {showAddForm && (
+                            <form className="add-service-form" onSubmit={handleAddItem} style={{ marginTop: '1rem' }}>
                                 <div className="form-group">
                                     <label>Item Name *</label>
                                     <input type="text" value={newItem.name} onChange={e => setNewItem(p => ({ ...p, name: e.target.value }))} placeholder="e.g. T-Shirt, Blanket" required disabled={submitting} />
@@ -186,6 +194,7 @@ const ServiceManagement = () => {
                                     <button type="submit" className="btn btn-primary" disabled={submitting}>{submitting ? 'Adding...' : '+ Add Item'}</button>
                                 </div>
                             </form>
+                            )}
                         </section>
 
                         <section className="services-list-section">
