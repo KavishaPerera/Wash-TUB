@@ -26,6 +26,8 @@ const Payment = () => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
 
     const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
 
@@ -50,6 +52,7 @@ const Payment = () => {
                     methodLabel: order.payment_method,
                     status: normaliseStatus(order.payment_status),
                     date: new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                    rawDate: new Date(order.created_at),
                 }));
 
                 setPayments(mapped);
@@ -67,8 +70,30 @@ const Payment = () => {
         const matchesSearch = payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
             payment.customer.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'all' || payment.status === filterStatus;
-        return matchesSearch && matchesStatus;
+        const fromDate = dateFrom ? new Date(dateFrom + 'T00:00:00') : null;
+        const toDate   = dateTo   ? new Date(dateTo   + 'T23:59:59') : null;
+        const matchesDate = (!fromDate || payment.rawDate >= fromDate) &&
+                            (!toDate   || payment.rawDate <= toDate);
+        return matchesSearch && matchesStatus && matchesDate;
     });
+
+    const setPreset = (preset) => {
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const fmt = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        if (preset === 'today') {
+            const today = fmt(now);
+            setDateFrom(today); setDateTo(today);
+        } else if (preset === 'week') {
+            const start = new Date(now); start.setDate(now.getDate() - now.getDay());
+            setDateFrom(fmt(start)); setDateTo(fmt(now));
+        } else if (preset === 'month') {
+            const start = new Date(now.getFullYear(), now.getMonth(), 1);
+            setDateFrom(fmt(start)); setDateTo(fmt(now));
+        } else {
+            setDateFrom(''); setDateTo('');
+        }
+    };
 
     const getStatusBadgeClass = (status) => {
         const classes = {
@@ -221,14 +246,14 @@ const Payment = () => {
                         <div className="stat-card">
                             <div className="stat-info">
                                 <p className="stat-label">Total Transactions</p>
-                                <h3 className="stat-value">{loading ? '...' : payments.length}</h3>
+                                <h3 className="stat-value">{loading ? '...' : filteredPayments.length}</h3>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stat-info">
                                 <p className="stat-label">Total Revenue</p>
                                 <h3 className="stat-value" style={{ color: '#000000' }}>
-                                    {loading ? '...' : `Rs. ${payments.filter(p => p.status === 'completed').reduce((s, p) => s + p.rawTotal, 0).toLocaleString('en-LK', { minimumFractionDigits: 2 })}`}
+                                    {loading ? '...' : `Rs. ${filteredPayments.filter(p => p.status === 'completed').reduce((s, p) => s + p.rawTotal, 0).toLocaleString('en-LK', { minimumFractionDigits: 2 })}`}
                                 </h3>
                             </div>
                         </div>
@@ -236,21 +261,58 @@ const Payment = () => {
                             <div className="stat-info">
                                 <p className="stat-label">Pending Payments</p>
                                 <h3 className="stat-value" style={{ color: '#d97706' }}>
-                                    {loading ? '...' : payments.filter(p => p.status === 'pending').length}
+                                    {loading ? '...' : filteredPayments.filter(p => p.status === 'pending').length}
                                 </h3>
                             </div>
                         </div>
                     </section>
 
                     {/* Filters */}
-                    <section className="filters-section">
-                        <div className="search-box">
+                    <section className="filters-section" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.75rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                            <div className="search-box" style={{ flex: 1, minWidth: '200px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Search by Payment ID or Customer..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', whiteSpace: 'nowrap' }}>Date Range:</label>
                             <input
-                                type="text"
-                                placeholder="Search by Payment ID or Customer..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                type="date"
+                                value={dateFrom}
+                                onChange={(e) => setDateFrom(e.target.value)}
+                                style={{ padding: '0.4rem 0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.85rem', color: '#1e293b', cursor: 'pointer' }}
                             />
+                            <span style={{ color: '#94a3b8', fontWeight: 600 }}>—</span>
+                            <input
+                                type="date"
+                                value={dateTo}
+                                onChange={(e) => setDateTo(e.target.value)}
+                                style={{ padding: '0.4rem 0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.85rem', color: '#1e293b', cursor: 'pointer' }}
+                            />
+                            <div style={{ display: 'flex', gap: '0.4rem', marginLeft: '0.25rem', flexWrap: 'wrap' }}>
+                                {[{ key: 'today', label: 'Today' }, { key: 'week', label: 'This Week' }, { key: 'month', label: 'This Month' }].map(({ key, label }) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setPreset(key)}
+                                        style={{ padding: '0.35rem 0.8rem', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#0ea5e9', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                                {(dateFrom || dateTo) && (
+                                    <button
+                                        onClick={() => setPreset('clear')}
+                                        style={{ padding: '0.35rem 0.8rem', borderRadius: '8px', border: '1px solid #fca5a5', background: '#fff1f2', color: '#ef4444', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </section>
 
