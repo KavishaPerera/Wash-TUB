@@ -3,16 +3,16 @@
 /* Reusing dashboard-main from StaffDashboard.css for layout */
 
 .staff-profile-container {
-    max-width: 800px;
+    max-width: 860px;
     margin: 0 auto;
 }
 
 .profile-section {
     background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    margin-bottom: 2rem;
+    border-radius: 10px;
+    padding: 1.1rem 1.4rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    margin-bottom: 1rem;
     border: 1px solid #e2e8f0;
 }
 
@@ -20,15 +20,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
     border-bottom: 1px solid #f1f5f9;
 }
 
 .section-header h2 {
-    font-size: 1.25rem;
+    font-size: 0.95rem;
     color: #1e293b;
     font-weight: 700;
+    margin: 0;
 }
 
 .staff-avatar-wrapper {
@@ -51,16 +52,23 @@
     box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
 }
 
+.staff-avatar-sm {
+    width: 58px;
+    height: 58px;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
 .staff-info h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
+    margin: 0 0 0.2rem 0;
+    font-size: 1rem;
     color: #0f172a;
 }
 
 .staff-info p {
-    margin: 0 0 1rem 0;
+    margin: 0 0 0.5rem 0;
     color: #64748b;
-    font-size: 0.95rem;
+    font-size: 0.82rem;
 }
 
 .staff-role-badge {
@@ -75,23 +83,23 @@
 
 /* Form Styles */
 .profile-form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.85rem;
 }
 
 .profile-form-group label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
     color: #475569;
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
 }
 
 .profile-form-group input {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.55rem 0.85rem;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.87rem;
     color: #1e293b;
     transition: all 0.2s;
     background: #f8fafc;

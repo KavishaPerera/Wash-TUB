@@ -163,11 +163,12 @@ const StaffProfile = () => {
             <StaffSidebar activePage="profile" />
 
             <main className="dashboard-main">
-                <header className="dashboard-header">
+                {/* Compact header */}
+                <header className="dashboard-header" style={{ marginBottom: '1.25rem' }}>
                     <div className="header-content">
                         <div>
-                            <h1>My Profile</h1>
-                            <p>Manage your account settings</p>
+                            <h1 style={{ fontSize: '1.25rem', marginBottom: '0.1rem' }}>My Profile</h1>
+                            <p style={{ fontSize: '0.8rem', margin: 0, color: '#94a3b8' }}>Manage your account settings</p>
                         </div>
                     </div>
                     {!loading && (
@@ -176,7 +177,7 @@ const StaffProfile = () => {
                                 <button
                                     className="btn btn-secondary btn-small"
                                     onClick={handleCancelEdit}
-                                    style={{ padding: '0.5rem 1rem' }}
+                                    style={{ padding: '0.45rem 0.9rem', fontSize: '0.85rem' }}
                                 >
                                     Cancel
                                 </button>
@@ -185,13 +186,13 @@ const StaffProfile = () => {
                                 className="btn btn-primary btn-small"
                                 onClick={isEditing ? handleSave : () => { setIsEditing(true); setProfileMsg(null); }}
                                 disabled={saveLoading}
-                                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem' }}
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 0.9rem', fontSize: '0.85rem' }}
                             >
                                 {saveLoading
-                                    ? <><Loader size={14} /> Saving...</>
+                                    ? <><Loader size={13} /> Saving...</>
                                     : isEditing
-                                        ? <><CheckCircle size={14} /> Save Changes</>
-                                        : <><Edit2 size={14} /> Edit Profile</>}
+                                        ? <><CheckCircle size={13} /> Save Changes</>
+                                        : <><Edit2 size={13} /> Edit Profile</>}
                             </button>
                         </div>
                     )}
@@ -199,120 +200,93 @@ const StaffProfile = () => {
 
                 {/* Alert banner */}
                 {profileMsg && (
-                    <div style={{ margin: '1rem 0 0', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.7rem 1rem', borderRadius: '8px', background: profileMsg.type === 'success' ? '#f0fdf4' : '#fef2f2', color: profileMsg.type === 'success' ? '#16a34a' : '#dc2626', fontSize: '0.88rem', fontWeight: 500 }}>
-                        {profileMsg.type === 'success' ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
+                    <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1rem', borderRadius: '8px', background: profileMsg.type === 'success' ? '#f0fdf4' : '#fef2f2', color: profileMsg.type === 'success' ? '#16a34a' : '#dc2626', fontSize: '0.85rem', fontWeight: 500 }}>
+                        {profileMsg.type === 'success' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
                         {profileMsg.text}
                     </div>
                 )}
 
                 {loading ? (
                     <div style={{ marginTop: '4rem', textAlign: 'center', color: '#64748b' }}>
-                        <Loader size={32} color="#6366f1" style={{ marginBottom: '0.75rem' }} />
-                        <p>Loading profile...</p>
+                        <Loader size={28} color="#6366f1" style={{ marginBottom: '0.75rem' }} />
+                        <p style={{ fontSize: '0.88rem' }}>Loading profile...</p>
                     </div>
                 ) : (
                     <div className="staff-profile-container">
-                        {/* Identity Section */}
-                        <div className="profile-section">
-                            <div className="staff-avatar-wrapper">
-                                <div className="staff-avatar">{initials}</div>
-                                <div className="staff-info">
-                                    <h3>{profileData.firstName} {profileData.lastName}</h3>
-                                    <p>{profileData.email}</p>
+
+                        {/* Identity strip */}
+                        <div className="profile-section" style={{ padding: '1.1rem 1.4rem', marginBottom: '1rem' }}>
+                            <div className="staff-avatar-wrapper" style={{ gap: '1.1rem' }}>
+                                <div className="staff-avatar staff-avatar-sm">{initials}</div>
+                                <div className="staff-info" style={{ flex: 1 }}>
+                                    <h3 style={{ fontSize: '1rem', marginBottom: '0.15rem' }}>{profileData.firstName} {profileData.lastName}</h3>
+                                    <p style={{ fontSize: '0.82rem', marginBottom: '0.5rem' }}>{profileData.email}</p>
                                     <span className="staff-role-badge">Staff Member</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Personal Information */}
-                        <div className="profile-section">
-                            <div className="section-header">
-                                <h2>Personal Information</h2>
+                        <div className="profile-section" style={{ padding: '1.1rem 1.4rem', marginBottom: '1rem' }}>
+                            <div className="section-header" style={{ marginBottom: '1rem', paddingBottom: '0.6rem' }}>
+                                <h2 style={{ fontSize: '0.95rem' }}>Personal Information</h2>
                             </div>
 
-                            <div className="form-row">
-                                <div className="profile-form-group">
-                                    <label>First Name</label>
-                                    <input
-                                        type="text"
-                                        name="firstName"
-                                        value={profileData.firstName}
-                                        onChange={handleChange}
-                                        disabled={!isEditing}
-                                    />
-                                </div>
-                                <div className="profile-form-group">
-                                    <label>Last Name</label>
-                                    <input
-                                        type="text"
-                                        name="lastName"
-                                        value={profileData.lastName}
-                                        onChange={handleChange}
-                                        disabled={!isEditing}
-                                    />
-                                </div>
+                            <div className="form-row" style={{ gap: '0.85rem', marginBottom: '0.85rem' }}>
+                                {[
+                                    { label: 'First Name', name: 'firstName', type: 'text' },
+                                    { label: 'Last Name',  name: 'lastName',  type: 'text' },
+                                ].map(({ label, name, type }) => (
+                                    <div key={name} className="profile-form-group" style={{ marginBottom: 0 }}>
+                                        <label style={{ fontSize: '0.8rem', marginBottom: '0.35rem' }}>{label}</label>
+                                        <input type={type} name={name} value={profileData[name]} onChange={handleChange} disabled={!isEditing} style={{ padding: '0.55rem 0.85rem', fontSize: '0.87rem' }} />
+                                    </div>
+                                ))}
                             </div>
 
-                            <div className="form-row">
-                                <div className="profile-form-group">
-                                    <label>Email Address <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 400 }}>(cannot be changed)</span></label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={profileData.email}
-                                        disabled
-                                    />
+                            <div className="form-row" style={{ gap: '0.85rem', marginBottom: '0.85rem' }}>
+                                <div className="profile-form-group" style={{ marginBottom: 0 }}>
+                                    <label style={{ fontSize: '0.8rem', marginBottom: '0.35rem' }}>Email Address <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 400 }}>(cannot be changed)</span></label>
+                                    <input type="email" name="email" value={profileData.email} disabled style={{ padding: '0.55rem 0.85rem', fontSize: '0.87rem' }} />
                                 </div>
-                                <div className="profile-form-group">
-                                    <label>Phone Number</label>
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        value={profileData.phone}
-                                        onChange={handleChange}
-                                        disabled={!isEditing}
-                                    />
+                                <div className="profile-form-group" style={{ marginBottom: 0 }}>
+                                    <label style={{ fontSize: '0.8rem', marginBottom: '0.35rem' }}>Phone Number</label>
+                                    <input type="tel" name="phone" value={profileData.phone} onChange={handleChange} disabled={!isEditing} style={{ padding: '0.55rem 0.85rem', fontSize: '0.87rem' }} />
                                 </div>
                             </div>
 
-                            <div className="form-row">
-                                <div className="profile-form-group" style={{ gridColumn: '1 / -1' }}>
-                                    <label>Address</label>
-                                    <input
-                                        type="text"
-                                        name="address"
-                                        value={profileData.address}
-                                        onChange={handleChange}
-                                        disabled={!isEditing}
-                                    />
-                                </div>
+                            <div className="profile-form-group" style={{ marginBottom: 0 }}>
+                                <label style={{ fontSize: '0.8rem', marginBottom: '0.35rem' }}>Address</label>
+                                <input type="text" name="address" value={profileData.address} onChange={handleChange} disabled={!isEditing} style={{ padding: '0.55rem 0.85rem', fontSize: '0.87rem' }} />
                             </div>
                         </div>
 
                         {/* Change Password */}
-                        <div className="profile-section">
-                            <div className="section-header">
-                                <h2>Change Password</h2>
+                        <div className="profile-section" style={{ padding: '1.1rem 1.4rem', marginBottom: '1.5rem' }}>
+                            <div className="section-header" style={{ marginBottom: '1rem', paddingBottom: '0.6rem' }}>
+                                <h2 style={{ fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                    <Lock size={14} color="#6366f1" /> Change Password
+                                </h2>
                             </div>
 
                             {pwMsg && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1rem', borderRadius: '8px', marginBottom: '1rem', background: pwMsg.type === 'success' ? '#f0fdf4' : '#fef2f2', color: pwMsg.type === 'success' ? '#16a34a' : '#dc2626', fontSize: '0.88rem', fontWeight: 500 }}>
-                                    {pwMsg.type === 'success' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 0.9rem', borderRadius: '8px', marginBottom: '0.85rem', background: pwMsg.type === 'success' ? '#f0fdf4' : '#fef2f2', color: pwMsg.type === 'success' ? '#16a34a' : '#dc2626', fontSize: '0.84rem', fontWeight: 500 }}>
+                                    {pwMsg.type === 'success' ? <CheckCircle size={13} /> : <AlertCircle size={13} />}
                                     {pwMsg.text}
                                 </div>
                             )}
 
                             <form onSubmit={handleChangePassword}>
-                                <div className="form-row">
+                                <div className="form-row" style={{ gap: '0.85rem', marginBottom: '1rem' }}>
                                     {[
                                         { label: 'Current Password', field: 'current' },
                                         { label: 'New Password',     field: 'newPw'   },
                                         { label: 'Confirm Password', field: 'confirm' },
                                     ].map(({ label, field }) => (
-                                        <div key={field} className="profile-form-group">
-                                            <label>{label}</label>
+                                        <div key={field} className="profile-form-group" style={{ marginBottom: 0 }}>
+                                            <label style={{ fontSize: '0.8rem', marginBottom: '0.35rem' }}>{label}</label>
                                             <div style={{ position: 'relative' }}>
-                                                <Lock size={14} color="#94a3b8" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                                                <Lock size={13} color="#94a3b8" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                                                 <input
                                                     type={pwShow[field] ? 'text' : 'password'}
                                                     name={field}
@@ -320,26 +294,17 @@ const StaffProfile = () => {
                                                     onChange={handlePwChange}
                                                     placeholder={label}
                                                     required
-                                                    style={{ paddingLeft: '2.2rem', paddingRight: '2.2rem', width: '100%', boxSizing: 'border-box' }}
+                                                    style={{ paddingLeft: '2.1rem', paddingRight: '2.1rem', padding: '0.55rem 2.1rem', fontSize: '0.87rem', width: '100%', boxSizing: 'border-box' }}
                                                 />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => toggleShow(field)}
-                                                    style={{ position: 'absolute', right: '0.7rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0, lineHeight: 0 }}
-                                                >
-                                                    {pwShow[field] ? <EyeOff size={14} /> : <Eye size={14} />}
+                                                <button type="button" onClick={() => toggleShow(field)} style={{ position: 'absolute', right: '0.65rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0, lineHeight: 0 }}>
+                                                    {pwShow[field] ? <EyeOff size={13} /> : <Eye size={13} />}
                                                 </button>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                                <button
-                                    type="submit"
-                                    disabled={pwLoading}
-                                    className="btn btn-primary btn-small"
-                                    style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-                                >
-                                    <Lock size={14} />
+                                <button type="submit" disabled={pwLoading} className="btn btn-primary btn-small" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 0.9rem', fontSize: '0.85rem' }}>
+                                    <Lock size={13} />
                                     {pwLoading ? 'Updating...' : 'Update Password'}
                                 </button>
                             </form>
