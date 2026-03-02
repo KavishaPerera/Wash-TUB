@@ -20,6 +20,7 @@ const ServiceManagement = () => {
     const [historyModal, setHistoryModal] = useState(null);
     const [historyLoading, setHistoryLoading] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
+    const [serviceSearch, setServiceSearch] = useState('');
 
     const getToken = () => localStorage.getItem('token');
 
@@ -198,7 +199,22 @@ const ServiceManagement = () => {
                         </section>
 
                         <section className="services-list-section">
-                            <h2>Current Services ({services.length})</h2>
+                            <div className="services-list-header">
+                                <h2>Current Services ({services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase()) || (s.description && s.description.toLowerCase().includes(serviceSearch.toLowerCase()))).length})</h2>
+                                <div className="svc-search-wrapper">
+                                    <svg className="svc-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                    <input
+                                        type="text"
+                                        className="svc-search-input"
+                                        placeholder="Search by name or category..."
+                                        value={serviceSearch}
+                                        onChange={e => setServiceSearch(e.target.value)}
+                                    />
+                                    {serviceSearch && (
+                                        <button className="svc-search-clear" onClick={() => setServiceSearch('')} title="Clear search">✕</button>
+                                    )}
+                                </div>
+                            </div>
                             <div className="table-container">
                                 {loading ? (
                                     <div className="no-data"><p>Loading services...</p></div>
@@ -210,7 +226,7 @@ const ServiceManagement = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {services.map((service, i) => (
+                                            {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase()) || (s.description && s.description.toLowerCase().includes(serviceSearch.toLowerCase()))).map((service, i) => (
                                                 <tr key={service.id} style={{ opacity: service.isActive ? 1 : 0.55 }}>
                                                     <td>{i + 1}</td>
                                                     <td style={{ fontWeight: 600 }}>{service.name}</td>
@@ -228,6 +244,9 @@ const ServiceManagement = () => {
                                             ))}
                                             {!loading && services.length === 0 && (
                                                 <tr><td colSpan="7" className="text-center">No services found. Add some items above.</td></tr>
+                                            )}
+                                            {!loading && services.length > 0 && services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase()) || (s.description && s.description.toLowerCase().includes(serviceSearch.toLowerCase()))).length === 0 && (
+                                                <tr><td colSpan="7" className="text-center">No services match your search.</td></tr>
                                             )}
                                         </tbody>
                                     </table>

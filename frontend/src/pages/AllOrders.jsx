@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
+import './AllOrders.css';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -46,13 +47,10 @@ const AllOrders = () => {
 
     useEffect(() => { fetchOrders(); }, []);
 
-    // ── Filter + Search ───────────────────────────────────────────────────
+    // ── Filter ────────────────────────────────────────────────────────────
     const filteredOrders = useMemo(() => {
         return orders.filter(o => {
-            const matchSearch = (
-                (o.order_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (o.full_name || '').toLowerCase().includes(searchTerm.toLowerCase())
-            );
+            const matchSearch = !searchTerm || (o.order_number || '').toLowerCase().includes(searchTerm.toLowerCase());
             const matchStatus = filterStatus === 'all' || o.status === filterStatus;
             return matchSearch && matchStatus;
         });
@@ -138,13 +136,18 @@ const AllOrders = () => {
 
                     {/* Search + Filter */}
                     <section className="filters-section">
-                        <div className="search-box">
+                        <div className="ao-search-wrapper">
+                            <svg className="ao-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                             <input
                                 type="text"
-                                placeholder="Search by Order ID or Customer…"
+                                className="ao-search-input"
+                                placeholder="Search by order ID"
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
                             />
+                            {searchTerm && (
+                                <button className="ao-search-clear" onClick={() => setSearchTerm('')} title="Clear">✕</button>
+                            )}
                         </div>
                         <div className="filter-tabs">
                             <button className={`filter-tab ${filterStatus === 'all' ? 'active' : ''}`} onClick={() => setFilterStatus('all')}>All</button>
