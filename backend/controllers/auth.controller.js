@@ -240,11 +240,43 @@ const authController = {
     }
   },
 
+  // Update own profile (authenticated user)
+  async updateProfile(req, res) {
+    try {
+      const userId = req.userId;
+      const { firstName, lastName, phone, address } = req.body;
+
+      if (!firstName || !lastName) {
+        return res.status(400).json({ message: 'First name and last name are required' });
+      }
+
+      await User.update(userId, { firstName, lastName, phone, address });
+      const updated = await User.findById(userId);
+
+      res.json({
+        success: true,
+        message: 'Profile updated successfully',
+        user: {
+          id: updated.id,
+          firstName: updated.first_name,
+          lastName: updated.last_name,
+          email: updated.email,
+          phone: updated.phone,
+          address: updated.address,
+          role: updated.role,
+        },
+      });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({ message: 'Error updating profile' });
+    }
+  },
+
   // Change password (authenticated user)
   async changePassword(req, res) {
     try {
       const { currentPassword, newPassword } = req.body;
-      const userId = req.user.id;
+      const userId = req.userId;
 
       if (!currentPassword || !newPassword) {
         return res.status(400).json({ message: 'Current and new password are required' });
