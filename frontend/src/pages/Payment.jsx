@@ -252,38 +252,6 @@ const Payment = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <div className="filter-tabs">
-                            <button
-                                className={`filter-tab ${filterStatus === 'all' ? 'active' : ''}`}
-                                onClick={() => setFilterStatus('all')}
-                            >
-                                All
-                            </button>
-                            <button
-                                className={`filter-tab ${filterStatus === 'completed' ? 'active' : ''}`}
-                                onClick={() => setFilterStatus('completed')}
-                            >
-                                Completed
-                            </button>
-                            <button
-                                className={`filter-tab ${filterStatus === 'pending' ? 'active' : ''}`}
-                                onClick={() => setFilterStatus('pending')}
-                            >
-                                Pending
-                            </button>
-                            <button
-                                className={`filter-tab ${filterStatus === 'failed' ? 'active' : ''}`}
-                                onClick={() => setFilterStatus('failed')}
-                            >
-                                Failed
-                            </button>
-                            <button
-                                className={`filter-tab ${filterStatus === 'refunded' ? 'active' : ''}`}
-                                onClick={() => setFilterStatus('refunded')}
-                            >
-                                Refunded
-                            </button>
-                        </div>
                     </section>
 
                     {/* Payments Table */}
@@ -297,14 +265,13 @@ const Payment = () => {
                                         <th>Customer</th>
                                         <th>Amount</th>
                                         <th>Method</th>
-                                        <th>Status</th>
                                         <th>Date</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {loading ? (
-                                        <tr><td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Loading payments...</td></tr>
+                                        <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Loading payments...</td></tr>
                                     ) : filteredPayments.map(payment => (
                                         <tr key={payment.id}>
                                             <td className="payment-id" style={{ fontWeight: '600', color: '#000000' }}>{payment.id}</td>
@@ -314,11 +281,6 @@ const Payment = () => {
                                             <td>
                                                 <span className={`method-badge ${getMethodBadgeClass(payment.method)}`}>
                                                     {(payment.methodLabel || payment.method).toUpperCase()}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span className={`status-badge ${getStatusBadgeClass(payment.status)}`}>
-                                                    {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                                                 </span>
                                             </td>
                                             <td>{payment.date}</td>
