@@ -10,9 +10,6 @@ const DeliveryProfile = () => {
         email: 'driver@washtub.com',
         phone: '077-1234567',
         address: '123 Main St, Colombo',
-        vehicleType: 'Motorcycle',
-        vehicleNumber: 'WP ABC-1234',
-        licenseNumber: 'B1234567',
     });
 
     // Change Password state
@@ -71,194 +68,98 @@ const DeliveryProfile = () => {
 
     return (
         <div className="dashboard">
-            {/* Sidebar */}
             <DeliverySidebar activePage="profile" />
 
-            {/* Main Content */}
             <main className="dashboard-main">
                 <header className="dashboard-header">
                     <div className="header-content">
                         <h1>My Profile</h1>
-                    
                     </div>
-                    <button 
-                        className={`btn-primary ${isEditing ? 'btn-save' : ''}`}
+                    <button
+                        className="btn-primary"
                         onClick={isEditing ? handleSave : () => setIsEditing(true)}
                         style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                     >
-                        {isEditing ? 'Save Changes' : <><Edit2 size={18} /> Edit Profile</>}
+                        {isEditing ? 'Save Changes' : <><Edit2 size={16} /> Edit Profile</>}
                     </button>
                 </header>
 
-                <div className="profile-content" style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
-                    {/* Left Column - Avatar & Quick Info */}
-                    <div className="profile-card" style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center' }}>
-                        <div className="avatar-container" style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto 1.5rem' }}>
-                            <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                                <User size={64} color="#94a3b8" />
-                            </div>
-                            {isEditing && (
-                                <button style={{ position: 'absolute', bottom: '0', right: '0', background: '#38bdf8', color: 'white', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
-                                    <Camera size={18} />
-                                </button>
-                            )}
+                {/* Profile Identity Card */}
+                <div style={{ marginTop: '2rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                    <div style={{ position: 'relative', flexShrink: 0 }}>
+                        <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <User size={36} color="#94a3b8" />
                         </div>
-                        <h2 style={{ marginBottom: '0.5rem', color: '#0f172a' }}>{profileData.name}</h2>
-                        <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Delivery Partner</p>
-                        
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left', borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#475569' }}>
-                                <Shield size={18} color="#38bdf8" />
-                                <span>Verified Partner</span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#475569' }}>
-                                <span style={{ background: '#10b981', width: '10px', height: '10px', borderRadius: '50%', display: 'inline-block' }}></span>
-                                <span>Currently Online</span>
-                            </div>
-                        </div>
+                        {isEditing && (
+                            <button style={{ position: 'absolute', bottom: 0, right: 0, background: '#38bdf8', color: 'white', border: 'none', borderRadius: '50%', width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                <Camera size={13} />
+                            </button>
+                        )}
                     </div>
-
-                    {/* Right Column - Details Form */}
-                    <div className="profile-details" style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                        <h3 style={{ marginBottom: '1.5rem', color: '#0f172a', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem' }}>Personal Information</h3>
-                        
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-                            <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontSize: '0.9rem', fontWeight: '500' }}>Full Name</label>
-                                <div style={{ position: 'relative' }}>
-                                    <User size={18} color="#94a3b8" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                                    <input 
-                                        type="text" 
-                                        name="name"
-                                        value={profileData.name} 
-                                        onChange={handleInputChange}
-                                        disabled={!isEditing}
-                                        style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: isEditing ? 'white' : '#f8fafc', color: '#0f172a' }}
-                                    />
-                                </div>
-                            </div>
-                            
-                            <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontSize: '0.9rem', fontWeight: '500' }}>Email Address</label>
-                                <div style={{ position: 'relative' }}>
-                                    <Mail size={18} color="#94a3b8" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                                    <input 
-                                        type="email" 
-                                        name="email"
-                                        value={profileData.email} 
-                                        onChange={handleInputChange}
-                                        disabled={!isEditing}
-                                        style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: isEditing ? 'white' : '#f8fafc', color: '#0f172a' }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontSize: '0.9rem', fontWeight: '500' }}>Phone Number</label>
-                                <div style={{ position: 'relative' }}>
-                                    <Phone size={18} color="#94a3b8" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                                    <input 
-                                        type="tel" 
-                                        name="phone"
-                                        value={profileData.phone} 
-                                        onChange={handleInputChange}
-                                        disabled={!isEditing}
-                                        style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: isEditing ? 'white' : '#f8fafc', color: '#0f172a' }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontSize: '0.9rem', fontWeight: '500' }}>Address</label>
-                                <div style={{ position: 'relative' }}>
-                                    <MapPin size={18} color="#94a3b8" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                                    <input 
-                                        type="text" 
-                                        name="address"
-                                        value={profileData.address} 
-                                        onChange={handleInputChange}
-                                        disabled={!isEditing}
-                                        style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: isEditing ? 'white' : '#f8fafc', color: '#0f172a' }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <h3 style={{ marginBottom: '1.5rem', color: '#0f172a', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem' }}>Vehicle & License Details</h3>
-                        
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                            <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontSize: '0.9rem', fontWeight: '500' }}>Vehicle Type</label>
-                                <select 
-                                    name="vehicleType"
-                                    value={profileData.vehicleType} 
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                    style={{ width: '100%', padding: '0.75rem 1rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: isEditing ? 'white' : '#f8fafc', color: '#0f172a' }}
-                                >
-                                    <option value="Motorcycle">Motorcycle</option>
-                                    <option value="Car">Car</option>
-                                    <option value="Van">Van</option>
-                                    <option value="Truck">Truck</option>
-                                </select>
-                            </div>
-
-                            <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontSize: '0.9rem', fontWeight: '500' }}>Vehicle Number</label>
-                                <input 
-                                    type="text" 
-                                    name="vehicleNumber"
-                                    value={profileData.vehicleNumber} 
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                    style={{ width: '100%', padding: '0.75rem 1rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: isEditing ? 'white' : '#f8fafc', color: '#0f172a' }}
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontSize: '0.9rem', fontWeight: '500' }}>License Number</label>
-                                <input 
-                                    type="text" 
-                                    name="licenseNumber"
-                                    value={profileData.licenseNumber} 
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                    style={{ width: '100%', padding: '0.75rem 1rem', border: '1px solid #cbd5e1', borderRadius: '8px', background: isEditing ? 'white' : '#f8fafc', color: '#0f172a' }}
-                                />
-                            </div>
-                        </div>
+                    <div style={{ flex: 1 }}>
+                        <h2 style={{ margin: 0, fontSize: '1.1rem', color: '#0f172a' }}>{profileData.name}</h2>
+                        <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: '#64748b' }}>Delivery Partner</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', flexShrink: 0 }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: '#475569' }}>
+                            <Shield size={14} color="#38bdf8" /> Verified
+                        </span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: '#10b981' }}>
+                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }} /> Online
+                        </span>
                     </div>
                 </div>
 
-                {/* ── Change Password Section ── */}
-                <div style={{ marginTop: '2rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '2rem' }}>
-                    <h3 style={{ marginBottom: '1.5rem', color: '#0f172a', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                        <Lock size={18} color="#38bdf8" /> Change Password
+                {/* Personal Information */}
+                <div style={{ marginTop: '1.25rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', padding: '1.5rem' }}>
+                    <h3 style={{ margin: '0 0 1.25rem', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
+                        Personal Information
+                    </h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        {[
+                            { label: 'Full Name',     name: 'name',    type: 'text',  icon: <User  size={15} color="#94a3b8" /> },
+                            { label: 'Email Address', name: 'email',   type: 'email', icon: <Mail  size={15} color="#94a3b8" /> },
+                            { label: 'Phone Number',  name: 'phone',   type: 'tel',   icon: <Phone size={15} color="#94a3b8" /> },
+                            { label: 'Address',       name: 'address', type: 'text',  icon: <MapPin size={15} color="#94a3b8" /> },
+                        ].map(({ label, name, type, icon }) => (
+                            <div key={name} className="form-group">
+                                <label style={{ display: 'block', marginBottom: '0.4rem', fontSize: '0.82rem', fontWeight: 500, color: '#64748b' }}>{label}</label>
+                                <div style={{ position: 'relative' }}>
+                                    <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', lineHeight: 0 }}>{icon}</span>
+                                    <input
+                                        type={type}
+                                        name={name}
+                                        value={profileData[name]}
+                                        onChange={handleInputChange}
+                                        disabled={!isEditing}
+                                        style={{ width: '100%', padding: '0.6rem 0.75rem 0.6rem 2.2rem', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.88rem', background: isEditing ? 'white' : '#f8fafc', color: '#0f172a', boxSizing: 'border-box' }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Change Password */}
+                <div style={{ marginTop: '1.25rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', padding: '1.5rem' }}>
+                    <h3 style={{ margin: '0 0 1.25rem', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Lock size={15} color="#38bdf8" /> Change Password
                     </h3>
 
-                    {/* Alert */}
                     {pwMsg && (
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.6rem',
-                            padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem',
-                            background: pwMsg.type === 'success' ? '#f0fdf4' : '#fef2f2',
-                            color: pwMsg.type === 'success' ? '#16a34a' : '#dc2626',
-                            fontSize: '0.9rem', fontWeight: 500,
-                        }}>
-                            {pwMsg.type === 'success'
-                                ? <CheckCircle size={16} />
-                                : <AlertCircle size={16} />}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1rem', borderRadius: '8px', marginBottom: '1rem', background: pwMsg.type === 'success' ? '#f0fdf4' : '#fef2f2', color: pwMsg.type === 'success' ? '#16a34a' : '#dc2626', fontSize: '0.85rem', fontWeight: 500 }}>
+                            {pwMsg.type === 'success' ? <CheckCircle size={15} /> : <AlertCircle size={15} />}
                             {pwMsg.text}
                         </div>
                     )}
 
                     <form onSubmit={handleChangePassword}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                            {[{ label: 'Current Password', field: 'current' }, { label: 'New Password', field: 'newPw' }, { label: 'Confirm New Password', field: 'confirm' }].map(({ label, field }) => (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+                            {[{ label: 'Current Password', field: 'current' }, { label: 'New Password', field: 'newPw' }, { label: 'Confirm Password', field: 'confirm' }].map(({ label, field }) => (
                                 <div key={field} className="form-group">
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontSize: '0.9rem', fontWeight: '500' }}>{label}</label>
+                                    <label style={{ display: 'block', marginBottom: '0.4rem', fontSize: '0.82rem', fontWeight: 500, color: '#64748b' }}>{label}</label>
                                     <div style={{ position: 'relative' }}>
-                                        <Lock size={16} color="#94a3b8" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                        <Lock size={14} color="#94a3b8" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)' }} />
                                         <input
                                             type={pwShow[field] ? 'text' : 'password'}
                                             name={field}
@@ -266,27 +167,17 @@ const DeliveryProfile = () => {
                                             onChange={handlePwChange}
                                             placeholder={label}
                                             required
-                                            style={{ width: '100%', padding: '0.75rem 2.5rem 0.75rem 2.5rem', border: '1px solid #cbd5e1', borderRadius: '8px', color: '#0f172a', boxSizing: 'border-box' }}
+                                            style={{ width: '100%', padding: '0.6rem 2.2rem 0.6rem 2.2rem', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.88rem', color: '#0f172a', boxSizing: 'border-box' }}
                                         />
-                                        <button
-                                            type="button"
-                                            onClick={() => toggleShow(field)}
-                                            style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0 }}
-                                        >
-                                            {pwShow[field] ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        <button type="button" onClick={() => toggleShow(field)} style={{ position: 'absolute', right: '0.65rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0, lineHeight: 0 }}>
+                                            {pwShow[field] ? <EyeOff size={14} /> : <Eye size={14} />}
                                         </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
-
-                        <button
-                            type="submit"
-                            disabled={pwLoading}
-                            className="btn-primary"
-                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                        >
-                            <Lock size={16} />
+                        <button type="submit" disabled={pwLoading} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Lock size={14} />
                             {pwLoading ? 'Updating...' : 'Update Password'}
                         </button>
                     </form>

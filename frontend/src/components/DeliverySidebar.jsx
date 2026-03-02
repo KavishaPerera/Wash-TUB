@@ -21,9 +21,6 @@ const DeliverySidebar = ({ activePage }) => {
                 <Link to="/active-deliveries" className={`nav-item ${activePage === 'active' ? 'active' : ''}`}>
                     <span>Active Deliveries</span>
                 </Link>
-                <Link to="/delivery-history" className={`nav-item ${activePage === 'history' ? 'active' : ''}`}>
-                    <span>History</span>
-                </Link>
                 <Link to="/delivery-profile" className={`nav-item ${activePage === 'profile' ? 'active' : ''}`}>
                     <span>Profile</span>
                 </Link>
