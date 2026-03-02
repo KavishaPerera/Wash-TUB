@@ -35,14 +35,14 @@
 
 /* ---- Compact label ---- */
 .admin-stats .stat-label {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     margin: 0 0 0.15rem 0;
     letter-spacing: 0.06em;
 }
 
 /* ---- Compact value ---- */
 .admin-stats .stat-value {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     margin: 0;
     font-weight: 700;
     line-height: 1.2;
@@ -104,7 +104,7 @@
 
 /* Dashboard header — full-width flex row */
 .dashboard-header {
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
 }
 
 .dashboard-header .header-content {
@@ -130,16 +130,16 @@
 /* Dashboard header text — dark on white */
 .dashboard-header h1 {
     color: #0f172a;
-    font-size: 1.85rem;
+    font-size: 1.25rem;
     font-weight: 800;
-    margin: 0;
+    margin: 0 0 0.1rem 0;
     line-height: 1.2;
 }
 
 .dashboard-header p {
-    color: #64748b;
-    margin: 0.3rem 0 0 0;
-    font-size: 0.9rem;
+    color: #94a3b8;
+    margin: 0;
+    font-size: 0.8rem;
 }
 
 /* Table section headers */

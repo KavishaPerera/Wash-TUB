@@ -117,8 +117,8 @@ const AdminDashboard = () => {
 
                     {/* Recent Orders Table */}
                     <section className="dashboard-table-section" style={{ padding: '2rem', marginBottom: '2.5rem' }}>
-                        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', alignItems: 'center' }}>
-                            <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Recent Orders</h2>
+                        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
+                            <h2 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }}>Recent Orders</h2>
                             <Link to="/all-orders" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontWeight: 600 }}>
                                 View All →
                             </Link>
