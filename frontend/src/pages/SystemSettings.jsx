@@ -5,16 +5,7 @@ import './SystemSettings.css';
 
 const SystemSettings = () => {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('pricing');
-
-    // Pricing State
-    const [prices, setPrices] = useState([
-        { id: 1, service: 'Wash & Fold', price: '150.00', unit: 'per kg', minOrder: '2 kg', status: 'active' },
-        { id: 2, service: 'Dry Cleaning', price: '450.00', unit: 'per item', minOrder: '1 item', status: 'active' },
-        { id: 3, service: 'Ironing', price: '80.00', unit: 'per item', minOrder: '5 items', status: 'active' },
-        { id: 4, service: 'Curtain Cleaning', price: '350.00', unit: 'per kg', minOrder: '3 kg', status: 'inactive' },
-        { id: 5, service: 'Carpet Cleaning', price: '250.00', unit: 'per sqft', minOrder: '50 sqft', status: 'active' },
-    ]);
+    const [activeTab, setActiveTab] = useState('business');
 
     // Business Info State
     const [businessInfo, setBusinessInfo] = useState({
@@ -38,12 +29,6 @@ const SystemSettings = () => {
     });
 
     const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
-
-    const handlePriceChange = (id, field, value) => {
-        setPrices(prices.map(item =>
-            item.id === id ? { ...item, [field]: value } : item
-        ));
-    };
 
     const handleInfoChange = (e) => {
         setBusinessInfo({ ...businessInfo, [e.target.name]: e.target.value });
@@ -96,7 +81,7 @@ const SystemSettings = () => {
                     <div className="header-content">
                         <div className="header-left">
                             <h1>System Settings</h1>
-                            <p>Manage pricing, business info, and delivery parameters</p>
+                            <p>Manage business info and delivery parameters</p>
                         </div>
                     </div>
                 </header>
@@ -104,12 +89,6 @@ const SystemSettings = () => {
                 <div className="dashboard-content">
                     {/* Tabs */}
                     <div className="settings-tabs">
-                        <button
-                            className={`settings-tab ${activeTab === 'pricing' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('pricing')}
-                        >
-                            💰 Service Pricing
-                        </button>
                         <button
                             className={`settings-tab ${activeTab === 'business' ? 'active' : ''}`}
                             onClick={() => setActiveTab('business')}
@@ -124,71 +103,9 @@ const SystemSettings = () => {
                         </button>
                     </div>
 
-                    {/* Pricing Tab */}
-                    {activeTab === 'pricing' && (
-                        <section className="dashboard-table-section" style={{ padding: '2rem' }}>
-                            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                                <h2>Manage Service Prices</h2>
-                                <button className="btn btn-primary btn-small">+ Add Service</button>
-                            </div>
-
-                            <div className="table-container">
-                                <table className="dashboard-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Service Name</th>
-                                            <th>Price (LKR)</th>
-                                            <th>Unit</th>
-                                            <th>Min Order</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {prices.map(item => (
-                                            <tr key={item.id}>
-                                                <td className="service-name">{item.service}</td>
-                                                <td>
-                                                    <input
-                                                        type="text"
-                                                        className="price-input"
-                                                        value={item.price}
-                                                        onChange={(e) => handlePriceChange(item.id, 'price', e.target.value)}
-                                                    />
-                                                </td>
-                                                <td>{item.unit}</td>
-                                                <td>
-                                                    <input
-                                                        type="text"
-                                                        className="price-input min-order-input"
-                                                        value={item.minOrder}
-                                                        onChange={(e) => handlePriceChange(item.id, 'minOrder', e.target.value)}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <span className={`status-badge ${item.status === 'active' ? 'status-active' : 'status-inactive'}`}>
-                                                        {item.status.toUpperCase()}
-                                                    </span>
-                                                </td>
-                                                <td className="actions-cell">
-                                                    <button className="btn-action btn-save">Save</button>
-                                                    <button className="btn-action btn-toggle">Disable</button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="info-box">
-                                <p>ℹ️ Prices are inclusive of all taxes. Changes reflect immediately in the customer app.</p>
-                            </div>
-                        </section>
-                    )}
-
                     {/* Business Info Tab */}
                     {activeTab === 'business' && (
                         <section className="dashboard-form-section">
-                            <h2 style={{ marginBottom: '1.5rem', color: 'var(--color-light)' }}>Business Details</h2>
                             <div className="settings-form">
                                 <div className="form-row">
                                     <div className="form-group">
