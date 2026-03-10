@@ -1,78 +1,13 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, CreditCard, ShoppingCart, Trash2, Plus, Minus, Search, Printer, X } from 'lucide-react';
+import { User, CreditCard, ShoppingCart, Trash2, Plus, Minus, Search, Printer, X, Loader, CheckCircle, AlertCircle } from 'lucide-react';
 import CustomizeModal from '../components/CustomizeModal';
 import './PointOfSale.css';
 
-// ... (Constants categories and pricingItems remain the same - abbreviated for brevity)
-const categories = [
-    { id: 'all', name: 'All Items' },
-    { id: 'gents-casual', name: 'Gents Casual Wear' },
-    { id: 'gents-formal', name: 'Gents Formal Wear' },
-    { id: 'ladies-casual', name: 'Ladies Casual Wear' },
-    { id: 'ladies-formal', name: 'Ladies Formal Wear' },
-    { id: 'kids', name: 'Kids' },
-    { id: 'household', name: 'Household' },
-    { id: 'traditional', name: 'Traditional' }
-];
+const API_BASE = 'http://localhost:5000/api';
+const PREFERRED_CATEGORIES = ['Wash & Dry', 'Ironing', 'Dry Cleaning', 'Pressing'];
 
-const pricingItems = [
-    // Gents Casual Wear
-    { id: 1, name: 'T-Shirt', price: 150, category: 'gents-casual' },
-    { id: 2, name: 'Shirt', price: 200, category: 'gents-casual' },
-    { id: 3, name: 'Shorts', price: 180, category: 'gents-casual' },
-    { id: 4, name: 'Jeans', price: 250, category: 'gents-casual' },
-    { id: 5, name: 'Jacket', price: 400, category: 'gents-casual' },
-    { id: 6, name: 'Hoodie', price: 350, category: 'gents-casual' },
-
-    // Gents Formal Wear
-    { id: 7, name: 'Suit (2 Pcs)', price: 800, category: 'gents-formal' },
-    { id: 8, name: 'Suit (3 Pcs)', price: 1000, category: 'gents-formal' },
-    { id: 9, name: 'Blazer', price: 500, category: 'gents-formal' },
-    { id: 10, name: 'Formal Shirt', price: 250, category: 'gents-formal' },
-    { id: 11, name: 'Formal Trousers', price: 300, category: 'gents-formal' },
-    { id: 12, name: 'Tie', price: 100, category: 'gents-formal' },
-
-    // Ladies Casual Wear
-    { id: 13, name: 'Blouse', price: 200, category: 'ladies-casual' },
-    { id: 14, name: 'T-Shirt', price: 150, category: 'ladies-casual' },
-    { id: 15, name: 'Jeans', price: 250, category: 'ladies-casual' },
-    { id: 16, name: 'Skirt', price: 220, category: 'ladies-casual' },
-    { id: 17, name: 'Frock', price: 300, category: 'ladies-casual' },
-    { id: 18, name: 'Jacket', price: 400, category: 'ladies-casual' },
-
-    // Ladies Formal Wear
-    { id: 19, name: 'Formal Dress', price: 450, category: 'ladies-formal' },
-    { id: 20, name: 'Formal Blouse', price: 250, category: 'ladies-formal' },
-    { id: 21, name: 'Formal Skirt', price: 280, category: 'ladies-formal' },
-    { id: 22, name: 'Blazer', price: 500, category: 'ladies-formal' },
-    { id: 23, name: 'Formal Trousers', price: 300, category: 'ladies-formal' },
-
-    // Kids
-    { id: 24, name: 'Kids T-Shirt', price: 100, category: 'kids' },
-    { id: 25, name: 'Kids Shorts', price: 120, category: 'kids' },
-    { id: 26, name: 'Kids Dress', price: 200, category: 'kids' },
-    { id: 27, name: 'Kids Jeans', price: 180, category: 'kids' },
-    { id: 28, name: 'School Uniform', price: 250, category: 'kids' },
-
-    // Household
-    { id: 29, name: 'Bed Sheet (S)', price: 200, category: 'household' },
-    { id: 30, name: 'Bed Sheet (L)', price: 300, category: 'household' },
-    { id: 31, name: 'Pillow Case', price: 80, category: 'household' },
-    { id: 32, name: 'Bath Towel', price: 150, category: 'household' },
-    { id: 33, name: 'Hand Towel', price: 80, category: 'household' },
-    { id: 34, name: 'Curtain (Per Kg)', price: 400, category: 'household' },
-    { id: 35, name: 'Table Cloth', price: 250, category: 'household' },
-    { id: 36, name: 'Blanket', price: 500, category: 'household' },
-
-    // Traditional
-    { id: 37, name: 'Saree', price: 350, category: 'traditional' },
-    { id: 38, name: 'Saree Blouse', price: 200, category: 'traditional' },
-    { id: 39, name: 'Kurta', price: 250, category: 'traditional' },
-    { id: 40, name: 'Salwar', price: 200, category: 'traditional' },
-    { id: 41, name: 'Sherwani', price: 800, category: 'traditional' },
-    { id: 42, name: 'Lehenga', price: 600, category: 'traditional' }
-];
+const getCategoryName = (description) => (description || '').trim() || 'Other';
 
 const PointOfSale = () => {
     const navigate = useNavigate();
@@ -86,6 +21,11 @@ const PointOfSale = () => {
     });
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Service items from API
+    const [services, setServices] = useState([]);
+    const [loadingServices, setLoadingServices] = useState(true);
+    const [fetchError, setFetchError] = useState('');
+
     // Modal state
     const [selectedItem, setSelectedItem] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -96,11 +36,96 @@ const PointOfSale = () => {
     const [amountGiven, setAmountGiven] = useState('');
     const [finalOrderData, setFinalOrderData] = useState(null);
 
-    const filteredItems = pricingItems.filter(item => {
-        const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
-        const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesCategory && matchesSearch;
-    });
+    // API submission state
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
+
+    // Get auth token
+    const getToken = () => {
+        return localStorage.getItem('token') || sessionStorage.getItem('token');
+    };
+
+    // Fetch services from API on mount (same logic as Pricing page)
+    const fetchServices = useCallback(async () => {
+        setLoadingServices(true);
+        setFetchError('');
+        try {
+            const res = await fetch(`${API_BASE}/services`);
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                setServices(Array.isArray(data.services) ? data.services : []);
+            } else {
+                setFetchError(data.message || 'Failed to load services.');
+            }
+        } catch {
+            setFetchError('Unable to connect to the server.');
+        } finally {
+            setLoadingServices(false);
+        }
+    }, []);
+
+    useEffect(() => { fetchServices(); }, [fetchServices]);
+
+    // Build dynamic categories from service descriptions (same as Pricing page)
+    const categories = useMemo(() => {
+        const available = new Set(services.map(s => getCategoryName(s.description)));
+
+        const ordered = [
+            ...PREFERRED_CATEGORIES.filter(c => available.has(c)),
+            ...Array.from(available).filter(c => !PREFERRED_CATEGORIES.includes(c)).sort((a, b) => a.localeCompare(b))
+        ];
+
+        return [
+            { id: 'all', name: 'All Items' },
+            ...ordered.map(c => ({ id: c, name: c }))
+        ];
+    }, [services]);
+
+    // Map services to pricing items (same as Pricing page)
+    const pricingItems = useMemo(() => {
+        return services
+            .filter(s => typeof s.price === 'number')
+            .map(s => ({
+                id: s.id,
+                serviceId: s.id,
+                name: s.name,
+                price: s.price,
+                category: getCategoryName(s.description),
+                unitType: s.unitType,
+            }));
+    }, [services]);
+
+    // Group items by name, show one card per unique item (same as Pricing page)
+    const uniqueItems = useMemo(() => {
+        const grouped = new Map();
+
+        const itemsToGroup = activeCategory === 'all'
+            ? pricingItems
+            : pricingItems.filter(item => item.category === activeCategory);
+
+        itemsToGroup.forEach(item => {
+            if (!grouped.has(item.name)) {
+                grouped.set(item.name, item);
+            } else {
+                const existing = grouped.get(item.name);
+                if (item.price < existing.price) {
+                    grouped.set(item.name, item);
+                }
+            }
+        });
+
+        let results = Array.from(grouped.values());
+        if (searchTerm.trim()) {
+            const query = searchTerm.trim().toLowerCase();
+            results = results.filter(item =>
+                item.name.toLowerCase().includes(query) ||
+                item.category.toLowerCase().includes(query)
+            );
+        }
+
+        return results;
+    }, [pricingItems, activeCategory, searchTerm]);
 
     const handleItemClick = (item) => {
         setSelectedItem(item);
@@ -113,10 +138,9 @@ const PointOfSale = () => {
     };
 
     const handleAddToBasket = (customizedItem) => {
-        const cartItemUniqueId = `${customizedItem.id}-${customizedItem.method}-${Date.now()}`;
         const newItem = {
             ...customizedItem,
-            cartId: cartItemUniqueId,
+            cartId: `${customizedItem.id}-${customizedItem.method}-${Date.now()}`,
             price: customizedItem.totalPrice / customizedItem.quantity
         };
 
@@ -161,11 +185,11 @@ const PointOfSale = () => {
             return;
         }
 
-        // Open Payment Input Modal
+        setSubmitError('');
         setIsPaymentModalOpen(true);
     };
 
-    const handleConfirmPayment = () => {
+    const handleConfirmPayment = async () => {
         const total = calculateTotal();
         const paid = parseFloat(amountGiven);
 
@@ -174,19 +198,61 @@ const PointOfSale = () => {
             return;
         }
 
-        // Prepare Final Data
-        const orderData = {
-            customer: customerDetails,
-            items: cart,
-            totalAmount: total,
-            amountGiven: paid,
-            balance: paid - total,
-            date: new Date().toLocaleString()
-        };
+        setIsSubmitting(true);
+        setSubmitError('');
 
-        setFinalOrderData(orderData);
-        setIsPaymentModalOpen(false);
-        setIsReceiptOpen(true);
+        try {
+            const token = getToken();
+            const orderItems = cart.map(item => ({
+                serviceId: item.serviceId || null,
+                name: item.name,
+                method: item.method || null,
+                unitType: item.unitType || 'ITEM',
+                price: item.price,
+                quantity: item.quantity,
+                totalPrice: item.price * item.quantity,
+            }));
+
+            const res = await fetch(`${API_BASE}/orders/pos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    customer: customerDetails,
+                    items: orderItems,
+                    paymentMethod: 'cash',
+                    amountGiven: paid,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || 'Failed to create order');
+            }
+
+            // Order saved successfully
+            const orderData = {
+                orderNumber: data.orderNumber,
+                customer: customerDetails,
+                items: cart,
+                totalAmount: total,
+                amountGiven: paid,
+                balance: paid - total,
+                date: new Date().toLocaleString(),
+            };
+
+            setFinalOrderData(orderData);
+            setIsPaymentModalOpen(false);
+            setIsReceiptOpen(true);
+
+        } catch (error) {
+            setSubmitError(error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleCloseReceipt = () => {
@@ -195,6 +261,7 @@ const PointOfSale = () => {
         setCustomerDetails({ firstName: '', lastName: '', email: '', phone: '' });
         setAmountGiven('');
         setFinalOrderData(null);
+        setSubmitError('');
     };
 
     const handlePrintReceipt = () => {
@@ -214,12 +281,22 @@ const PointOfSale = () => {
                         <Search size={18} />
                         <input
                             type="text"
-                            placeholder="Search items..."
+                            placeholder="Search items... (e.g. T-shirt, Saree, Trouser)"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
+                        {searchTerm && (
+                            <button className="pos-search-clear" onClick={() => setSearchTerm('')}>&times;</button>
+                        )}
                     </div>
                 </div>
+
+                {fetchError && (
+                    <div className="pos-fetch-error">
+                        <span>{fetchError}</span>
+                        <button onClick={fetchServices}>Retry</button>
+                    </div>
+                )}
 
                 <div className="category-tabs-container">
                     {categories.map((category) => (
@@ -234,19 +311,33 @@ const PointOfSale = () => {
                 </div>
 
                 <div className="pos-items-grid">
-                    {filteredItems.map((item) => (
-                        <div key={item.id} className="pos-item-card" onClick={() => handleItemClick(item)}>
-                            <div className="pos-item-info">
-                                <div className="pos-item-details">
-                                    <div className="pos-item-name">{item.name}</div>
-                                    <div className="pos-item-price">LKR {item.price.toFixed(2)}</div>
-                                </div>
-                                <button className="pos-btn-add">
-                                    <Plus size={16} />
-                                </button>
+                    {loadingServices ? (
+                        <div className="pos-item-card" style={{ gridColumn: '1 / -1' }}>
+                            <div className="pos-item-info" style={{ justifyContent: 'center' }}>
+                                <div className="pos-item-name">Loading services...</div>
                             </div>
                         </div>
-                    ))}
+                    ) : uniqueItems.length === 0 ? (
+                        <div className="pos-item-card" style={{ gridColumn: '1 / -1' }}>
+                            <div className="pos-item-info" style={{ justifyContent: 'center' }}>
+                                <div className="pos-item-name">No services found.</div>
+                            </div>
+                        </div>
+                    ) : (
+                        uniqueItems.map((item) => (
+                            <div key={item.id} className="pos-item-card" onClick={() => handleItemClick(item)}>
+                                <div className="pos-item-info">
+                                    <div className="pos-item-details">
+                                        <div className="pos-item-name">{item.name}</div>
+                                        <div className="pos-item-price">LKR {item.price.toFixed(2)}</div>
+                                    </div>
+                                    <button className="pos-btn-add">
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 
@@ -350,6 +441,7 @@ const PointOfSale = () => {
             {showModal && selectedItem && (
                 <CustomizeModal
                     item={selectedItem}
+                    allServices={pricingItems}
                     onClose={handleCloseModal}
                     onAddToBasket={handleAddToBasket}
                 />
@@ -361,7 +453,7 @@ const PointOfSale = () => {
                     <div className="payment-modal">
                         <h2>Payment Details</h2>
                         <div className="input-group">
-                            <label>Total Amount: <strong>LKR {calculateTotal()}</strong></label>
+                            <label>Total Amount: <strong>LKR {calculateTotal().toFixed(2)}</strong></label>
                         </div>
                         <div className="input-group">
                             <label>Amount Given (LKR)</label>
@@ -371,6 +463,7 @@ const PointOfSale = () => {
                                 onChange={(e) => setAmountGiven(e.target.value)}
                                 placeholder="Enter amount..."
                                 autoFocus
+                                disabled={isSubmitting}
                             />
                         </div>
                         {amountGiven && (
@@ -378,9 +471,17 @@ const PointOfSale = () => {
                                 <label>Balance: <strong>LKR {(parseFloat(amountGiven) - calculateTotal()).toFixed(2)}</strong></label>
                             </div>
                         )}
+                        {submitError && (
+                            <div className="pos-error-msg">
+                                <AlertCircle size={16} />
+                                <span>{submitError}</span>
+                            </div>
+                        )}
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                            <button className="btn btn-secondary" onClick={() => setIsPaymentModalOpen(false)} style={{ flex: 1 }}>Cancel</button>
-                            <button className="btn btn-primary" onClick={handleConfirmPayment} style={{ flex: 1 }}>Generate Receipt</button>
+                            <button className="btn btn-secondary" onClick={() => { setIsPaymentModalOpen(false); setSubmitError(''); }} style={{ flex: 1 }} disabled={isSubmitting}>Cancel</button>
+                            <button className="btn btn-primary" onClick={handleConfirmPayment} style={{ flex: 1 }} disabled={isSubmitting}>
+                                {isSubmitting ? <><Loader size={16} className="spin" /> Saving...</> : 'Confirm & Generate Receipt'}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -400,15 +501,19 @@ const PointOfSale = () => {
                                 <p>478/A, Pannipitiya Rd, Pelawatta</p>
                                 <p>Tel: +94 11 452 8476</p>
                                 <br />
+                                {finalOrderData.orderNumber && (
+                                    <p style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Order #: {finalOrderData.orderNumber}</p>
+                                )}
                                 <p>{finalOrderData.date}</p>
                                 <p>Customer: {finalOrderData.customer.firstName} {finalOrderData.customer.lastName}</p>
+                                <p>Phone: {finalOrderData.customer.phone}</p>
                             </div>
 
                             <div className="receipt-items">
                                 {finalOrderData.items.map((item, idx) => (
                                     <div className="receipt-item" key={idx}>
-                                        <span>{item.name} (x{item.quantity})</span>
-                                        <span>{item.price * item.quantity}</span>
+                                        <span>{item.name} {item.method ? `(${item.method})` : ''} x{item.quantity}</span>
+                                        <span>LKR {(item.price * item.quantity).toFixed(2)}</span>
                                     </div>
                                 ))}
                             </div>
@@ -427,7 +532,8 @@ const PointOfSale = () => {
                             </div>
 
                             <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                                <p>Thank You!</p>
+                                <CheckCircle size={24} style={{ color: '#38a169', marginBottom: '0.5rem' }} />
+                                <p>Payment Received - Thank You!</p>
                                 <p>Please come again.</p>
                             </div>
                         </div>
@@ -435,6 +541,9 @@ const PointOfSale = () => {
                         <div className="receipt-actions">
                             <button className="btn btn-primary" onClick={handlePrintReceipt} style={{ width: '100%' }}>
                                 <Printer size={18} style={{ marginRight: '8px' }} /> Print Receipt
+                            </button>
+                            <button className="btn btn-secondary" onClick={handleCloseReceipt} style={{ width: '100%', marginTop: '0.5rem' }}>
+                                New Order
                             </button>
                         </div>
                     </div>

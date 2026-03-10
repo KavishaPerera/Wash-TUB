@@ -143,6 +143,29 @@ const User = {
     `;
     const [result] = await db.execute(sql, [firstName, lastName, phone || null, address || null, role, isActive, id]);
     return result;
+  },
+
+  // Find existing customer by email or create a walk-in customer record
+  async findOrCreateWalkIn({ firstName, lastName, email, phone }) {
+    // Check if user with this email already exists
+    const existing = await this.findByEmail(email);
+    if (existing) {
+      return existing.id;
+    }
+
+    // Create a new customer record with a random password (walk-in)
+    const crypto = require('crypto');
+    const randomPassword = crypto.randomBytes(16).toString('hex');
+    const result = await this.create({
+      firstName,
+      lastName,
+      email,
+      password: randomPassword,
+      phone: phone || null,
+      role: 'customer',
+    });
+
+    return result.insertId;
   }
 };
 

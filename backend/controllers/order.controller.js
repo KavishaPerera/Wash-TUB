@@ -1,4 +1,5 @@
 const Order = require('../models/order.model');
+const User = require('../models/user.model');
 
 const orderController = {
   // ---------------------------------------------------------------
@@ -187,6 +188,74 @@ const orderController = {
     } catch (error) {
       console.error('Get order stats error:', error);
       res.status(500).json({ message: 'Failed to fetch stats.' });
+    }
+  },
+
+  // ---------------------------------------------------------------
+  // POST /api/orders/pos  –  Staff creates walk-in POS order
+  // ---------------------------------------------------------------
+  async createPosOrder(req, res) {
+    try {
+      const { customer, items, paymentMethod, amountGiven } = req.body;
+
+      if (!items || items.length === 0) {
+        return res.status(400).json({ message: 'Order must contain at least one item.' });
+      }
+
+      if (!customer || !customer.firstName || !customer.lastName || !customer.phone || !customer.email) {
+        return res.status(400).json({ message: 'Customer first name, last name, email, and phone are required.' });
+      }
+
+      // Find or create walk-in customer
+      const customerId = await User.findOrCreateWalkIn({
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        email: customer.email,
+        phone: customer.phone,
+      });
+
+      // Calculate totals on server side
+      const subtotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+      const total = subtotal;
+
+      const orderData = {
+        deliveryOption: 'pickup',
+        fullName: `${customer.firstName} ${customer.lastName}`,
+        phone: customer.phone,
+        address: null,
+        city: null,
+        postalCode: null,
+        pickupDate: null,
+        pickupTime: null,
+        specialInstructions: 'POS Walk-in Order',
+        paymentMethod: paymentMethod || 'cash',
+        subtotal,
+        deliveryFee: 0,
+        discount: 0,
+        total,
+      };
+
+      const { orderId, orderNumber } = await Order.create(customerId, orderData, items);
+
+      // POS cash payments are paid immediately
+      await Order.updatePaymentStatus(orderId, 'paid');
+      await Order.updateStatus(orderId, 'processing');
+
+      res.status(201).json({
+        message: 'POS order created successfully!',
+        orderId,
+        orderNumber,
+        total,
+        customer: {
+          firstName: customer.firstName,
+          lastName: customer.lastName,
+          email: customer.email,
+          phone: customer.phone,
+        },
+      });
+    } catch (error) {
+      console.error('Create POS order error:', error);
+      res.status(500).json({ message: 'Failed to create POS order.' });
     }
   },
 };

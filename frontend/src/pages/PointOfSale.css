@@ -541,3 +541,64 @@
         box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
     }
 }
+
+/* Spinner animation */
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Error message inside payment modal */
+.pos-error-msg {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    border-radius: 6px;
+    color: #c53030;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+/* Search clear button */
+.pos-search-clear {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #a0aec0;
+    cursor: pointer;
+    padding: 0 0.25rem;
+    line-height: 1;
+}
+
+.pos-search-clear:hover {
+    color: #4a5568;
+}
+
+/* Fetch error banner */
+.pos-fetch-error {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pos-fetch-error button {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}

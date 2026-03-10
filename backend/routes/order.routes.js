@@ -7,6 +7,9 @@ const { verifyToken, isOwner, isStaff, isDelivery } = require('../middleware/aut
 router.post('/', verifyToken, orderController.createOrder);
 router.get('/my-orders', verifyToken, orderController.getMyOrders);
 
+// POS route (staff/owner only) — must be before /:id
+router.post('/pos', verifyToken, isStaff, orderController.createPosOrder);
+
 // Stats (owner only) — must be before /:id to avoid "stats" being parsed as an id
 router.get('/stats/summary', verifyToken, isOwner, orderController.getStats);
 
