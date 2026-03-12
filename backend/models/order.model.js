@@ -331,6 +331,33 @@ const Order = {
   },
 
   // ---------------------------------------------------------------
+  // Get completed history for delivery personnel
+  //   - pickup & delivery orders: status = 'delivered'
+  //   - pickup-only orders: status IN ('out_for_processing', 'delivered')
+  // ---------------------------------------------------------------
+  async getDeliveryHistory() {
+    const [orders] = await db.execute(
+      `SELECT o.*, u.first_name, u.last_name, u.phone as customer_phone
+       FROM orders o
+       JOIN users u ON o.customer_id = u.id
+       WHERE (
+         (o.delivery_option = 'delivery' AND o.status = 'delivered')
+         OR
+         (o.delivery_option = 'pickup'  AND o.status IN ('out_for_processing','delivered'))
+       )
+         AND (o.special_instructions IS NULL OR o.special_instructions != 'POS Walk-in Order')
+       ORDER BY o.updated_at DESC`
+    );
+    for (const order of orders) {
+      const [items] = await db.execute(
+        `SELECT * FROM order_items WHERE order_id = ?`, [order.id]
+      );
+      order.items = items;
+    }
+    return orders;
+  },
+
+  // ---------------------------------------------------------------
   // Get orders relevant to delivery personnel
   // ---------------------------------------------------------------
   async getDeliveryOrders() {

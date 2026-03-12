@@ -14,7 +14,8 @@ router.post('/pos', verifyToken, isStaff, orderController.createPosOrder);
 router.get('/stats/summary', verifyToken, isOwner, orderController.getStats);
 
 // Delivery personnel — must be before /:id
-router.get('/delivery-orders', verifyToken, isDelivery, orderController.getDeliveryOrders);
+router.get('/delivery-orders',  verifyToken, isDelivery, orderController.getDeliveryOrders);
+router.get('/delivery-history', verifyToken, isDelivery, orderController.getDeliveryHistory);
 
 // Single order (customer sees own, staff/owner see any)
 router.get('/:id', verifyToken, orderController.getOrderById);

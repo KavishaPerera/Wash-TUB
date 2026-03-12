@@ -1,95 +1,211 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DeliverySidebar from '../components/DeliverySidebar';
-import { MapPin, Clock, CheckCircle, Calendar } from 'lucide-react';
-import './DeliveryDashboard.css'; // Reusing the dashboard styles
+import { MapPin, Clock, CheckCircle, Calendar, Package, Phone, Truck, RefreshCw } from 'lucide-react';
+import './DeliveryDashboard.css';
+import './ActiveDeliveries.css';
+
+const API = 'http://localhost:5000/api';
+
+const STATUS_LABELS = {
+    pending:            'New Order',
+    confirmed:          'Confirmed',
+    pickup_scheduled:   'Pickup Scheduled',
+    picked_up:          'Picked Up',
+    out_for_processing: 'Out for Processing',
+    processing:         'In Process',
+    ready:              'Ready for Delivery',
+    out_for_delivery:   'Out for Delivery',
+    delivery_scheduled: 'Delivery Scheduled',
+    delivered:          'Delivered',
+    cancelled:          'Cancelled',
+};
+
+const statusColor = (status) => {
+    const map = {
+        out_for_processing: '#8b5cf6',
+        delivered:          '#10b981',
+        cancelled:          '#ef4444',
+    };
+    return map[status] || '#10b981';
+};
+
+const fmtDate = (dateStr) => {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const fmtTime = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+};
 
 const DeliveryHistory = () => {
-    // Mock Data for completed deliveries
-    const [history] = useState([
-        { id: 'ORD-1238', name: 'Bandu Perera', address: '789 Temple Ln', status: 'Completed', date: 'Oct 24, 2023', time: '09:15 AM' },
-        { id: 'ORD-1235', name: 'Nilantha Pieris', address: '321 Galle Road', status: 'Completed', date: 'Oct 23, 2023', time: '04:30 PM' },
-        { id: 'ORD-1230', name: 'Saman Kumara', address: '12 Kandy Road', status: 'Completed', date: 'Oct 22, 2023', time: '11:00 AM' },
-        { id: 'ORD-1225', name: 'Nimali Silva', address: '45 Beach Road', status: 'Completed', date: 'Oct 21, 2023', time: '02:15 PM' },
-    ]);
+    const [history, setHistory] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError]     = useState('');
+    const [activeTab, setActiveTab] = useState('delivery');
+
+    const token = localStorage.getItem('token');
+
+    const fetchHistory = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const res = await fetch(`${API}/orders/delivery-history`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error('Failed to load history');
+            const data = await res.json();
+            setHistory(data);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => { fetchHistory(); }, []);
+
+    // Split by tab
+    const deliveryHistory = history.filter(o => o.delivery_option === 'delivery');
+    const pickupHistory   = history.filter(o => o.delivery_option === 'pickup');
+    const filtered = activeTab === 'delivery' ? deliveryHistory : pickupHistory;
 
     return (
         <div className="dashboard">
-            {/* Sidebar */}
             <DeliverySidebar activePage="history" />
 
-            {/* Main Content */}
             <main className="dashboard-main">
                 <header className="dashboard-header">
                     <div className="header-content">
                         <h1>Delivery History</h1>
-                        <p>View your past completed tasks and earnings</p>
+                        <p>Past completed tasks</p>
                     </div>
+                    <button className="btn-primary" onClick={fetchHistory} disabled={loading}>
+                        <RefreshCw size={16} style={{ marginRight: '0.5rem' }} />
+                        Refresh
+                    </button>
                 </header>
 
-                <section className="orders-section" style={{ marginTop: '2rem' }}>
-                    <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-                        {/* Table Header */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 1.5fr 130px', gap: '1rem', padding: '0.75rem 1.25rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: '0.8rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            <span>Order ID</span>
-                            <span>Customer</span>
-                            <span>Address</span>
-                            <span>Date &amp; Time</span>
-                        </div>
+                {/* Tabs */}
+                <div className="ad-tabs">
+                    <button
+                        className={`ad-tab ${activeTab === 'delivery' ? 'ad-tab-active' : ''}`}
+                        onClick={() => setActiveTab('delivery')}
+                    >
+                        <Truck size={16} />
+                        Pickup &amp; Delivery
+                        <span className="ad-tab-badge">{deliveryHistory.length}</span>
+                    </button>
+                    <button
+                        className={`ad-tab ${activeTab === 'pickup' ? 'ad-tab-active' : ''}`}
+                        onClick={() => setActiveTab('pickup')}
+                    >
+                        <Package size={16} />
+                        Pickup Only
+                        <span className="ad-tab-badge">{pickupHistory.length}</span>
+                    </button>
+                </div>
 
-                        {/* Rows */}
-                        {history.map((item, index) => (
-                            <div
-                                key={item.id}
-                                style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: '120px 1fr 1.5fr 130px',
-                                    gap: '1rem',
-                                    padding: '0.85rem 1.25rem',
-                                    alignItems: 'center',
-                                    borderBottom: index < history.length - 1 ? '1px solid #f1f5f9' : 'none',
-                                    transition: 'background 0.15s',
-                                }}
-                                onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                                onMouseLeave={e => e.currentTarget.style.background = 'white'}
-                            >
-                                {/* Order ID */}
-                                <span style={{ fontWeight: '600', color: '#0f172a', fontSize: '0.88rem' }}>{item.id}</span>
-
-                                {/* Customer */}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <CheckCircle size={14} color="#10b981" />
-                                    <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: '500' }}>{item.name}</span>
+                {/* Content */}
+                {loading ? (
+                    <div className="ad-center">
+                        <div className="ad-spinner" />
+                        <p>Loading history...</p>
+                    </div>
+                ) : error ? (
+                    <div className="ad-center ad-error">
+                        <p>{error}</p>
+                        <button className="btn-primary" onClick={fetchHistory}>Retry</button>
+                    </div>
+                ) : filtered.length === 0 ? (
+                    <div className="ad-center">
+                        <CheckCircle size={56} color="#cbd5e1" />
+                        <h3>No History Yet</h3>
+                        <p style={{ color: '#64748b' }}>
+                            {activeTab === 'delivery'
+                                ? 'Completed pickup & delivery orders will appear here.'
+                                : 'Pickup only orders dropped at laundry will appear here.'}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="delivery-grid">
+                        {filtered.map(order => (
+                            <div key={order.id} className="delivery-card ad-card">
+                                {/* Card Header */}
+                                <div className="delivery-header">
+                                    <span className="delivery-id">{order.order_number}</span>
+                                    <span
+                                        className="delivery-status"
+                                        style={{
+                                            background: statusColor(order.status) + '20',
+                                            color: statusColor(order.status),
+                                        }}
+                                    >
+                                        {STATUS_LABELS[order.status] || order.status}
+                                    </span>
                                 </div>
 
-                                {/* Address */}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.85rem' }}>
-                                    <MapPin size={13} />
-                                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.address}</span>
+                                {/* Customer Info */}
+                                <div className="customer-details">
+                                    <h3>{order.first_name} {order.last_name}</h3>
+                                    {order.address && (
+                                        <p><MapPin size={13} /> {order.address}{order.city ? `, ${order.city}` : ''}</p>
+                                    )}
+                                    {(order.customer_phone || order.phone) && (
+                                        <p style={{ marginTop: '0.3rem' }}>
+                                            <Phone size={13} /> {order.customer_phone || order.phone}
+                                        </p>
+                                    )}
+                                    <p style={{ marginTop: '0.3rem' }}>
+                                        <Package size={13} /> {order.items?.length || 0} item(s)
+                                        {order.items?.length > 0 && (
+                                            <span style={{ color: '#94a3b8', marginLeft: '0.4rem', fontSize: '0.82rem' }}>
+                                                — {order.items.map(i => `${i.item_name}${i.quantity > 1 ? ` x${i.quantity}` : ''}`).join(', ')}
+                                            </span>
+                                        )}
+                                    </p>
                                 </div>
 
-                                {/* Date & Time */}
-                                <div style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.4' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                        <Calendar size={12} /> {item.date}
+                                {/* Type badge */}
+                                <div>
+                                    <span className={`delivery-type type-${order.delivery_option}`}>
+                                        {order.delivery_option === 'delivery' ? 'Pickup & Delivery' : 'Pickup Only'}
+                                    </span>
+                                </div>
+
+                                {/* Pickup date & completed time */}
+                                <div style={{ marginTop: '0.5rem', fontSize: '0.82rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                    {order.pickup_date && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                            <Calendar size={12} />
+                                            Pickup: {fmtDate(order.pickup_date)}
+                                            {order.pickup_time && ` · ${order.pickup_time}`}
+                                        </div>
+                                    )}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                        <Clock size={12} />
+                                        Completed: {fmtDate(order.updated_at)} · {fmtTime(order.updated_at)}
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '2px' }}>
-                                        <Clock size={12} /> {item.time}
+                                </div>
+
+                                {/* Done badge */}
+                                <div className="card-actions" style={{ marginTop: '0.75rem' }}>
+                                    <div className="ad-done-badge">
+                                        <CheckCircle size={16} />
+                                        {STATUS_LABELS[order.status]}
                                     </div>
                                 </div>
                             </div>
                         ))}
-
-                        {history.length === 0 && (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
-                                <CheckCircle size={40} color="#cbd5e1" style={{ marginBottom: '0.75rem' }} />
-                                <p>No delivery history found.</p>
-                            </div>
-                        )}
                     </div>
-                </section>
+                )}
             </main>
         </div>
     );
 };
 
 export default DeliveryHistory;
+

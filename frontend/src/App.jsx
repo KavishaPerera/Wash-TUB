@@ -11,6 +11,7 @@ import StaffDashboard from './pages/StaffDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import DeliveryDashboard from './pages/DeliveryDashboard';
 import ActiveDeliveries from './pages/ActiveDeliveries';
+import DeliveryHistory from './pages/DeliveryHistory';
 import DeliveryProfile from './pages/DeliveryProfile';
 import StaffAllTasks from './pages/StaffAllTasks';
 import StaffProfile from './pages/StaffProfile';
@@ -57,6 +58,7 @@ function App() {
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/delivery-dashboard" element={<DeliveryDashboard />} />
               <Route path="/active-deliveries" element={<ActiveDeliveries />} />
+              <Route path="/delivery-history" element={<DeliveryHistory />} />
               <Route path="/delivery-profile" element={<DeliveryProfile />} />
               <Route path="/staff/tasks" element={<StaffAllTasks />} />
               <Route path="/staff/pos" element={<PointOfSale />} />

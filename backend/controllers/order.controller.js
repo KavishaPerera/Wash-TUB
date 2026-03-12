@@ -160,6 +160,19 @@ const orderController = {
   },
 
   // ---------------------------------------------------------------
+  // GET /api/orders/delivery-history  –  Completed history for delivery personnel
+  // ---------------------------------------------------------------
+  async getDeliveryHistory(req, res) {
+    try {
+      const orders = await Order.getDeliveryHistory();
+      res.json(orders);
+    } catch (error) {
+      console.error('Get delivery history error:', error);
+      res.status(500).json({ message: 'Failed to fetch delivery history.' });
+    }
+  },
+
+  // ---------------------------------------------------------------
   // GET /api/orders/delivery-orders  –  Orders for delivery personnel
   // ---------------------------------------------------------------
   async getDeliveryOrders(req, res) {
