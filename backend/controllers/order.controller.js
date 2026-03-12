@@ -202,8 +202,8 @@ const orderController = {
         return res.status(400).json({ message: 'Order must contain at least one item.' });
       }
 
-      if (!customer || !customer.firstName || !customer.lastName || !customer.phone || !customer.email) {
-        return res.status(400).json({ message: 'Customer first name, last name, email, and phone are required.' });
+      if (!customer || !customer.firstName || !customer.lastName || !customer.phone) {
+        return res.status(400).json({ message: 'Customer first name, last name, and phone are required.' });
       }
 
       // Find or create walk-in customer
@@ -249,7 +249,6 @@ const orderController = {
         customer: {
           firstName: customer.firstName,
           lastName: customer.lastName,
-          email: customer.email,
           phone: customer.phone,
         },
       });

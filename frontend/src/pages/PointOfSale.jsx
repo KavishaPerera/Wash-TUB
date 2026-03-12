@@ -16,7 +16,6 @@ const PointOfSale = () => {
     const [customerDetails, setCustomerDetails] = useState({
         firstName: '',
         lastName: '',
-        email: '',
         phone: ''
     });
     const [searchTerm, setSearchTerm] = useState('');
@@ -180,8 +179,8 @@ const PointOfSale = () => {
             alert('Cart is empty!');
             return;
         }
-        if (!customerDetails.firstName || !customerDetails.lastName || !customerDetails.phone || !customerDetails.email) {
-            alert('Please enter all customer details (First Name, Last Name, Email, Phone).');
+        if (!customerDetails.firstName || !customerDetails.lastName || !customerDetails.phone) {
+            alert('Please enter all customer details (First Name, Last Name, Phone).');
             return;
         }
 
@@ -258,7 +257,7 @@ const PointOfSale = () => {
     const handleCloseReceipt = () => {
         setIsReceiptOpen(false);
         setCart([]);
-        setCustomerDetails({ firstName: '', lastName: '', email: '', phone: '' });
+        setCustomerDetails({ firstName: '', lastName: '', phone: '' });
         setAmountGiven('');
         setFinalOrderData(null);
         setSubmitError('');
@@ -369,14 +368,6 @@ const PointOfSale = () => {
                                 onChange={(e) => setCustomerDetails({ ...customerDetails, lastName: e.target.value })}
                             />
                         </div>
-                    </div>
-                    <div className="input-group">
-                        <input
-                            type="email"
-                            placeholder="Email Address"
-                            value={customerDetails.email}
-                            onChange={(e) => setCustomerDetails({ ...customerDetails, email: e.target.value })}
-                        />
                     </div>
                     <div className="input-group">
                         <input

@@ -147,10 +147,32 @@ const User = {
 
   // Find existing customer by email or create a walk-in customer record
   async findOrCreateWalkIn({ firstName, lastName, email, phone }) {
-    // Check if user with this email already exists
-    const existing = await this.findByEmail(email);
-    if (existing) {
-      return existing.id;
+    // If email is provided, look up by email
+    if (email) {
+      const existing = await this.findByEmail(email);
+      if (existing) {
+        return existing.id;
+      }
+    }
+
+    // If no email, look up by phone number
+    if (!email && phone) {
+      const [rows] = await db.execute(
+        'SELECT id FROM users WHERE phone = ? LIMIT 1',
+        [phone]
+      );
+      if (rows.length > 0) {
+        return rows[0].id;
+      }
+    }
+
+    // Generate a placeholder email if none provided
+    const walkinEmail = email || `walkin_${phone.replace(/\D/g, '')}@pos.local`;
+
+    // Check if placeholder email already exists
+    const existingByEmail = await this.findByEmail(walkinEmail);
+    if (existingByEmail) {
+      return existingByEmail.id;
     }
 
     // Create a new customer record with a random password (walk-in)
@@ -159,7 +181,7 @@ const User = {
     const result = await this.create({
       firstName,
       lastName,
-      email,
+      email: walkinEmail,
       password: randomPassword,
       phone: phone || null,
       role: 'customer',

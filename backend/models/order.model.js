@@ -346,6 +346,7 @@ const Order = {
        FROM orders o
        JOIN users u ON o.customer_id = u.id
        WHERE o.status IN (${placeholders})
+         AND (o.special_instructions IS NULL OR o.special_instructions != 'POS Walk-in Order')
        ORDER BY o.created_at DESC`,
       deliveryStatuses
     );
