@@ -530,10 +530,10 @@ const PointOfSale = () => {
                         </div>
 
                         <div className="receipt-actions">
-                            <button className="btn btn-primary" onClick={handlePrintReceipt} style={{ width: '100%' }}>
-                                <Printer size={18} style={{ marginRight: '8px' }} /> Print Receipt
+                            <button className="btn btn-primary" onClick={handlePrintReceipt} style={{ padding: '6px 14px', fontSize: '0.8rem' }}>
+                                <Printer size={14} style={{ marginRight: '5px' }} /> Print Receipt
                             </button>
-                            <button className="btn btn-secondary" onClick={handleCloseReceipt} style={{ width: '100%', marginTop: '0.5rem' }}>
+                            <button className="btn btn-secondary" onClick={handleCloseReceipt} style={{ padding: '6px 14px', fontSize: '0.8rem' }}>
                                 New Order
                             </button>
                         </div>
