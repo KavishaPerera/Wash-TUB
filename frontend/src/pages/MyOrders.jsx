@@ -5,7 +5,7 @@ import './CustomerDashboard.css';
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const STATUS_LABEL = {
-    pending: 'Pending',
+    pending: 'Order Placed',
     confirmed: 'Confirmed',
     pickup_scheduled: 'Pickup Scheduled',
     picked_up: 'Picked Up',

@@ -6,7 +6,7 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Friendly label mapping for backend status values
 const STATUS_LABEL = {
-    pending: 'Pending',
+    pending: 'Order Placed',
     confirmed: 'Confirmed',
     pickup_scheduled: 'Pickup Scheduled',
     picked_up: 'Picked Up',
