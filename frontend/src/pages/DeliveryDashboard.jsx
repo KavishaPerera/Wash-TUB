@@ -70,6 +70,7 @@ const STATUS_LABELS = {
     out_for_processing: 'Out for Processing',
     processing:         'In Process',
     ready:              'Ready',
+    finished:           'Finished',
     out_for_delivery:   'Out for Delivery',
     delivery_scheduled: 'Delivery Scheduled',
     delivered:          'Delivered',
@@ -85,6 +86,7 @@ const statusColor = (status) => {
         out_for_processing: '#8b5cf6',
         processing:         '#6366f1',
         ready:              '#14b8a6',
+        finished:           '#22c55e',
         out_for_delivery:   '#0ea5e9',
         delivery_scheduled: '#06b6d4',
         delivered:          '#10b981',
@@ -133,7 +135,7 @@ const DeliveryDashboard = () => {
         ['pending', 'confirmed', 'pickup_scheduled'].includes(o.status)
     ).length;
     const inProgressCount = orders.filter(o =>
-        ['picked_up', 'out_for_processing', 'processing', 'ready', 'out_for_delivery', 'delivery_scheduled'].includes(o.status)
+        ['picked_up', 'out_for_processing', 'processing', 'ready', 'finished', 'out_for_delivery', 'delivery_scheduled'].includes(o.status)
     ).length;
 
     // Sort then show top 6 on overview

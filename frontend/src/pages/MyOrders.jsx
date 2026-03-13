@@ -9,9 +9,12 @@ const STATUS_LABEL = {
     confirmed: 'Confirmed',
     pickup_scheduled: 'Pickup Scheduled',
     picked_up: 'Picked Up',
+    out_for_processing: 'Out for Processing',
     processing: 'Processing',
     ready: 'Ready',
+    finished: 'Finished',
     out_for_delivery: 'Out for Delivery',
+    delivery_scheduled: 'Delivery Scheduled',
     delivered: 'Delivered',
     cancelled: 'Cancelled',
 };
@@ -19,7 +22,7 @@ const STATUS_LABEL = {
 // Map backend statuses to filter tabs
 const FILTER_MAP = {
     all: null,
-    active: ['pending', 'confirmed', 'pickup_scheduled', 'picked_up', 'processing', 'ready', 'out_for_delivery'],
+    active: ['pending', 'confirmed', 'pickup_scheduled', 'picked_up', 'out_for_processing', 'processing', 'ready', 'completed', 'out_for_delivery', 'delivery_scheduled'],
     delivered: ['delivered'],
     cancelled: ['cancelled'],
 };

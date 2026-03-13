@@ -1,11 +1,11 @@
-﻿import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Edit, RefreshCw, ClipboardList, Clock, CheckCircle, Check, User, X } from 'lucide-react';
 import StaffSidebar from '../components/StaffSidebar';
 import { useStaffOrders } from '../context/StaffOrdersContext';
 import { useState, useEffect } from 'react';
 import './StaffDashboard.css';
 
-const workflowSteps = ['Pending', 'In Progress', 'Ready', 'Completed'];
+const workflowSteps = ['In Progress', 'Ready', 'Finished'];
 
 const StaffDashboard = () => {
     const navigate = useNavigate();
@@ -36,8 +36,8 @@ const StaffDashboard = () => {
             o.status.toLowerCase().includes(s)
         )
     ).length;
-    const completedToday = orders.filter(o => {
-        if (!['delivered', 'ready'].includes(o.status.toLowerCase())) return false;
+    const finishedToday = orders.filter(o => {
+        if (!['delivered', 'finished', 'ready'].some(s => o.status.toLowerCase().includes(s))) return false;
         const d = o._raw?.updated_at || o._raw?.created_at;
         if (!d) return false;
         return new Date(d).toDateString() === new Date().toDateString();
@@ -53,7 +53,7 @@ const StaffDashboard = () => {
     const stats = [
         { label: 'Total Orders',    value: totalOrders,     icon: <ClipboardList size={16} color="#6366f1" />, color: '#6366f1' },
         { label: 'In Progress',     value: inProgressCount, icon: <Clock size={16} color="#f59e0b" />,        color: '#f59e0b' },
-        { label: 'Completed Today', value: completedToday,  icon: <CheckCircle size={16} color="#10b981" />,  color: '#10b981' },
+        { label: 'Finished Today', value: finishedToday,  icon: <CheckCircle size={16} color="#10b981" />,  color: '#10b981' },
     ];
 
     return (

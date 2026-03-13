@@ -131,12 +131,14 @@ const LABEL_TO_ENUM = {
     'Confirmed': 'confirmed',
     'Pickup Scheduled': 'pickup_scheduled',
     'Picked Up': 'picked_up',
+    'Out For Processing': 'out_for_processing',
     'In Progress': 'processing',
     'Processing': 'processing',
     'Ready': 'ready',
+    'Finished': 'finished',
     'Out For Delivery': 'out_for_delivery',
+    'Delivery Scheduled': 'delivery_scheduled',
     'Delivered': 'delivered',
-    'Completed': 'delivered',   // stepper label alias
     'Cancelled': 'cancelled',
 };
 

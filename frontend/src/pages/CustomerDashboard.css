@@ -722,8 +722,9 @@
 .status-active,
 .status-completed,
 .status-success,
-.status-delivered {
-    background: rgba(52, 199, 89, 0.2);
+.status-delivered,
+.status-finished {
+    background: rgba(52, 199, 89, 0.15);
     color: #34c759;
 }
 

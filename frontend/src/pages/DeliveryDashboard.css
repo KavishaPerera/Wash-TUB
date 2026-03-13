@@ -274,9 +274,10 @@
     color: #0284c7;
 }
 
-.status-completed {
+.status-completed,
+.status-finished {
     background: #f0fdf4;
-    color: #16a34a;
+    color: #15803d;
 }
 
 .customer-details h3 {

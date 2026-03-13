@@ -29,7 +29,7 @@ const StaffUpdateOrder = () => {
 
     // Always derive selectedOrder from the shared context so it stays fresh
     const selectedOrder = orders.find(o => o.id === selectedOrderId);
-    const workflowSteps = ['Pending', 'In Progress', 'Ready', 'Completed'];
+    const workflowSteps = ['In Progress', 'Ready', 'Finished'];
 
     const handleStatusUpdate = (newStatus) => {
         if (!selectedOrderId) return;

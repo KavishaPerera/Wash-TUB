@@ -109,18 +109,90 @@ const orderController = {
 
   // ---------------------------------------------------------------
   // PATCH /api/orders/:id/status  –  Update order status
+  //
+  // Role-based transition rules:
+  //   Delivery person:
+  //     Pickup phase  → pickup_scheduled, picked_up, out_for_processing
+  //     Delivery phase (only for delivery_option='delivery' orders after
+  //     staff marks 'finished') → delivery_scheduled, delivered
+  //   Staff / Owner:
+  //     Processing phase → processing, ready, finished
+  //     Can also cancel orders
   // ---------------------------------------------------------------
   async updateOrderStatus(req, res) {
     try {
       const { status } = req.body;
       const validStatuses = [
         'pending', 'confirmed', 'pickup_scheduled', 'picked_up',
-        'out_for_processing', 'processing', 'ready',
+        'out_for_processing', 'processing', 'ready', 'finished',
         'out_for_delivery', 'delivery_scheduled', 'delivered', 'cancelled',
       ];
 
       if (!validStatuses.includes(status)) {
         return res.status(400).json({ message: 'Invalid status.' });
+      }
+
+      // Fetch the order to check current status & delivery option
+      const order = await Order.getById(req.params.id);
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found.' });
+      }
+
+      const role = req.userRole; // 'delivery', 'staff', 'owner'
+      const currentStatus = order.status;
+      const deliveryOption = order.delivery_option; // 'pickup' or 'delivery'
+
+      // ── Delivery person transition rules ─────────────────────────
+      if (role === 'delivery') {
+        // Allowed pickup-phase transitions
+        const deliveryPickupTransitions = {
+          'pending':            ['pickup_scheduled'],
+          'confirmed':          ['pickup_scheduled'],
+          'pickup_scheduled':   ['picked_up'],
+          'picked_up':          ['out_for_processing'],
+        };
+
+        // Allowed delivery-phase transitions (only for delivery orders after completed)
+        const deliveryDeliveryTransitions = {
+          'finished':           ['delivery_scheduled'],
+          'delivery_scheduled': ['delivered'],
+        };
+
+        const allowedFromPickup = deliveryPickupTransitions[currentStatus] || [];
+        const allowedFromDelivery = deliveryDeliveryTransitions[currentStatus] || [];
+
+        if (allowedFromPickup.includes(status)) {
+          // Valid pickup-phase transition — allowed for both pickup & delivery orders
+        } else if (allowedFromDelivery.includes(status)) {
+          // Delivery phase — only allowed for 'delivery' orders
+          if (deliveryOption !== 'delivery') {
+            return res.status(403).json({
+              message: 'Delivery-phase updates are only allowed for Pickup & Delivery orders.',
+            });
+          }
+        } else {
+          return res.status(403).json({
+            message: `Delivery personnel cannot change status from "${currentStatus}" to "${status}".`,
+          });
+        }
+      }
+
+      // ── Staff / Owner transition rules ───────────────────────────
+      if (role === 'staff' || role === 'owner') {
+        const staffTransitions = {
+          'out_for_processing': ['processing'],
+          'processing':         ['ready'],
+          'ready':              ['finished'],
+        };
+
+        const allowedStaff = staffTransitions[currentStatus] || [];
+
+        // Staff can also cancel orders from any status
+        if (status !== 'cancelled' && !allowedStaff.includes(status)) {
+          return res.status(403).json({
+            message: `Staff cannot change status from "${currentStatus}" to "${status}".`,
+          });
+        }
       }
 
       const updated = await Order.updateStatus(req.params.id, status);

@@ -318,9 +318,10 @@
     color: #007aff;
 }
 
-.status-completed {
-    background: rgba(52, 199, 89, 0.2);
-    color: #34c759;
+.status-completed,
+.status-finished {
+    background: #e8f5e9;
+    color: #2e7d32;
 }
 
 .status-delivered {

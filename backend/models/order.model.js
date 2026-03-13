@@ -10,7 +10,7 @@ const Order = {
         id INT AUTO_INCREMENT PRIMARY KEY,
         order_number VARCHAR(20) UNIQUE NOT NULL,
         customer_id INT NOT NULL,
-        status ENUM('pending','confirmed','pickup_scheduled','picked_up','out_for_processing','processing','ready','out_for_delivery','delivery_scheduled','delivered','cancelled') DEFAULT 'pending',
+        status ENUM('pending','confirmed','pickup_scheduled','picked_up','out_for_processing','processing','ready','completed','finished','out_for_delivery','delivery_scheduled','delivered','cancelled') DEFAULT 'pending',
         delivery_option ENUM('pickup','delivery') DEFAULT 'delivery',
         full_name VARCHAR(100) NOT NULL,
         phone VARCHAR(20) NOT NULL,
@@ -302,11 +302,12 @@ const Order = {
         ALTER TABLE orders
         MODIFY COLUMN status
         ENUM('pending','confirmed','pickup_scheduled','picked_up','out_for_processing',
-             'processing','ready','out_for_delivery','delivery_scheduled','delivered','cancelled')
+             'processing','ready','completed','finished','out_for_delivery','delivery_scheduled','delivered','cancelled')
         DEFAULT 'pending'
       `);
+      console.log('✅ Order status ENUM updated (includes finished)');
     } catch (err) {
-      // Ignore if column already has all values
+      console.error('⚠️ ALTER TABLE status ENUM error:', err.message);
     }
     try {
       await db.execute(`
@@ -343,7 +344,7 @@ const Order = {
        WHERE (
          (o.delivery_option = 'delivery' AND o.status = 'delivered')
          OR
-         (o.delivery_option = 'pickup'  AND o.status IN ('out_for_processing','delivered'))
+         (o.delivery_option = 'pickup'  AND o.status IN ('finished','delivered'))
        )
          AND (o.special_instructions IS NULL OR o.special_instructions != 'POS Walk-in Order')
        ORDER BY o.updated_at DESC`
@@ -361,6 +362,11 @@ const Order = {
   // Get orders relevant to delivery personnel
   // ---------------------------------------------------------------
   async getDeliveryOrders() {
+    // Delivery person sees:
+    //  - All orders from pending through out_for_processing (pickup phase)
+    //  - Staff-managed statuses (processing, ready) so delivery person can see progress
+    //  - 'finished' orders with delivery_option='delivery' (for scheduling delivery)
+    //  - delivery_scheduled orders (delivery phase)
     const deliveryStatuses = [
       'pending', 'confirmed',
       'pickup_scheduled', 'picked_up', 'out_for_processing',
@@ -372,7 +378,10 @@ const Order = {
       `SELECT o.*, u.first_name, u.last_name, u.phone as customer_phone
        FROM orders o
        JOIN users u ON o.customer_id = u.id
-       WHERE o.status IN (${placeholders})
+       WHERE (
+         o.status IN (${placeholders})
+         OR (o.status = 'finished' AND o.delivery_option = 'delivery')
+       )
          AND (o.special_instructions IS NULL OR o.special_instructions != 'POS Walk-in Order')
        ORDER BY o.created_at DESC`,
       deliveryStatuses

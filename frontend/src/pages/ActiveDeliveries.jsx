@@ -14,7 +14,8 @@ const STATUS_LABELS = {
     picked_up:          'Picked Up',
     out_for_processing: 'Out for Processing',
     processing:         'In Process',
-    ready:              'Ready for Delivery',
+    ready:              'Ready',
+    finished:           'Finished',
     out_for_delivery:   'Out for Delivery',
     delivery_scheduled: 'Delivery Scheduled',
     delivered:          'Delivered',
@@ -22,15 +23,16 @@ const STATUS_LABELS = {
 };
 
 // Next allowed statuses per order type for delivery person
+// Pickup phase: both order types
+// Delivery phase: only 'delivery' orders AFTER staff marks 'completed'
 const NEXT_STATUSES = {
     delivery: {
         pending:            ['pickup_scheduled'],
         confirmed:          ['pickup_scheduled'],
         pickup_scheduled:   ['picked_up'],
         picked_up:          ['out_for_processing'],
-        // 'out_for_processing' → 'ready' is done by staff, not delivery
-        ready:              ['out_for_delivery'],
-        out_for_delivery:   ['delivery_scheduled'],
+        // processing → ready → finished are done by staff
+        finished:           ['delivery_scheduled'],
         delivery_scheduled: ['delivered'],
     },
     pickup: {
@@ -38,7 +40,8 @@ const NEXT_STATUSES = {
         confirmed:          ['pickup_scheduled'],
         pickup_scheduled:   ['picked_up'],
         picked_up:          ['out_for_processing'],
-        out_for_processing: ['delivered'],
+        // After out_for_processing, staff handles until 'finished'
+        // Pickup-only orders end at 'finished' — no delivery phase
     },
 };
 
@@ -51,6 +54,7 @@ const statusColor = (status) => {
         out_for_processing: '#8b5cf6',
         processing:         '#6366f1',
         ready:              '#14b8a6',
+        finished:           '#22c55e',
         out_for_delivery:   '#0ea5e9',
         delivery_scheduled: '#06b6d4',
         delivered:          '#10b981',
@@ -238,8 +242,9 @@ const ActiveDeliveries = () => {
                                             </button>
                                         ) : (
                                             <span className="ad-no-action">
-                                                {order.status === 'processing' ? '🧺 Being processed by staff' :
-                                                 order.status === 'out_for_processing' ? '⏳ Dropped at laundry — awaiting processing' :
+                                                {order.status === 'out_for_processing' ? '⏳ Dropped at laundry — awaiting staff processing' :
+                                                 order.status === 'processing' ? '🧺 Being processed by staff' :
+                                                 order.status === 'ready' ? '✅ Ready — awaiting staff to mark finished' :
                                                  'Waiting...'}
                                             </span>
                                         )}

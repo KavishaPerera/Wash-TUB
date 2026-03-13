@@ -13,7 +13,8 @@ const STATUS_LABELS = {
     picked_up:          'Picked Up',
     out_for_processing: 'Out for Processing',
     processing:         'In Process',
-    ready:              'Ready for Delivery',
+    ready:              'Ready',
+    finished:           'Finished',
     out_for_delivery:   'Out for Delivery',
     delivery_scheduled: 'Delivery Scheduled',
     delivered:          'Delivered',
@@ -23,6 +24,7 @@ const STATUS_LABELS = {
 const statusColor = (status) => {
     const map = {
         out_for_processing: '#8b5cf6',
+        finished:           '#22c55e',
         delivered:          '#10b981',
         cancelled:          '#ef4444',
     };

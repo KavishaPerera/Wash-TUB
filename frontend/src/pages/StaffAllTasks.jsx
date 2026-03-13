@@ -14,19 +14,21 @@ const statusClass = (status) => {
         'Confirmed': 'confirmed',
         'Pickup Scheduled': 'pickup-scheduled',
         'Picked Up': 'picked-up',
+        'Out For Processing': 'out-for-processing',
         'In Progress': 'in-progress',
         'Processing': 'in-progress',
         'Ready': 'ready',
+        'Finished': 'completed',
         'Out For Delivery': 'out-for-delivery',
-        'Delivered': 'completed',
-        'Completed': 'completed',
+        'Delivery Scheduled': 'delivery-scheduled',
+        'Delivered': 'delivered',
         'Cancelled': 'cancelled',
     };
     return map[status] ?? 'pending';
 };
 
 // Filters shown in the filter bar — "All" + key statuses
-const FILTERS = ['All', 'Pending', 'Confirmed', 'In Progress', 'Ready', 'Delivered', 'Cancelled'];
+const FILTERS = ['All', 'Pending', 'Confirmed', 'In Progress', 'Ready', 'Finished', 'Delivered', 'Cancelled'];
 
 const StaffAllTasks = () => {
     const navigate = useNavigate();

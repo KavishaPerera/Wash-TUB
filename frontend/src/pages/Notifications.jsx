@@ -28,9 +28,9 @@ const Notifications = () => {
         },
         {
             id: 3,
-            type: 'completed',
+            type: 'finished',
             orderId: 'ORD-1233',
-            title: 'Order Completed',
+            title: 'Order Finished',
             message: 'Your laundry has been cleaned and is ready for delivery!',
             time: '5 hours ago',
             read: true,
@@ -114,7 +114,7 @@ const Notifications = () => {
         const typeClasses = {
             received: 'notif-received',
             processing: 'notif-processing',
-            completed: 'notif-completed',
+            finished: 'notif-completed',
             delivered: 'notif-delivered'
         };
         return typeClasses[type] || '';
@@ -239,7 +239,7 @@ const Notifications = () => {
                         </div>
                         <div className="legend-item">
                             <span className="legend-icon">✅</span>
-                            <span>Completed</span>
+                            <span>Finished</span>
                         </div>
                         <div className="legend-item">
                             <span className="legend-icon">🚚</span>
