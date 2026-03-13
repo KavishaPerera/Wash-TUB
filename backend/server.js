@@ -27,7 +27,7 @@ db.getConnection()
     connection.release();
     // Auto-create order tables
     await Order.createTables();
-    await Order.alterTables();
+    // await Order.alterTables();
     console.log('✅ Order tables ready');
   })
   .catch((err) => {
