@@ -8,14 +8,23 @@ const SystemSettings = () => {
     const [activeTab, setActiveTab] = useState('business');
 
     // Business Info State
-    const [businessInfo, setBusinessInfo] = useState({
+    const BUSINESS_DEFAULTS = {
         name: 'WashTub Laundry',
-        address: '123, Laundry Avenue, Colombo 03',
-        phone: '+94 11 234 5678',
-        email: 'info@washtub.com',
-        website: 'www.washtub.com',
+        phone1: '+94 11 452 8476',
+        phone2: '+94 77 643 9276',
+        supportEmail: 'support@washtub.lk',
+        infoEmail: 'info@washtub.lk',
+        website: 'www.washtub.lk',
+        address: '478/A, Pannipitiya Rd, Pelawatta, Sri Lanka',
+        businessHours: 'Mon - Sun: 7:00 AM - 9:00 PM',
         taxRate: '15',
-        currency: 'LKR'
+        currency: 'LKR',
+    };
+    const [businessInfo, setBusinessInfo] = useState(() => {
+        try {
+            const saved = localStorage.getItem('washtub_business_info');
+            return saved ? { ...BUSINESS_DEFAULTS, ...JSON.parse(saved) } : BUSINESS_DEFAULTS;
+        } catch { return BUSINESS_DEFAULTS; }
     });
 
     // Delivery Settings State
@@ -32,6 +41,11 @@ const SystemSettings = () => {
 
     const handleInfoChange = (e) => {
         setBusinessInfo({ ...businessInfo, [e.target.name]: e.target.value });
+    };
+
+    const handleSaveBusinessInfo = () => {
+        localStorage.setItem('washtub_business_info', JSON.stringify(businessInfo));
+        alert('Business information saved successfully.');
     };
 
     const handleDeliveryChange = (e) => {
@@ -113,23 +127,37 @@ const SystemSettings = () => {
                                         <input type="text" name="name" value={businessInfo.name} onChange={handleInfoChange} />
                                     </div>
                                     <div className="form-group">
-                                        <label>Contact Number</label>
-                                        <input type="text" name="phone" value={businessInfo.phone} onChange={handleInfoChange} />
+                                        <label>Website</label>
+                                        <input type="text" name="website" value={businessInfo.website} onChange={handleInfoChange} />
                                     </div>
                                 </div>
                                 <div className="form-row">
                                     <div className="form-group">
-                                        <label>Email Address</label>
-                                        <input type="email" name="email" value={businessInfo.email} onChange={handleInfoChange} />
+                                        <label>Phone 1</label>
+                                        <input type="text" name="phone1" value={businessInfo.phone1} onChange={handleInfoChange} />
                                     </div>
                                     <div className="form-group">
-                                        <label>Website</label>
-                                        <input type="text" name="website" value={businessInfo.website} onChange={handleInfoChange} />
+                                        <label>Phone 2</label>
+                                        <input type="text" name="phone2" value={businessInfo.phone2} onChange={handleInfoChange} />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Support Email</label>
+                                        <input type="email" name="supportEmail" value={businessInfo.supportEmail} onChange={handleInfoChange} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Info Email</label>
+                                        <input type="email" name="infoEmail" value={businessInfo.infoEmail} onChange={handleInfoChange} />
                                     </div>
                                 </div>
                                 <div className="form-group full-width">
                                     <label>Address</label>
                                     <textarea rows="3" name="address" value={businessInfo.address} onChange={handleInfoChange}></textarea>
+                                </div>
+                                <div className="form-group full-width">
+                                    <label>Business Hours</label>
+                                    <input type="text" name="businessHours" value={businessInfo.businessHours} onChange={handleInfoChange} placeholder="e.g. Mon - Sun: 7:00 AM - 9:00 PM" />
                                 </div>
                                 <div className="form-row">
                                     <div className="form-group">
@@ -145,7 +173,7 @@ const SystemSettings = () => {
                                     </div>
                                 </div>
                                 <div className="form-actions">
-                                    <button className="btn btn-primary btn-large">Save Changes</button>
+                                    <button className="btn btn-primary btn-large" onClick={handleSaveBusinessInfo}>Save Changes</button>
                                 </div>
                             </div>
                         </section>

@@ -4,7 +4,23 @@ import Footer from '../components/Footer';
 import { Mail, Phone, MapPin, MessageSquare, Clock } from 'lucide-react';
 import './Contact.css';
 
+const getBusinessInfo = () => {
+    const defaults = {
+        phone1: '+94 11 452 8476',
+        phone2: '+94 77 643 9276',
+        supportEmail: 'support@washtub.lk',
+        infoEmail: 'info@washtub.lk',
+        address: '478/A, Pannipitiya Rd, Pelawatta, Sri Lanka',
+        businessHours: 'Mon - Sun: 7:00 AM - 9:00 PM',
+    };
+    try {
+        const saved = localStorage.getItem('washtub_business_info');
+        return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+    } catch { return defaults; }
+};
+
 const Contact = () => {
+    const info = getBusinessInfo();
     return (
         <div className="contact-page">
             <Navbar />
@@ -33,8 +49,8 @@ const Contact = () => {
                                 </div>
                                 <div className="info-details">
                                     <h3>Phone</h3>
-                                    <p>+94 11 452 8476</p>
-                                    <p>+94 77 643 9276</p>
+                                    <p>{info.phone1}</p>
+                                    <p>{info.phone2}</p>
                                 </div>
                             </div>
 
@@ -44,8 +60,8 @@ const Contact = () => {
                                 </div>
                                 <div className="info-details">
                                     <h3>Email</h3>
-                                    <p>support@washtub.lk</p>
-                                    <p>info@washtub.lk</p>
+                                    <p>{info.supportEmail}</p>
+                                    <p>{info.infoEmail}</p>
                                 </div>
                             </div>
 
@@ -55,8 +71,7 @@ const Contact = () => {
                                 </div>
                                 <div className="info-details">
                                     <h3>Main Office</h3>
-                                    <p>478/A, Pannipitiya Rd,</p>
-                                    <p>Pelawatta, Sri Lanka</p>
+                                    <p>{info.address}</p>
                                 </div>
                             </div>
 
@@ -66,7 +81,7 @@ const Contact = () => {
                                 </div>
                                 <div className="info-details">
                                     <h3>Business Hours</h3>
-                                    <p>Mon - Sun: 7:00 AM - 9:00 PM</p>
+                                    <p>{info.businessHours}</p>
                                 </div>
                             </div>
                         </div>
