@@ -139,6 +139,71 @@
     gap: 1rem;
 }
 
+/* Time Slot Manager */
+.timeslot-manager {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.timeslot-manager-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.timeslot-manager-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-light);
+    margin: 0;
+}
+
+.timeslot-entry {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Blocked Dates Manager */
+.blocked-dates-manager {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.blocked-dates-manager-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.blocked-dates-manager-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-light);
+    margin: 0;
+}
+
+.blocked-date-entry {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.blocked-dates-empty {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+    margin: 0 0 1rem;
+}
+
 /* Responsive adjustments specific to settings widgets */
 @media (max-width: 768px) {
     .price-input {

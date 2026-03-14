@@ -44,14 +44,34 @@ const SystemSettings = () => {
     const DELIVERY_SETTINGS_DEFAULTS = {
         deliveryFee: '350.00',
         pickupFee: '200.00',
-        pickupStart: '08:00',
-        pickupEnd: '18:00'
     };
     const [deliverySettings, setDeliverySettings] = useState(() => {
         try {
             const saved = localStorage.getItem('washtub_delivery_settings');
             return saved ? { ...DELIVERY_SETTINGS_DEFAULTS, ...JSON.parse(saved) } : DELIVERY_SETTINGS_DEFAULTS;
         } catch { return DELIVERY_SETTINGS_DEFAULTS; }
+    });
+
+    // Time Slots State
+    const TIME_SLOT_DEFAULTS = [
+        { id: 1, label: '09:00 AM - 12:00 PM' },
+        { id: 2, label: '12:00 PM - 03:00 PM' },
+        { id: 3, label: '03:00 PM - 06:00 PM' },
+        { id: 4, label: '06:00 PM - 09:00 PM' },
+    ];
+    const [timeSlots, setTimeSlots] = useState(() => {
+        try {
+            const saved = localStorage.getItem('washtub_time_slots');
+            return saved ? JSON.parse(saved) : TIME_SLOT_DEFAULTS;
+        } catch { return TIME_SLOT_DEFAULTS; }
+    });
+
+    // Blocked Dates State
+    const [blockedDates, setBlockedDates] = useState(() => {
+        try {
+            const saved = localStorage.getItem('washtub_blocked_dates');
+            return saved ? JSON.parse(saved) : [];
+        } catch { return []; }
     });
 
     // Cities State
@@ -100,7 +120,29 @@ const SystemSettings = () => {
     const handleSaveDeliverySettings = () => {
         localStorage.setItem('washtub_delivery_settings', JSON.stringify(deliverySettings));
         localStorage.setItem('washtub_cities', JSON.stringify(cities));
+        localStorage.setItem('washtub_time_slots', JSON.stringify(timeSlots));
+        localStorage.setItem('washtub_blocked_dates', JSON.stringify(blockedDates));
         alert('Delivery settings saved successfully.');
+    };
+
+    const handleAddTimeSlot = () => {
+        setTimeSlots([...timeSlots, { id: Date.now(), label: '' }]);
+    };
+    const handleTimeSlotChange = (id, value) => {
+        setTimeSlots(timeSlots.map(s => s.id === id ? { ...s, label: value } : s));
+    };
+    const handleRemoveTimeSlot = (id) => {
+        setTimeSlots(timeSlots.filter(s => s.id !== id));
+    };
+
+    const handleAddBlockedDate = () => {
+        setBlockedDates([...blockedDates, { id: Date.now(), date: '', reason: '' }]);
+    };
+    const handleBlockedDateChange = (id, field, value) => {
+        setBlockedDates(blockedDates.map(d => d.id === id ? { ...d, [field]: value } : d));
+    };
+    const handleRemoveBlockedDate = (id) => {
+        setBlockedDates(blockedDates.filter(d => d.id !== id));
     };
 
     const handleCityChange = (id, field, value) => {
@@ -284,17 +326,6 @@ const SystemSettings = () => {
                                         <input type="number" name="pickupFee" value={deliverySettings.pickupFee} onChange={handleDeliveryChange} />
                                     </div>
                                 </div>
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Pickup Start Time</label>
-                                        <input type="time" name="pickupStart" value={deliverySettings.pickupStart} onChange={handleDeliveryChange} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Pickup End Time</label>
-                                        <input type="time" name="pickupEnd" value={deliverySettings.pickupEnd} onChange={handleDeliveryChange} />
-                                    </div>
-                                </div>
-
                                 {/* City Manager */}
                                 <div className="city-manager">
                                     <div className="city-manager-header">
@@ -324,6 +355,69 @@ const SystemSettings = () => {
                                                         value={entry.postalCode}
                                                         onChange={e => handleCityChange(entry.id, 'postalCode', e.target.value)}
                                                         placeholder="e.g. 10115"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Time Slots Manager */}
+                                <div className="timeslot-manager">
+                                    <div className="timeslot-manager-header">
+                                        <h3>Pickup Time Slots</h3>
+                                        <button className="btn btn-secondary btn-sm" onClick={handleAddTimeSlot}>+ Add Slot</button>
+                                    </div>
+                                    {timeSlots.map((slot, index) => (
+                                        <div key={slot.id} className="timeslot-entry">
+                                            <div className="faq-entry-header">
+                                                <span className="faq-entry-label">Slot #{index + 1}</span>
+                                                <button className="faq-remove-btn" onClick={() => handleRemoveTimeSlot(slot.id)}>Remove</button>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Time Slot Label</label>
+                                                <input
+                                                    type="text"
+                                                    value={slot.label}
+                                                    onChange={e => handleTimeSlotChange(slot.id, e.target.value)}
+                                                    placeholder="e.g. 09:00 AM - 12:00 PM"
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Blocked Dates Manager */}
+                                <div className="blocked-dates-manager">
+                                    <div className="blocked-dates-manager-header">
+                                        <h3>Blocked Dates</h3>
+                                        <button className="btn btn-secondary btn-sm" onClick={handleAddBlockedDate}>+ Add Date</button>
+                                    </div>
+                                    {blockedDates.length === 0 && (
+                                        <p className="blocked-dates-empty">No dates blocked. Add poya days or holidays here.</p>
+                                    )}
+                                    {blockedDates.map((entry, index) => (
+                                        <div key={entry.id} className="blocked-date-entry">
+                                            <div className="faq-entry-header">
+                                                <span className="faq-entry-label">Date #{index + 1}</span>
+                                                <button className="faq-remove-btn" onClick={() => handleRemoveBlockedDate(entry.id)}>Remove</button>
+                                            </div>
+                                            <div className="city-entry-row">
+                                                <div className="form-group">
+                                                    <label>Date</label>
+                                                    <input
+                                                        type="date"
+                                                        value={entry.date}
+                                                        onChange={e => handleBlockedDateChange(entry.id, 'date', e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Reason</label>
+                                                    <input
+                                                        type="text"
+                                                        value={entry.reason}
+                                                        onChange={e => handleBlockedDateChange(entry.id, 'reason', e.target.value)}
+                                                        placeholder="e.g. Poya Day"
                                                     />
                                                 </div>
                                             </div>

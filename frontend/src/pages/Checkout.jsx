@@ -50,6 +50,28 @@ const Checkout = () => {
     const DELIVERY_FEE = parseFloat(_dsRaw.deliveryFee) || 350;
     const PICKUP_FEE = parseFloat(_dsRaw.pickupFee) || 200;
 
+    const PICKUP_TIME_SLOTS = (() => {
+        const defaults = [
+            { id: 1, label: '09:00 AM - 12:00 PM' },
+            { id: 2, label: '12:00 PM - 03:00 PM' },
+            { id: 3, label: '03:00 PM - 06:00 PM' },
+            { id: 4, label: '06:00 PM - 09:00 PM' },
+        ];
+        try {
+            const saved = localStorage.getItem('washtub_time_slots');
+            const parsed = saved ? JSON.parse(saved) : null;
+            return parsed && parsed.length > 0 ? parsed : defaults;
+        } catch { return defaults; }
+    })();
+
+    const BLOCKED_DATES = (() => {
+        try {
+            const saved = localStorage.getItem('washtub_blocked_dates');
+            const parsed = saved ? JSON.parse(saved) : null;
+            return parsed ? parsed.filter(d => d.date).map(d => d.date) : [];
+        } catch { return []; }
+    })();
+
     const CITY_POSTAL_MAP = (() => {
         const defaults = {
             'Battaramulla': '10120', 'Hokandara': '10118', 'Koswatta': '10120',
@@ -83,6 +105,16 @@ const Checkout = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        if (name === 'pickupDate' && BLOCKED_DATES.includes(value)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Date Not Available',
+                text: 'This date is not available for pickup. Please select a different date.',
+                confirmButtonColor: '#0ea5e9',
+            });
+            setFormData(prev => ({ ...prev, pickupDate: '' }));
+            return;
+        }
         if (name === 'city') {
             setFormData(prev => ({ ...prev, city: value, postalCode: CITY_POSTAL_MAP[value] || '' }));
         } else if (name === 'cardNumber') {
@@ -442,10 +474,9 @@ const Checkout = () => {
                                             }}
                                         >
                                             <option value="" disabled>Select time slot</option>
-                                            <option value="09:00 AM - 12:00 PM">09:00 AM - 12:00 PM</option>
-                                            <option value="12:00 PM - 03:00 PM">12:00 PM - 03:00 PM</option>
-                                            <option value="03:00 PM - 06:00 PM">03:00 PM - 06:00 PM</option>
-                                            <option value="06:00 PM - 09:00 PM">06:00 PM - 09:00 PM</option>
+                                            {PICKUP_TIME_SLOTS.filter(s => s.label).map(s => (
+                                                <option key={s.id} value={s.label}>{s.label}</option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>
