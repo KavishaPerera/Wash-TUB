@@ -49,6 +49,30 @@ const Report = {
     return { serviceRows };
   },
 
+  async getMonthlySalesData(year, month = null) {
+    let sql = `
+      SELECT
+        MONTH(created_at)     AS month_num,
+        MONTHNAME(created_at) AS month_name,
+        COUNT(*)              AS orders,
+        SUM(CASE WHEN status != 'cancelled' THEN total ELSE 0 END)                       AS revenue,
+        COALESCE(AVG(CASE WHEN status != 'cancelled' THEN total ELSE NULL END), 0)        AS avg_value,
+        SUM(CASE WHEN status IN ('delivered','finished') THEN 1 ELSE 0 END)               AS completed,
+        SUM(CASE WHEN status = 'cancelled'              THEN 1 ELSE 0 END)                AS cancelled
+      FROM orders
+      WHERE YEAR(created_at) = ?
+    `;
+    const params = [year];
+    if (month) {
+      sql += ' AND MONTH(created_at) = ?';
+      params.push(month);
+    }
+    sql += ' GROUP BY MONTH(created_at), MONTHNAME(created_at) ORDER BY month_num ASC';
+
+    const [monthlyRows] = await db.execute(sql, params);
+    return { monthlyRows };
+  },
+
   async createTable() {
     const sql = `
       CREATE TABLE IF NOT EXISTS reports (

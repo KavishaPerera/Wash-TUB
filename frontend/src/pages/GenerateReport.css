@@ -211,6 +211,87 @@
 .preview-table tbody tr.row-busy td { background: #fef9c3; }
 .preview-table tbody tr.row-drop td { background: #fee2e2; }
 
+/* ── Monthly Sales Insights Panel ──────────────────────────── */
+.monthly-insights {
+    margin: 1.25rem 0;
+}
+
+.insights-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin: 0 0 0.875rem 0;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.875rem;
+}
+
+.insight-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.1rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.insight-card.trend-growing  { border-left: 4px solid #16a34a; background: #f0fdf4; }
+.insight-card.trend-declining { border-left: 4px solid #dc2626; background: #fef2f2; }
+.insight-card.trend-stable   { border-left: 4px solid #2563eb; background: #eff6ff; }
+.insight-card.trend-best     { border-left: 4px solid #d97706; background: #fffbeb; }
+.insight-card.trend-worst    { border-left: 4px solid #9ca3af; background: #f9fafb; }
+.insight-card.trend-seasonal { border-left: 4px solid #7c3aed; background: #f5f3ff; }
+
+.insight-icon { font-size: 1.5rem; line-height: 1; margin-top: 0.1rem; flex-shrink: 0; }
+
+.insight-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin: 0 0 0.2rem 0;
+}
+
+.insight-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.2rem 0;
+}
+
+.insight-sub {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.seasonal-quarters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.35rem;
+}
+
+.quarter-tag {
+    font-size: 0.75rem;
+    background: #ede9fe;
+    color: #4c1d95;
+    border-radius: 5px;
+    padding: 0.2rem 0.5rem;
+}
+
+.quarter-tag.quarter-empty {
+    background: #f1f5f9;
+    color: #94a3b8;
+}
+
 /* ── Reports Count Badge ──────────────────────────────────── */
 .reports-count {
     font-size: 0.875rem;

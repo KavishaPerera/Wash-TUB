@@ -241,6 +241,32 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
     doc.setDrawColor(226, 232, 240);
     doc.line(margin, y, margin + contentW, y);
 
+    // ── Insights (monthly-sales only) ─────────────────────────
+    if (data.insights) {
+        const ins = data.insights;
+        y += 14;
+        doc.setTextColor(15, 23, 42);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.text('Insights', margin, y);
+        y += 7;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(30, 41, 59);
+
+        const growthSign = ins.avgMomGrowth > 0 ? '+' : '';
+        doc.text(`Business Trend: ${ins.growthTrend}  |  Avg MoM Growth: ${growthSign}${ins.avgMomGrowth}%`, margin, y);
+        y += 6;
+        if (ins.bestMonth)  doc.text(`Best Month: ${ins.bestMonth.name} — LKR ${Number(ins.bestMonth.revenue).toLocaleString()}`, margin, y), y += 6;
+        if (ins.worstMonth) doc.text(`Lowest Month: ${ins.worstMonth.name} — LKR ${Number(ins.worstMonth.revenue).toLocaleString()}`, margin, y), y += 6;
+
+        const seasonalStr = ins.seasonal
+            .map(q => `${q.quarter}: ${q.months_with_data > 0 ? 'LKR ' + Math.round(q.avg_revenue).toLocaleString() : 'No data'}`)
+            .join('   ');
+        doc.text(`Seasonal Avg Revenue — ${seasonalStr}`, margin, y);
+    }
+
     // ── Footer ────────────────────────────────────────────────
     const footerY = 287;
     doc.setDrawColor(226, 232, 240);
@@ -274,6 +300,41 @@ const transformServicePopularityData = (apiData) => {
             Number(row.total_revenue).toLocaleString(),
             `${row.share}%`,
         ]),
+    };
+};
+
+const transformMonthlySalesData = (apiData) => {
+    const { summary, monthly_data, seasonal } = apiData;
+    const maxRevenue = monthly_data.length > 0
+        ? Math.max(...monthly_data.map(r => Number(r.revenue)))
+        : 0;
+    return {
+        stats: [
+            { label: 'Year',          value: String(summary.year) },
+            { label: 'Total Revenue', value: `LKR ${Number(summary.totalRevenue).toLocaleString()}` },
+            { label: 'Total Orders',  value: String(summary.totalOrders) },
+            { label: 'Best Month',    value: summary.bestMonth?.name || 'N/A' },
+        ],
+        columns: ['Month', 'Orders', 'Revenue (LKR)', 'Avg Order Value', 'Completed', 'Cancelled'],
+        rows: monthly_data.map(row => [
+            row.month_name,
+            String(row.orders),
+            Number(row.revenue).toLocaleString(),
+            `LKR ${Math.round(Number(row.avg_value)).toLocaleString()}`,
+            String(row.completed),
+            String(row.cancelled),
+        ]),
+        _raw: monthly_data.map(r => ({
+            ...r,
+            isBest: Number(r.revenue) === maxRevenue && maxRevenue > 0,
+        })),
+        insights: {
+            growthTrend:  summary.growthTrend,
+            avgMomGrowth: summary.avgMomGrowth,
+            bestMonth:    summary.bestMonth,
+            worstMonth:   summary.worstMonth,
+            seasonal,
+        },
     };
 };
 
@@ -345,6 +406,37 @@ const GenerateReport = () => {
                 const now = new Date();
                 const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 const fileName = `Service_Popularity_${dateRange.start}_to_${dateRange.end}.pdf`;
+                setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
+                setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                setIsGenerating(false);
+            }
+            return;
+        }
+
+        if (selectedReport === 'monthly-sales') {
+            if (!selectedYear) {
+                alert('Please select a year.');
+                return;
+            }
+            setIsGenerating(true);
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const params = new URLSearchParams({ year: selectedYear });
+                if (selectedMonth) params.append('month', selectedMonth);
+                const res = await fetch(
+                    `http://localhost:5000/api/reports/monthly-sales?${params}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Failed to generate report');
+
+                setReportData(transformMonthlySalesData(json));
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const fileName = `Monthly_Sales_${selectedYear}.pdf`;
                 setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
                 setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             } catch (err) {
@@ -551,6 +643,8 @@ const GenerateReport = () => {
                                             ? singleDate
                                             : selectedReport === 'service-popularity'
                                             ? `${dateRange.start} to ${dateRange.end}`
+                                            : selectedReport === 'monthly-sales'
+                                            ? `${selectedYear}${selectedMonth ? ' — ' + ['January','February','March','April','May','June','July','August','September','October','November','December'][Number(selectedMonth) - 1] : ' — All Months'}`
                                             : 'Preview — mock data shown.'}
                                     </p>
                                 </div>
@@ -577,6 +671,59 @@ const GenerateReport = () => {
                                 ))}
                             </div>
 
+                            {reportData.insights && (
+                                <div className="monthly-insights">
+                                    <h3 className="insights-title">Insights</h3>
+                                    <div className="insights-grid">
+                                        <div className={`insight-card trend-${reportData.insights.growthTrend?.toLowerCase()}`}>
+                                            <span className="insight-icon">
+                                                {reportData.insights.growthTrend === 'Growing' ? '📈' : reportData.insights.growthTrend === 'Declining' ? '📉' : '➡️'}
+                                            </span>
+                                            <div>
+                                                <p className="insight-label">Business Trend</p>
+                                                <p className="insight-value">{reportData.insights.growthTrend}</p>
+                                                <p className="insight-sub">
+                                                    Avg MoM Growth: {reportData.insights.avgMomGrowth > 0 ? '+' : ''}{reportData.insights.avgMomGrowth}%
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {reportData.insights.bestMonth && (
+                                            <div className="insight-card trend-best">
+                                                <span className="insight-icon">🏆</span>
+                                                <div>
+                                                    <p className="insight-label">Best Month</p>
+                                                    <p className="insight-value">{reportData.insights.bestMonth.name}</p>
+                                                    <p className="insight-sub">LKR {Number(reportData.insights.bestMonth.revenue).toLocaleString()}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {reportData.insights.worstMonth && (
+                                            <div className="insight-card trend-worst">
+                                                <span className="insight-icon">⚠️</span>
+                                                <div>
+                                                    <p className="insight-label">Lowest Month</p>
+                                                    <p className="insight-value">{reportData.insights.worstMonth.name}</p>
+                                                    <p className="insight-sub">LKR {Number(reportData.insights.worstMonth.revenue).toLocaleString()}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="insight-card trend-seasonal">
+                                            <span className="insight-icon">🌦️</span>
+                                            <div>
+                                                <p className="insight-label">Seasonal Avg Revenue</p>
+                                                <div className="seasonal-quarters">
+                                                    {reportData.insights.seasonal.map(q => (
+                                                        <span key={q.quarter} className={`quarter-tag ${q.months_with_data === 0 ? 'quarter-empty' : ''}`}>
+                                                            <strong>{q.quarter}</strong> {q.months_with_data > 0 ? `LKR ${Math.round(q.avg_revenue).toLocaleString()}` : 'No data'}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="preview-table-wrapper">
                                 <table className="preview-table">
                                     <thead>
@@ -585,7 +732,7 @@ const GenerateReport = () => {
                                     <tbody>
                                         {reportData.rows.map((row, i) => {
                                             const raw = reportData._raw?.[i];
-                                            const cls = raw?.isBusy ? 'row-busy' : raw?.isDrop ? 'row-drop' : '';
+                                            const cls = raw?.isBest ? 'row-busy' : raw?.isBusy ? 'row-busy' : raw?.isDrop ? 'row-drop' : '';
                                             return (
                                                 <tr key={i} className={cls}>
                                                     {row.map((cell, j) => <td key={j}>{cell}</td>)}
