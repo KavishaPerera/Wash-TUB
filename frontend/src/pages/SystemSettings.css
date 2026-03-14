@@ -104,6 +104,41 @@
     background: rgba(239, 68, 68, 0.3);
 }
 
+/* City Manager */
+.city-manager {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.city-manager-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.city-manager-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-light);
+    margin: 0;
+}
+
+.city-entry {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.city-entry-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
 /* Responsive adjustments specific to settings widgets */
 @media (max-width: 768px) {
     .price-input {

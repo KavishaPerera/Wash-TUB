@@ -46,18 +46,25 @@ const Checkout = () => {
         cvc: ''
     });
 
-    const DELIVERY_FEE = 350;
-    const PICKUP_FEE = 200;
+    const _dsRaw = (() => { try { const s = localStorage.getItem('washtub_delivery_settings'); return s ? JSON.parse(s) : {}; } catch { return {}; } })();
+    const DELIVERY_FEE = parseFloat(_dsRaw.deliveryFee) || 350;
+    const PICKUP_FEE = parseFloat(_dsRaw.pickupFee) || 200;
 
-    const CITY_POSTAL_MAP = {
-        'Battaramulla': '10120',
-        'Hokandara': '10118',
-        'Koswatta': '10120',
-        'Malabe': '10115',
-        'Pelawatta': '10120',
-        'Sri Jayawardenapura': '10100',
-        'Thalawathugoda': '10116',
-    };
+    const CITY_POSTAL_MAP = (() => {
+        const defaults = {
+            'Battaramulla': '10120', 'Hokandara': '10118', 'Koswatta': '10120',
+            'Malabe': '10115', 'Pelawatta': '10120', 'Sri Jayawardenapura': '10100',
+            'Thalawathugoda': '10116',
+        };
+        try {
+            const saved = localStorage.getItem('washtub_cities');
+            const parsed = saved ? JSON.parse(saved) : null;
+            if (parsed && parsed.length > 0) {
+                return Object.fromEntries(parsed.filter(c => c.city).map(c => [c.city, c.postalCode]));
+            }
+            return defaults;
+        } catch { return defaults; }
+    })();
 
     // Redirect if cart is empty (but not while submitting — clearCart fires before navigate)
     if (cartItems.length === 0 && !submitting) {

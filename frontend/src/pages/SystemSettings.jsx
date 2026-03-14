@@ -41,13 +41,34 @@ const SystemSettings = () => {
     });
 
     // Delivery Settings State
-    const [deliverySettings, setDeliverySettings] = useState({
-        standardFee: '350.00',
-        freeDeliveryThreshold: '5000.00',
-        maxDistance: '15',
-        expressFee: '750.00',
+    const DELIVERY_SETTINGS_DEFAULTS = {
+        deliveryFee: '350.00',
+        pickupFee: '200.00',
         pickupStart: '08:00',
         pickupEnd: '18:00'
+    };
+    const [deliverySettings, setDeliverySettings] = useState(() => {
+        try {
+            const saved = localStorage.getItem('washtub_delivery_settings');
+            return saved ? { ...DELIVERY_SETTINGS_DEFAULTS, ...JSON.parse(saved) } : DELIVERY_SETTINGS_DEFAULTS;
+        } catch { return DELIVERY_SETTINGS_DEFAULTS; }
+    });
+
+    // Cities State
+    const CITY_DEFAULTS = [
+        { id: 1, city: 'Battaramulla', postalCode: '10120' },
+        { id: 2, city: 'Hokandara', postalCode: '10118' },
+        { id: 3, city: 'Koswatta', postalCode: '10120' },
+        { id: 4, city: 'Malabe', postalCode: '10115' },
+        { id: 5, city: 'Pelawatta', postalCode: '10120' },
+        { id: 6, city: 'Sri Jayawardenapura', postalCode: '10100' },
+        { id: 7, city: 'Thalawathugoda', postalCode: '10116' },
+    ];
+    const [cities, setCities] = useState(() => {
+        try {
+            const saved = localStorage.getItem('washtub_cities');
+            return saved ? JSON.parse(saved) : CITY_DEFAULTS;
+        } catch { return CITY_DEFAULTS; }
     });
 
     const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
@@ -74,6 +95,22 @@ const SystemSettings = () => {
 
     const handleDeliveryChange = (e) => {
         setDeliverySettings({ ...deliverySettings, [e.target.name]: e.target.value });
+    };
+
+    const handleSaveDeliverySettings = () => {
+        localStorage.setItem('washtub_delivery_settings', JSON.stringify(deliverySettings));
+        localStorage.setItem('washtub_cities', JSON.stringify(cities));
+        alert('Delivery settings saved successfully.');
+    };
+
+    const handleCityChange = (id, field, value) => {
+        setCities(cities.map(c => c.id === id ? { ...c, [field]: value } : c));
+    };
+    const handleAddCity = () => {
+        setCities([...cities, { id: Date.now(), city: '', postalCode: '' }]);
+    };
+    const handleRemoveCity = (id) => {
+        setCities(cities.filter(c => c.id !== id));
     };
 
     return (
@@ -239,22 +276,12 @@ const SystemSettings = () => {
                             <div className="settings-form">
                                 <div className="form-row">
                                     <div className="form-group">
-                                        <label>Standard Delivery Fee (LKR)</label>
-                                        <input type="number" name="standardFee" value={deliverySettings.standardFee} onChange={handleDeliveryChange} />
+                                        <label>Pickup &amp; Delivery Fee (LKR)</label>
+                                        <input type="number" name="deliveryFee" value={deliverySettings.deliveryFee} onChange={handleDeliveryChange} />
                                     </div>
                                     <div className="form-group">
-                                        <label>Express Delivery Fee (LKR)</label>
-                                        <input type="number" name="expressFee" value={deliverySettings.expressFee} onChange={handleDeliveryChange} />
-                                    </div>
-                                </div>
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Free Delivery Threshold (LKR)</label>
-                                        <input type="number" name="freeDeliveryThreshold" value={deliverySettings.freeDeliveryThreshold} onChange={handleDeliveryChange} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Max Delivery Distance (km)</label>
-                                        <input type="number" name="maxDistance" value={deliverySettings.maxDistance} onChange={handleDeliveryChange} />
+                                        <label>Pickup Only Fee (LKR)</label>
+                                        <input type="number" name="pickupFee" value={deliverySettings.pickupFee} onChange={handleDeliveryChange} />
                                     </div>
                                 </div>
                                 <div className="form-row">
@@ -267,8 +294,45 @@ const SystemSettings = () => {
                                         <input type="time" name="pickupEnd" value={deliverySettings.pickupEnd} onChange={handleDeliveryChange} />
                                     </div>
                                 </div>
+
+                                {/* City Manager */}
+                                <div className="city-manager">
+                                    <div className="city-manager-header">
+                                        <h3>Service Areas</h3>
+                                        <button className="btn btn-secondary btn-sm" onClick={handleAddCity}>+ Add City</button>
+                                    </div>
+                                    {cities.map((entry, index) => (
+                                        <div key={entry.id} className="city-entry">
+                                            <div className="faq-entry-header">
+                                                <span className="faq-entry-label">City #{index + 1}</span>
+                                                <button className="faq-remove-btn" onClick={() => handleRemoveCity(entry.id)}>Remove</button>
+                                            </div>
+                                            <div className="city-entry-row">
+                                                <div className="form-group">
+                                                    <label>City Name</label>
+                                                    <input
+                                                        type="text"
+                                                        value={entry.city}
+                                                        onChange={e => handleCityChange(entry.id, 'city', e.target.value)}
+                                                        placeholder="e.g. Malabe"
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Postal Code</label>
+                                                    <input
+                                                        type="text"
+                                                        value={entry.postalCode}
+                                                        onChange={e => handleCityChange(entry.id, 'postalCode', e.target.value)}
+                                                        placeholder="e.g. 10115"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
                                 <div className="form-actions">
-                                    <button className="btn btn-primary btn-large">Update Delivery Settings</button>
+                                    <button className="btn btn-primary btn-large" onClick={handleSaveDeliverySettings}>Update Delivery Settings</button>
                                 </div>
                             </div>
                         </section>
