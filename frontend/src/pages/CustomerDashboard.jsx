@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import { Bell } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import './CustomerDashboard.css';
 
@@ -20,14 +22,112 @@ const STATUS_LABEL = {
 
 const ACTIVE_STATUSES = ['pending', 'confirmed', 'pickup_scheduled', 'picked_up', 'processing', 'ready', 'out_for_delivery'];
 
+const TYPE_META = {
+    order_received:     { icon: '📥' },
+    order_confirmed:    { icon: '✅' },
+    pickup_scheduled:   { icon: '📅' },
+    picked_up:          { icon: '🧺' },
+    processing:         { icon: '🔄' },
+    order_ready:        { icon: '✅' },
+    order_finished:     { icon: '✅' },
+    out_for_delivery:   { icon: '🚚' },
+    delivery_scheduled: { icon: '📦' },
+    order_delivered:    { icon: '🏠' },
+    order_cancelled:    { icon: '❌' },
+};
+
+const fmtTime = (isoString) => {
+    if (!isoString) return '';
+    const diff = Date.now() - new Date(isoString).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+};
+
 const CustomerDashboard = () => {
     const navigate = useNavigate();
-    const { unreadCount } = useNotifications();
+    const { unreadCount, refreshUnreadCount } = useNotifications();
+    const bellRef = useRef(null);
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userName, setUserName] = useState('');
+
+    // Bell popup state
+    const [popupOpen, setPopupOpen] = useState(false);
+    const [popupNotifs, setPopupNotifs] = useState([]);
+    const [popupLoading, setPopupLoading] = useState(false);
+    const [bellRect, setBellRect] = useState(null);
+
+    // Close popup when clicking outside the bell or the portal popup
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            const popup = document.getElementById('notif-portal-popup');
+            const clickedInsideBell = bellRef.current && bellRef.current.contains(e.target);
+            const clickedInsidePopup = popup && popup.contains(e.target);
+            if (!clickedInsideBell && !clickedInsidePopup) {
+                setPopupOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const fetchPopupNotifs = useCallback(async () => {
+        setPopupLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API}/notifications`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setPopupNotifs(data.slice(0, 8));
+            }
+        } catch { /* silently ignore */ }
+        finally { setPopupLoading(false); }
+    }, []);
+
+    const togglePopup = () => {
+        const next = !popupOpen;
+        if (next && bellRef.current) {
+            setBellRect(bellRef.current.getBoundingClientRect());
+        }
+        setPopupOpen(next);
+        if (next) fetchPopupNotifs();
+    };
+
+    const markOneRead = async (notif) => {
+        if (notif.is_read) return;
+        setPopupNotifs(prev =>
+            prev.map(n => n.notification_id === notif.notification_id ? { ...n, is_read: 1 } : n)
+        );
+        try {
+            const token = localStorage.getItem('token');
+            await fetch(`${API}/notifications/${notif.notification_id}/read`, {
+                method: 'PATCH',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            refreshUnreadCount();
+        } catch { /* ignore */ }
+    };
+
+    const markAllRead = async () => {
+        setPopupNotifs(prev => prev.map(n => ({ ...n, is_read: 1 })));
+        try {
+            const token = localStorage.getItem('token');
+            await fetch(`${API}/notifications/read-all`, {
+                method: 'PATCH',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            refreshUnreadCount();
+        } catch { /* ignore */ }
+    };
 
     useEffect(() => {
         // Read name from stored user info
@@ -82,6 +182,7 @@ const CustomerDashboard = () => {
     const statusClass = (status) => `status-${status?.replace(/_/g, '-')}`;
 
     return (
+        <>
         <div className="dashboard">
             {/* Sidebar */}
             <aside className="dashboard-sidebar">
@@ -118,8 +219,13 @@ const CustomerDashboard = () => {
                             <p>Manage your laundry orders and profile</p>
                         </div>
                         <div className="header-right">
-                            <div className="notification-bell">
-                                <span className="bell-icon">🔔</span>
+                            <div className="notification-bell" ref={bellRef} onClick={togglePopup}>
+                                <Bell size={22} strokeWidth={2} color="#1e293b" />
+                                {unreadCount > 0 && (
+                                    <span className="notification-badge">
+                                        {unreadCount > 99 ? '99+' : unreadCount}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -228,6 +334,62 @@ const CustomerDashboard = () => {
                 </section>
             </main>
         </div>
+
+        {/* Notification popup — rendered via portal at body level to avoid stacking-context clipping */}
+        {popupOpen && bellRect && createPortal(
+            <div
+                id="notif-portal-popup"
+                className="notif-popup"
+                style={{
+                    position: 'fixed',
+                    top: bellRect.bottom + 10,
+                    right: window.innerWidth - bellRect.right,
+                }}
+            >
+                <div className="notif-popup-header">
+                    <span>Notifications</span>
+                    {unreadCount > 0 && (
+                        <button className="notif-popup-read-all" onClick={markAllRead}>
+                            Mark all read
+                        </button>
+                    )}
+                </div>
+
+                <div className="notif-popup-list">
+                    {popupLoading ? (
+                        <div className="notif-popup-empty">Loading…</div>
+                    ) : popupNotifs.length === 0 ? (
+                        <div className="notif-popup-empty">No notifications yet.</div>
+                    ) : (
+                        popupNotifs.map(n => (
+                            <div
+                                key={n.notification_id}
+                                className={`notif-popup-item${!n.is_read ? ' unread' : ''}`}
+                                onClick={() => markOneRead(n)}
+                            >
+                                <span className="notif-popup-icon">
+                                    {(TYPE_META[n.type] || { icon: '🔔' }).icon}
+                                </span>
+                                <div className="notif-popup-body">
+                                    <p className="notif-popup-title">{n.title}</p>
+                                    <p className="notif-popup-msg">{n.message}</p>
+                                    <span className="notif-popup-time">{fmtTime(n.sent_at)}</span>
+                                </div>
+                                {!n.is_read && <span className="notif-popup-dot" />}
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                <div className="notif-popup-footer">
+                    <button onClick={() => { setPopupOpen(false); navigate('/notifications'); }}>
+                        View all notifications
+                    </button>
+                </div>
+            </div>,
+            document.body
+        )}
+        </>
     );
 };
 
