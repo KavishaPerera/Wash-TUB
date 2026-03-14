@@ -10,9 +10,9 @@ const REPORT_TYPES = [
         id: 'daily-sales',
         label: 'Daily Sales Summary',
         icon: '📊',
-        desc: 'Total orders, revenue, and payment breakdown across a date range.',
+        desc: 'Total orders, revenue, and payment breakdown for a single day.',
         color: 'blue',
-        dateMode: 'range',
+        dateMode: 'single',
     },
     {
         id: 'service-popularity',
@@ -318,8 +318,8 @@ const GenerateReport = () => {
             return;
         }
 
-        if (!dateRange.start || !dateRange.end) {
-            alert('Please select a start date and end date.');
+        if (!singleDate) {
+            alert('Please select a date.');
             return;
         }
 
@@ -327,7 +327,7 @@ const GenerateReport = () => {
         try {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const res = await fetch(
-                `http://localhost:5000/api/reports/daily-sales?start_date=${dateRange.start}&end_date=${dateRange.end}`,
+                `http://localhost:5000/api/reports/daily-sales?start_date=${singleDate}&end_date=${singleDate}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             const json = await res.json();
@@ -336,7 +336,7 @@ const GenerateReport = () => {
             setReportData(transformDailySalesData(json));
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const fileName = `Daily_Sales_${dateRange.start}_to_${dateRange.end}.pdf`;
+            const fileName = `Daily_Sales_${singleDate}.pdf`;
             setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
             setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
         } catch (err) {
@@ -496,7 +496,7 @@ const GenerateReport = () => {
                                         {currentType?.icon} {currentType?.label}
                                     </h2>
                                     <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
-                                        {selectedReport === 'daily-sales' ? `${dateRange.start} to ${dateRange.end}` : 'Preview — mock data shown.'}
+                                        {selectedReport === 'daily-sales' ? singleDate : 'Preview — mock data shown.'}
                                     </p>
                                 </div>
                                 <button
