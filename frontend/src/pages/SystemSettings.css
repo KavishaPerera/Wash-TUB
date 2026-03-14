@@ -64,7 +64,7 @@
 .faq-manager-header h3 {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--color-light);
+    color: #1e3a5f;
     margin: 0;
 }
 
@@ -121,7 +121,7 @@
 .city-manager-header h3 {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--color-light);
+    color: #1e3a5f;
     margin: 0;
 }
 
@@ -164,7 +164,7 @@
 .timeslot-manager-header h3 {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--color-light);
+    color: #1e3a5f;
     margin: 0;
 }
 
@@ -193,7 +193,7 @@
 .blocked-dates-manager-header h3 {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--color-light);
+    color: #1e3a5f;
     margin: 0;
 }
 
