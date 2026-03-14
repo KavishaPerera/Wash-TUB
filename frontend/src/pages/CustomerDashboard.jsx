@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { Bell } from 'lucide-react';
+import { Bell, RefreshCw } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import './CustomerDashboard.css';
 
@@ -219,6 +219,9 @@ const CustomerDashboard = () => {
                             <p>Manage your laundry orders and profile</p>
                         </div>
                         <div className="header-right">
+                            <button className="refresh-btn" onClick={fetchOrders} disabled={loading} title="Refresh">
+                                <RefreshCw size={18} strokeWidth={2} className={loading ? 'spin' : ''} />
+                            </button>
                             <div className="notification-bell" ref={bellRef} onClick={togglePopup}>
                                 <Bell size={22} strokeWidth={2} color="#1e293b" />
                                 {unreadCount > 0 && (

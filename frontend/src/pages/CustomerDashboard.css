@@ -948,6 +948,25 @@
     color: var(--color-gray);
 }
 
+/* ── Refresh button ─────────────────────────────────────── */
+.refresh-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #475569;
+    transition: background 0.15s, color 0.15s;
+}
+.refresh-btn:hover:not(:disabled) { background: #e2e8f0; color: #1e293b; }
+.refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.7s linear infinite; }
+
 /* ── Bell popup ─────────────────────────────────────────── */
 .notification-bell {
     position: relative;
