@@ -1,5 +1,82 @@
 const Order = require('../models/order.model');
 const User = require('../models/user.model');
+const Notification = require('../models/notification.model');
+
+// Notification messages for each order status
+const STATUS_NOTIFICATIONS = {
+  pending: {
+    type: 'order_received',
+    title: 'Order Received',
+    message: (num) => `Your order ${num} has been received and is awaiting confirmation.`,
+  },
+  confirmed: {
+    type: 'order_confirmed',
+    title: 'Order Confirmed',
+    message: (num) => `Your order ${num} has been confirmed by our team.`,
+  },
+  pickup_scheduled: {
+    type: 'pickup_scheduled',
+    title: 'Pickup Scheduled',
+    message: (num) => `A pickup has been scheduled for your order ${num}.`,
+  },
+  picked_up: {
+    type: 'picked_up',
+    title: 'Laundry Picked Up',
+    message: (num) => `Your laundry for order ${num} has been picked up and is on its way to our facility.`,
+  },
+  processing: {
+    type: 'processing',
+    title: 'Order Processing',
+    message: (num) => `Your laundry for order ${num} is now being processed. Estimated completion: 24 hours.`,
+  },
+  ready: {
+    type: 'order_ready',
+    title: 'Order Ready',
+    message: (num) => `Your laundry for order ${num} has been cleaned and is ready.`,
+  },
+  finished: {
+    type: 'order_finished',
+    title: 'Order Finished',
+    message: (num) => `Your laundry for order ${num} has been completed and is ready for delivery.`,
+  },
+  out_for_delivery: {
+    type: 'out_for_delivery',
+    title: 'Out for Delivery',
+    message: (num) => `Great news! Your order ${num} is on its way to you.`,
+  },
+  delivery_scheduled: {
+    type: 'delivery_scheduled',
+    title: 'Delivery Scheduled',
+    message: (num) => `Your delivery for order ${num} has been scheduled. Please be available to receive it.`,
+  },
+  delivered: {
+    type: 'order_delivered',
+    title: 'Order Delivered',
+    message: (num) => `Your order ${num} has been successfully delivered. Thank you for choosing WashTub!`,
+  },
+  cancelled: {
+    type: 'order_cancelled',
+    title: 'Order Cancelled',
+    message: (num) => `Your order ${num} has been cancelled.`,
+  },
+};
+
+// Helper — silently create a notification (never throws, so order ops aren't blocked)
+async function notifyCustomer(orderId, customerId, status, orderNumber) {
+  const tpl = STATUS_NOTIFICATIONS[status];
+  if (!tpl) return;
+  try {
+    await Notification.create({
+      orderId,
+      userId: customerId,
+      type: tpl.type,
+      title: tpl.title,
+      message: tpl.message(orderNumber),
+    });
+  } catch (err) {
+    console.error(`Failed to create notification for order ${orderNumber}:`, err.message);
+  }
+}
 
 const orderController = {
   // ---------------------------------------------------------------
@@ -42,6 +119,9 @@ const orderController = {
       };
 
       const { orderId, orderNumber } = await Order.create(customerId, orderData, items);
+
+      // Notify customer that their order was received
+      await notifyCustomer(orderId, customerId, 'pending', orderNumber);
 
       res.status(201).json({
         message: 'Order placed successfully!',
@@ -199,6 +279,9 @@ const orderController = {
       if (!updated) {
         return res.status(404).json({ message: 'Order not found.' });
       }
+
+      // Notify the customer about the status change
+      await notifyCustomer(order.id, order.customer_id, status, order.order_number);
 
       res.json({ message: `Order status updated to "${status}".` });
     } catch (error) {

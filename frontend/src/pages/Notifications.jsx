@@ -1,124 +1,124 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './CustomerDashboard.css'; // Use shared dashboard styles
-import './Notifications.css'; // Additional notification-specific styles
+import { useNotifications } from '../context/NotificationContext';
+import './CustomerDashboard.css';
+import './Notifications.css';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const TYPE_META = {
+    order_received:     { icon: '📥', css: 'notif-received' },
+    order_confirmed:    { icon: '✅', css: 'notif-received' },
+    pickup_scheduled:   { icon: '📅', css: 'notif-processing' },
+    picked_up:          { icon: '🧺', css: 'notif-processing' },
+    processing:         { icon: '🔄', css: 'notif-processing' },
+    order_ready:        { icon: '✅', css: 'notif-completed' },
+    order_finished:     { icon: '✅', css: 'notif-completed' },
+    out_for_delivery:   { icon: '🚚', css: 'notif-delivered' },
+    delivery_scheduled: { icon: '📦', css: 'notif-delivered' },
+    order_delivered:    { icon: '🏠', css: 'notif-delivered' },
+    order_cancelled:    { icon: '❌', css: 'notif-cancelled' },
+};
+
+const fmtTime = (isoString) => {
+    if (!isoString) return '';
+    const diff = Date.now() - new Date(isoString).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
+};
 
 const Notifications = () => {
     const navigate = useNavigate();
-    const [notifications, setNotifications] = useState([
-        {
-            id: 1,
-            type: 'received',
-            orderId: 'ORD-1234',
-            title: 'Order Received',
-            message: 'Your order has been received and is awaiting pickup.',
-            time: '2 hours ago',
-            read: false,
-            icon: '📥'
-        },
-        {
-            id: 2,
-            type: 'processing',
-            orderId: 'ORD-1234',
-            title: 'Order Processing',
-            message: 'Your laundry is now being processed. Estimated completion: 24 hours.',
-            time: '1 hour ago',
-            read: false,
-            icon: '🔄'
-        },
-        {
-            id: 3,
-            type: 'finished',
-            orderId: 'ORD-1233',
-            title: 'Order Finished',
-            message: 'Your laundry has been cleaned and is ready for delivery!',
-            time: '5 hours ago',
-            read: true,
-            icon: '✅'
-        },
-        {
-            id: 4,
-            type: 'delivered',
-            orderId: 'ORD-1232',
-            title: 'Order Delivered',
-            message: 'Your order has been successfully delivered. Thank you for choosing WashTub!',
-            time: '1 day ago',
-            read: true,
-            icon: '🚚'
-        },
-        {
-            id: 5,
-            type: 'received',
-            orderId: 'ORD-1231',
-            title: 'Order Received',
-            message: 'Your order has been received and is awaiting pickup.',
-            time: '2 days ago',
-            read: true,
-            icon: '📥'
-        },
-        {
-            id: 6,
-            type: 'processing',
-            orderId: 'ORD-1231',
-            title: 'Order Processing',
-            message: 'Your laundry is now being processed.',
-            time: '2 days ago',
-            read: true,
-            icon: '🔄'
-        },
-        {
-            id: 7,
-            type: 'completed',
-            orderId: 'ORD-1231',
-            title: 'Order Completed',
-            message: 'Your laundry has been cleaned and is ready for delivery!',
-            time: '1 day ago',
-            read: true,
-            icon: '✅'
-        },
-        {
-            id: 8,
-            type: 'delivered',
-            orderId: 'ORD-1231',
-            title: 'Order Delivered',
-            message: 'Your order has been successfully delivered.',
-            time: '1 day ago',
-            read: true,
-            icon: '🚚'
+    const { refreshUnreadCount } = useNotifications();
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const token = () => localStorage.getItem('token');
+
+    const fetchNotifications = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await fetch(`${API}/notifications`, {
+                headers: { Authorization: `Bearer ${token()}` },
+            });
+            if (!res.ok) throw new Error('Failed to load notifications');
+            const data = await res.json();
+            setNotifications(data);
+        } catch (err) {
+            setError('Could not load notifications. Please refresh.');
+        } finally {
+            setLoading(false);
         }
-    ]);
+    }, []);
 
-    const markAsRead = (id) => {
+    useEffect(() => {
+        fetchNotifications();
+    }, [fetchNotifications]);
+
+    const markAsRead = async (notificationId) => {
+        // Optimistic update
         setNotifications(prev =>
-            prev.map(notif =>
-                notif.id === id ? { ...notif, read: true } : notif
-            )
+            prev.map(n => n.notification_id === notificationId ? { ...n, is_read: 1 } : n)
         );
+        try {
+            await fetch(`${API}/notifications/${notificationId}/read`, {
+                method: 'PATCH',
+                headers: { Authorization: `Bearer ${token()}` },
+            });
+            refreshUnreadCount();
+        } catch {
+            // revert on failure
+            setNotifications(prev =>
+                prev.map(n => n.notification_id === notificationId ? { ...n, is_read: 0 } : n)
+            );
+        }
     };
 
-    const markAllAsRead = () => {
-        setNotifications(prev =>
-            prev.map(notif => ({ ...notif, read: true }))
-        );
+    const markAllAsRead = async () => {
+        setNotifications(prev => prev.map(n => ({ ...n, is_read: 1 })));
+        try {
+            await fetch(`${API}/notifications/read-all`, {
+                method: 'PATCH',
+                headers: { Authorization: `Bearer ${token()}` },
+            });
+            refreshUnreadCount();
+        } catch {
+            fetchNotifications();
+        }
     };
 
-    const deleteNotification = (id) => {
-        setNotifications(prev => prev.filter(notif => notif.id !== id));
+    const deleteNotification = async (e, notificationId) => {
+        e.stopPropagation();
+        setNotifications(prev => prev.filter(n => n.notification_id !== notificationId));
+        try {
+            await fetch(`${API}/notifications/${notificationId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token()}` },
+            });
+            refreshUnreadCount();
+        } catch {
+            fetchNotifications();
+        }
     };
 
-    const unreadCount = notifications.filter(n => !n.read).length;
-
-    const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
-
-    const getTypeClass = (type) => {
-        const typeClasses = {
-            received: 'notif-received',
-            processing: 'notif-processing',
-            finished: 'notif-completed',
-            delivered: 'notif-delivered'
-        };
-        return typeClasses[type] || '';
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+        navigate('/signin');
     };
+
+    const unreadCount = notifications.filter(n => !n.is_read).length;
+
+    const getMeta = (type) => TYPE_META[type] || { icon: '🔔', css: '' };
 
     return (
         <div className="dashboard">
@@ -127,7 +127,6 @@ const Notifications = () => {
                 <div className="sidebar-header">
                     <h2 className="logo">WashTub</h2>
                 </div>
-
                 <nav className="sidebar-nav">
                     <Link to="/customer-dashboard" className="nav-item">
                         <span>Overview</span>
@@ -135,7 +134,7 @@ const Notifications = () => {
                     <Link to="/my-orders" className="nav-item">
                         <span>My Orders</span>
                     </Link>
-                    <Link to="/new-order" className="nav-item">
+                    <Link to="/pricing" className="nav-item">
                         <span>New Order</span>
                     </Link>
                     <a href="#" className="nav-item active">
@@ -143,7 +142,6 @@ const Notifications = () => {
                         {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
                     </a>
                 </nav>
-
                 <button className="logout-btn" onClick={handleLogout}>
                     <span>Logout</span>
                 </button>
@@ -167,84 +165,93 @@ const Notifications = () => {
                     </div>
                 </header>
 
-                {/* Notification Stats */}
-                <div className="notif-stats">
-                    <div className="stat-item">
-                        <span className="stat-number">{notifications.length}</span>
-                        <span className="stat-label">Total</span>
+                {/* Stats */}
+                {!loading && !error && (
+                    <div className="notif-stats">
+                        <div className="stat-item">
+                            <span className="stat-number">{notifications.length}</span>
+                            <span className="stat-label">Total</span>
+                        </div>
+                        <div className="stat-item unread">
+                            <span className="stat-number">{unreadCount}</span>
+                            <span className="stat-label">Unread</span>
+                        </div>
                     </div>
-                    <div className="stat-item unread">
-                        <span className="stat-number">{unreadCount}</span>
-                        <span className="stat-label">Unread</span>
+                )}
+
+                {/* Loading */}
+                {loading && (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+                        Loading notifications…
                     </div>
-                </div>
+                )}
+
+                {/* Error */}
+                {error && (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: '#ef4444' }}>
+                        {error}
+                        <button
+                            onClick={fetchNotifications}
+                            style={{ marginLeft: '1rem', color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+                        >
+                            Retry
+                        </button>
+                    </div>
+                )}
 
                 {/* Notifications List */}
-                <section className="notifications-list">
-                    {notifications.length > 0 ? (
-                        notifications.map(notification => (
-                            <div
-                                key={notification.id}
-                                className={`notification-card ${getTypeClass(notification.type)} ${!notification.read ? 'unread' : ''}`}
-                                onClick={() => markAsRead(notification.id)}
-                            >
-                                <div className="notif-icon">
-                                    {notification.icon}
-                                </div>
-                                <div className="notif-content">
-                                    <div className="notif-header-row">
-                                        <h3 className="notif-title">{notification.title}</h3>
-                                        <span className="notif-order-id">{notification.orderId}</span>
-                                    </div>
-                                    <p className="notif-message">{notification.message}</p>
-                                    <span className="notif-time">{notification.time}</span>
-                                </div>
-                                <div className="notif-actions">
-                                    {!notification.read && (
-                                        <span className="unread-dot"></span>
-                                    )}
-                                    <button
-                                        className="btn-delete"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            deleteNotification(notification.id);
-                                        }}
-                                        title="Delete notification"
+                {!loading && !error && (
+                    <section className="notifications-list">
+                        {notifications.length > 0 ? (
+                            notifications.map(notification => {
+                                const meta = getMeta(notification.type);
+                                return (
+                                    <div
+                                        key={notification.notification_id}
+                                        className={`notification-card ${meta.css} ${!notification.is_read ? 'unread' : ''}`}
+                                        onClick={() => !notification.is_read && markAsRead(notification.notification_id)}
                                     >
-                                        ×
-                                    </button>
-                                </div>
+                                        <div className="notif-icon">{meta.icon}</div>
+                                        <div className="notif-content">
+                                            <div className="notif-header-row">
+                                                <h3 className="notif-title">{notification.title}</h3>
+                                                <span className="notif-order-id">#{notification.order_id}</span>
+                                            </div>
+                                            <p className="notif-message">{notification.message}</p>
+                                            <span className="notif-time">{fmtTime(notification.sent_at)}</span>
+                                        </div>
+                                        <div className="notif-actions">
+                                            {!notification.is_read && <span className="unread-dot"></span>}
+                                            <button
+                                                className="btn-delete"
+                                                onClick={(e) => deleteNotification(e, notification.notification_id)}
+                                                title="Delete notification"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <div className="no-notifications">
+                                <span className="no-notif-icon">🔔</span>
+                                <h3>No notifications</h3>
+                                <p>You're all caught up! New notifications will appear here.</p>
                             </div>
-                        ))
-                    ) : (
-                        <div className="no-notifications">
-                            <span className="no-notif-icon">🔔</span>
-                            <h3>No notifications</h3>
-                            <p>You're all caught up! New notifications will appear here.</p>
-                        </div>
-                    )}
-                </section>
+                        )}
+                    </section>
+                )}
 
                 {/* Legend */}
                 <section className="notification-legend">
                     <h4>Notification Types</h4>
                     <div className="legend-items">
-                        <div className="legend-item">
-                            <span className="legend-icon">📥</span>
-                            <span>Order Received</span>
-                        </div>
-                        <div className="legend-item">
-                            <span className="legend-icon">🔄</span>
-                            <span>Processing</span>
-                        </div>
-                        <div className="legend-item">
-                            <span className="legend-icon">✅</span>
-                            <span>Finished</span>
-                        </div>
-                        <div className="legend-item">
-                            <span className="legend-icon">🚚</span>
-                            <span>Delivered</span>
-                        </div>
+                        <div className="legend-item"><span className="legend-icon">📥</span><span>Order Received</span></div>
+                        <div className="legend-item"><span className="legend-icon">🔄</span><span>Processing</span></div>
+                        <div className="legend-item"><span className="legend-icon">✅</span><span>Finished</span></div>
+                        <div className="legend-item"><span className="legend-icon">🚚</span><span>Out for Delivery</span></div>
+                        <div className="legend-item"><span className="legend-icon">🏠</span><span>Delivered</span></div>
                     </div>
                 </section>
             </main>

@@ -37,10 +37,12 @@ import OrderSuccess from './pages/OrderSuccess';
 import PaymentSuccess from './pages/PaymentSuccess';
 import { CartProvider } from './context/CartContext';
 import { StaffOrdersProvider } from './context/StaffOrdersContext';
+import { NotificationProvider } from './context/NotificationContext';
 import './App.css';
 
 function App() {
   return (
+    <NotificationProvider>
     <CartProvider>
       <StaffOrdersProvider>
         <Router>
@@ -87,6 +89,7 @@ function App() {
         </Router>
       </StaffOrdersProvider>
     </CartProvider>
+    </NotificationProvider>
   );
 }
 

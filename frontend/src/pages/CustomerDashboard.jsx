@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useNotifications } from '../context/NotificationContext';
 import './CustomerDashboard.css';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -21,6 +22,7 @@ const ACTIVE_STATUSES = ['pending', 'confirmed', 'pickup_scheduled', 'picked_up'
 
 const CustomerDashboard = () => {
     const navigate = useNavigate();
+    const { unreadCount } = useNotifications();
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -98,6 +100,7 @@ const CustomerDashboard = () => {
                     </a>
                     <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>
                         <span>Notifications</span>
+                        {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
                     </a>
                 </nav>
                 <button className="logout-btn" onClick={handleLogout}>

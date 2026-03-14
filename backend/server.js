@@ -11,6 +11,7 @@ const serviceRoutes = require('./routes/service.routes');
 const publicServiceRoutes = require('./routes/publicService.routes');
 const orderRoutes = require('./routes/order.routes');
 const reportRoutes = require('./routes/report.routes');
+const notificationRoutes = require('./routes/notification.routes');
 const db = require('./config/db.config');
 const Order = require('./models/order.model');
 const Report = require('./models/report.model');
@@ -41,6 +42,7 @@ db.getConnection()
     await Receipt.createTable();
     console.log('✅ Receipts table ready');
     await Notification.createTable();
+    await Notification.migrateTable();
     console.log('✅ Notifications table ready');
   })
   .catch((err) => {
@@ -54,6 +56,7 @@ app.use('/api/admin/services', serviceRoutes);
 app.use('/api/services', publicServiceRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
