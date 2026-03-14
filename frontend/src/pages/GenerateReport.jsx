@@ -10,9 +10,9 @@ const REPORT_TYPES = [
         id: 'daily-sales',
         label: 'Daily Sales Summary',
         icon: '📊',
-        desc: 'Total orders, revenue, and status breakdown for a single day.',
+        desc: 'Total orders, revenue, and payment breakdown across a date range.',
         color: 'blue',
-        dateMode: 'single',
+        dateMode: 'range',
     },
     {
         id: 'service-popularity',
@@ -255,6 +255,29 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
     doc.save(fileName);
 };
 
+const transformDailySalesData = (apiData) => {
+    const { summary, daily_data } = apiData;
+    return {
+        stats: [
+            { label: 'Total Orders',    value: String(summary.totalOrders) },
+            { label: 'Total Revenue',   value: `LKR ${Number(summary.totalRevenue).toLocaleString()}` },
+            { label: 'Avg Order Value', value: `LKR ${Math.round(summary.avgOrderValue).toLocaleString()}` },
+            { label: 'Completion Rate', value: `${summary.completionRate}%` },
+        ],
+        columns: ['Date', 'Orders', 'Revenue (LKR)', 'Avg Value', 'Completed', 'Cancelled', 'Note'],
+        rows: daily_data.map(row => [
+            row.date,
+            String(row.orders),
+            Number(row.revenue).toLocaleString(),
+            `LKR ${Math.round(Number(row.avg_value)).toLocaleString()}`,
+            String(row.completed),
+            String(row.cancelled),
+            row.isBusy ? 'Busy Day' : row.isDrop ? 'Sales Drop' : '',
+        ]),
+        _raw: daily_data,
+    };
+};
+
 const GenerateReport = () => {
     const navigate = useNavigate();
     const [selectedReport, setSelectedReport] = useState('daily-sales');
@@ -280,28 +303,47 @@ const GenerateReport = () => {
 
     const currentType = REPORT_TYPES.find(r => r.id === selectedReport);
 
-    const handleGenerateReport = () => {
-        setIsGenerating(true);
-        setTimeout(() => {
-            setIsGenerating(false);
-            setReportData(MOCK_DATA[selectedReport]);
+    const handleGenerateReport = async () => {
+        if (selectedReport !== 'daily-sales') {
+            setIsGenerating(true);
+            setTimeout(() => {
+                setIsGenerating(false);
+                setReportData(MOCK_DATA[selectedReport]);
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const fileName = `${currentType.label.replace(/\s+/g, '_')}_${now.toISOString().slice(0, 10)}.pdf`;
+                setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: `${(Math.random() * 2 + 0.5).toFixed(1)} MB` }, ...prev]);
+                setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+            }, 1400);
+            return;
+        }
 
+        if (!dateRange.start || !dateRange.end) {
+            alert('Please select a start date and end date.');
+            return;
+        }
+
+        setIsGenerating(true);
+        try {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const res = await fetch(
+                `http://localhost:5000/api/reports/daily-sales?start_date=${dateRange.start}&end_date=${dateRange.end}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            const json = await res.json();
+            if (!res.ok) throw new Error(json.message || 'Failed to generate report');
+
+            setReportData(transformDailySalesData(json));
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const fileName = `${currentType.label.replace(/\s+/g, '_')}_${now.toISOString().slice(0, 10)}.pdf`;
-            const newReport = {
-                id: Date.now(),
-                name: fileName,
-                type: currentType.label,
-                date: dateStr,
-                size: `${(Math.random() * 2 + 0.5).toFixed(1)} MB`,
-            };
-            setGeneratedReports(prev => [newReport, ...prev]);
-
-            setTimeout(() => {
-                document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
-        }, 1400);
+            const fileName = `Daily_Sales_${dateRange.start}_to_${dateRange.end}.pdf`;
+            setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
+            setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+        } catch (err) {
+            alert(err.message);
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     const handleDownloadReport = (report) => {
@@ -454,16 +496,17 @@ const GenerateReport = () => {
                                         {currentType?.icon} {currentType?.label}
                                     </h2>
                                     <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
-                                        Preview — mock data shown. Connect backend API to display live data.
+                                        {selectedReport === 'daily-sales' ? `${dateRange.start} to ${dateRange.end}` : 'Preview — mock data shown.'}
                                     </p>
                                 </div>
                                 <button
                                     className="btn-action btn-download"
-                                    onClick={() => handleDownloadReport({
-                                        name: `${currentType.label.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`,
-                                        type: currentType.label,
-                                        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                                    })}
+                                    onClick={() => buildPdfReport(
+                                        selectedReport,
+                                        currentType.label,
+                                        reportData,
+                                        new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                                    )}
                                     style={{ padding: '0.55rem 1.1rem', fontSize: '0.875rem', whiteSpace: 'nowrap' }}
                                 >
                                     Download PDF
@@ -485,9 +528,15 @@ const GenerateReport = () => {
                                         <tr>{reportData.columns.map(c => <th key={c}>{c}</th>)}</tr>
                                     </thead>
                                     <tbody>
-                                        {reportData.rows.map((row, i) => (
-                                            <tr key={i}>{row.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
-                                        ))}
+                                        {reportData.rows.map((row, i) => {
+                                            const raw = reportData._raw?.[i];
+                                            const cls = raw?.isBusy ? 'row-busy' : raw?.isDrop ? 'row-drop' : '';
+                                            return (
+                                                <tr key={i} className={cls}>
+                                                    {row.map((cell, j) => <td key={j}>{cell}</td>)}
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>

@@ -208,6 +208,9 @@
     background: #f8fafc;
 }
 
+.preview-table tbody tr.row-busy td { background: #fef9c3; }
+.preview-table tbody tr.row-drop td { background: #fee2e2; }
+
 /* ── Reports Count Badge ──────────────────────────────────── */
 .reports-count {
     font-size: 0.875rem;

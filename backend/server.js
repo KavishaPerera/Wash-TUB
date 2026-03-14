@@ -10,6 +10,7 @@ const adminRoutes = require('./routes/admin.routes');
 const serviceRoutes = require('./routes/service.routes');
 const publicServiceRoutes = require('./routes/publicService.routes');
 const orderRoutes = require('./routes/order.routes');
+const reportRoutes = require('./routes/report.routes');
 const db = require('./config/db.config');
 const Order = require('./models/order.model');
 const Report = require('./models/report.model');
@@ -52,6 +53,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/admin/services', serviceRoutes);
 app.use('/api/services', publicServiceRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
