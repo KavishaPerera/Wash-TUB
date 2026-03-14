@@ -241,7 +241,7 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
     doc.setDrawColor(226, 232, 240);
     doc.line(margin, y, margin + contentW, y);
 
-    // ── Insights (monthly-sales only) ─────────────────────────
+    // ── Insights (monthly-sales / payment-method) ─────────────
     if (data.insights) {
         const ins = data.insights;
         y += 14;
@@ -255,16 +255,25 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
         doc.setFontSize(8);
         doc.setTextColor(30, 41, 59);
 
-        const growthSign = ins.avgMomGrowth > 0 ? '+' : '';
-        doc.text(`Business Trend: ${ins.growthTrend}  |  Avg MoM Growth: ${growthSign}${ins.avgMomGrowth}%`, margin, y);
-        y += 6;
-        if (ins.bestMonth)  doc.text(`Best Month: ${ins.bestMonth.name} — LKR ${Number(ins.bestMonth.revenue).toLocaleString()}`, margin, y), y += 6;
-        if (ins.worstMonth) doc.text(`Lowest Month: ${ins.worstMonth.name} — LKR ${Number(ins.worstMonth.revenue).toLocaleString()}`, margin, y), y += 6;
-
-        const seasonalStr = ins.seasonal
-            .map(q => `${q.quarter}: ${q.months_with_data > 0 ? 'LKR ' + Math.round(q.avg_revenue).toLocaleString() : 'No data'}`)
-            .join('   ');
-        doc.text(`Seasonal Avg Revenue — ${seasonalStr}`, margin, y);
+        if (ins.growthTrend !== undefined) {
+            // Monthly sales insights
+            const growthSign = ins.avgMomGrowth > 0 ? '+' : '';
+            doc.text(`Business Trend: ${ins.growthTrend}  |  Avg MoM Growth: ${growthSign}${ins.avgMomGrowth}%`, margin, y);
+            y += 6;
+            if (ins.bestMonth)  { doc.text(`Best Month: ${ins.bestMonth.name} — LKR ${Number(ins.bestMonth.revenue).toLocaleString()}`, margin, y); y += 6; }
+            if (ins.worstMonth) { doc.text(`Lowest Month: ${ins.worstMonth.name} — LKR ${Number(ins.worstMonth.revenue).toLocaleString()}`, margin, y); y += 6; }
+            const seasonalStr = ins.seasonal
+                .map(q => `${q.quarter}: ${q.months_with_data > 0 ? 'LKR ' + Math.round(q.avg_revenue).toLocaleString() : 'No data'}`)
+                .join('   ');
+            doc.text(`Seasonal Avg Revenue — ${seasonalStr}`, margin, y);
+        } else {
+            // Payment method insights
+            doc.text(`Preferred Method: ${ins.preferredMethod}  |  Top Revenue Method: ${ins.topRevenueMethod}`, margin, y);
+            y += 6;
+            doc.text(`Digital Adoption: ${ins.digitalShare}% Digital  |  ${ins.cashShare}% Cash`, margin, y);
+            y += 6;
+            doc.text(`Collection Risk: LKR ${Number(ins.totalPending).toLocaleString()} pending  |  ${ins.collectedRate}% of revenue collected`, margin, y);
+        }
     }
 
     // ── Footer ────────────────────────────────────────────────
@@ -300,6 +309,35 @@ const transformServicePopularityData = (apiData) => {
             Number(row.total_revenue).toLocaleString(),
             `${row.share}%`,
         ]),
+    };
+};
+
+const transformPaymentMethodData = (apiData) => {
+    const { summary, payment_data } = apiData;
+    return {
+        stats: [
+            { label: 'Total Transactions', value: String(summary.totalTransactions) },
+            { label: 'Total Revenue',       value: `LKR ${Number(summary.totalRevenue).toLocaleString()}` },
+            { label: 'Collected',           value: `LKR ${Number(summary.totalCollected).toLocaleString()}` },
+            { label: 'Pending',             value: `LKR ${Number(summary.totalPending).toLocaleString()}` },
+        ],
+        columns: ['Method', 'Transactions', 'Revenue (LKR)', 'Collected (LKR)', 'Pending (LKR)', 'Share %'],
+        rows: payment_data.map(row => [
+            row.payment_method.charAt(0).toUpperCase() + row.payment_method.slice(1),
+            String(row.transactions),
+            Number(row.revenue).toLocaleString(),
+            Number(row.collected).toLocaleString(),
+            Number(row.pending_amount).toLocaleString(),
+            `${row.share}%`,
+        ]),
+        insights: {
+            preferredMethod:  summary.preferredMethod,
+            topRevenueMethod: summary.topRevenueMethod,
+            cashShare:        summary.cashShare,
+            digitalShare:     summary.digitalShare,
+            totalPending:     summary.totalPending,
+            collectedRate:    summary.collectedRate,
+        },
     };
 };
 
@@ -406,6 +444,35 @@ const GenerateReport = () => {
                 const now = new Date();
                 const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 const fileName = `Service_Popularity_${dateRange.start}_to_${dateRange.end}.pdf`;
+                setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
+                setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                setIsGenerating(false);
+            }
+            return;
+        }
+
+        if (selectedReport === 'payment-method') {
+            if (!dateRange.start || !dateRange.end) {
+                alert('Please select a start date and end date.');
+                return;
+            }
+            setIsGenerating(true);
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const res = await fetch(
+                    `http://localhost:5000/api/reports/payment-method?start_date=${dateRange.start}&end_date=${dateRange.end}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Failed to generate report');
+
+                setReportData(transformPaymentMethodData(json));
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const fileName = `Payment_Method_${dateRange.start}_to_${dateRange.end}.pdf`;
                 setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
                 setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             } catch (err) {
@@ -641,7 +708,7 @@ const GenerateReport = () => {
                                     <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
                                         {selectedReport === 'daily-sales'
                                             ? singleDate
-                                            : selectedReport === 'service-popularity'
+                                            : selectedReport === 'service-popularity' || selectedReport === 'payment-method'
                                             ? `${dateRange.start} to ${dateRange.end}`
                                             : selectedReport === 'monthly-sales'
                                             ? `${selectedYear}${selectedMonth ? ' — ' + ['January','February','March','April','May','June','July','August','September','October','November','December'][Number(selectedMonth) - 1] : ' — All Months'}`
@@ -671,7 +738,7 @@ const GenerateReport = () => {
                                 ))}
                             </div>
 
-                            {reportData.insights && (
+                            {reportData.insights && selectedReport === 'monthly-sales' && (
                                 <div className="monthly-insights">
                                     <h3 className="insights-title">Insights</h3>
                                     <div className="insights-grid">
@@ -718,6 +785,46 @@ const GenerateReport = () => {
                                                         </span>
                                                     ))}
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {reportData.insights && selectedReport === 'payment-method' && (
+                                <div className="monthly-insights">
+                                    <h3 className="insights-title">Insights</h3>
+                                    <div className="insights-grid">
+                                        <div className="insight-card trend-preferred">
+                                            <span className="insight-icon">🏅</span>
+                                            <div>
+                                                <p className="insight-label">Preferred Method</p>
+                                                <p className="insight-value" style={{ textTransform: 'capitalize' }}>{reportData.insights.preferredMethod}</p>
+                                                <p className="insight-sub">Most transactions in period</p>
+                                            </div>
+                                        </div>
+                                        <div className="insight-card trend-revenue">
+                                            <span className="insight-icon">💰</span>
+                                            <div>
+                                                <p className="insight-label">Top Revenue Method</p>
+                                                <p className="insight-value" style={{ textTransform: 'capitalize' }}>{reportData.insights.topRevenueMethod}</p>
+                                                <p className="insight-sub">Highest revenue contribution</p>
+                                            </div>
+                                        </div>
+                                        <div className="insight-card trend-digital">
+                                            <span className="insight-icon">📱</span>
+                                            <div>
+                                                <p className="insight-label">Digital Adoption</p>
+                                                <p className="insight-value">{reportData.insights.digitalShare}% Digital</p>
+                                                <p className="insight-sub">{reportData.insights.cashShare}% Cash — improve digital options</p>
+                                            </div>
+                                        </div>
+                                        <div className="insight-card trend-risk">
+                                            <span className="insight-icon">⚠️</span>
+                                            <div>
+                                                <p className="insight-label">Collection Risk</p>
+                                                <p className="insight-value">LKR {Number(reportData.insights.totalPending).toLocaleString()} Pending</p>
+                                                <p className="insight-sub">{reportData.insights.collectedRate}% of revenue collected</p>
                                             </div>
                                         </div>
                                     </div>

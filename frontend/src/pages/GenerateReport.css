@@ -247,6 +247,11 @@
 .insight-card.trend-best     { border-left: 4px solid #d97706; background: #fffbeb; }
 .insight-card.trend-worst    { border-left: 4px solid #9ca3af; background: #f9fafb; }
 .insight-card.trend-seasonal { border-left: 4px solid #7c3aed; background: #f5f3ff; }
+/* Payment Method report cards */
+.insight-card.trend-preferred { border-left: 4px solid #4f46e5; background: #eef2ff; }
+.insight-card.trend-revenue   { border-left: 4px solid #16a34a; background: #f0fdf4; }
+.insight-card.trend-digital   { border-left: 4px solid #0284c7; background: #f0f9ff; }
+.insight-card.trend-risk      { border-left: 4px solid #dc2626; background: #fef2f2; }
 
 .insight-icon { font-size: 1.5rem; line-height: 1; margin-top: 0.1rem; flex-shrink: 0; }
 

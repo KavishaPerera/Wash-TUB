@@ -95,6 +95,81 @@ const reportController = {
       res.status(500).json({ success: false, message: 'Failed to generate report' });
     }
   },
+  async getPaymentMethod(req, res) {
+    try {
+      const { start_date, end_date } = req.query;
+
+      if (!start_date || !end_date) {
+        return res.status(400).json({ success: false, message: 'start_date and end_date are required (YYYY-MM-DD)' });
+      }
+      const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRe.test(start_date) || !dateRe.test(end_date)) {
+        return res.status(400).json({ success: false, message: 'Invalid date format. Use YYYY-MM-DD' });
+      }
+      if (start_date > end_date) {
+        return res.status(400).json({ success: false, message: 'start_date must be before or equal to end_date' });
+      }
+
+      const { paymentRows } = await Report.getPaymentMethodData(start_date, end_date);
+
+      const totalTransactions = paymentRows.reduce((s, r) => s + Number(r.transactions), 0);
+      const totalRevenue      = paymentRows.reduce((s, r) => s + Number(r.revenue),      0);
+      const totalCollected    = paymentRows.reduce((s, r) => s + Number(r.collected),    0);
+      const totalPending      = paymentRows.reduce((s, r) => s + Number(r.pending_amount), 0);
+      const collectedRate     = totalRevenue > 0 ? (totalCollected / totalRevenue) * 100 : 0;
+
+      // Preferred method (most transactions) and top revenue method
+      const preferredMethod   = paymentRows.length > 0
+        ? paymentRows.reduce((a, b) => Number(b.transactions) > Number(a.transactions) ? b : a).payment_method
+        : 'N/A';
+      const topRevenueMethod  = paymentRows.length > 0
+        ? paymentRows[0].payment_method   // already sorted by revenue DESC
+        : 'N/A';
+
+      // Cash vs digital split
+      const digitalMethods = ['visa', 'mastercard', 'amex', 'online', 'card'];
+      let digitalTx = 0;
+      let cashTx    = 0;
+      paymentRows.forEach(r => {
+        const tx = Number(r.transactions);
+        if (digitalMethods.includes(r.payment_method.toLowerCase())) {
+          digitalTx += tx;
+        } else {
+          cashTx += tx;
+        }
+      });
+      const digitalShare = totalTransactions > 0 ? Number(((digitalTx / totalTransactions) * 100).toFixed(1)) : 0;
+      const cashShare    = totalTransactions > 0 ? Number(((cashTx    / totalTransactions) * 100).toFixed(1)) : 0;
+
+      // Per-row revenue share %
+      const enrichedPayments = paymentRows.map(row => ({
+        ...row,
+        share: totalRevenue > 0
+          ? Number(((Number(row.revenue) / totalRevenue) * 100).toFixed(1))
+          : 0,
+      }));
+
+      res.json({
+        success: true,
+        summary: {
+          totalTransactions,
+          totalRevenue:   Number(totalRevenue.toFixed(2)),
+          totalCollected: Number(totalCollected.toFixed(2)),
+          totalPending:   Number(totalPending.toFixed(2)),
+          collectedRate:  Number(collectedRate.toFixed(1)),
+          preferredMethod,
+          topRevenueMethod,
+          cashShare,
+          digitalShare,
+          dateRange: { start: start_date, end: end_date },
+        },
+        payment_data: enrichedPayments,
+      });
+    } catch (err) {
+      console.error('getPaymentMethod error:', err);
+      res.status(500).json({ success: false, message: 'Failed to generate report' });
+    }
+  },
   async getMonthlySales(req, res) {
     try {
       const { year, month } = req.query;

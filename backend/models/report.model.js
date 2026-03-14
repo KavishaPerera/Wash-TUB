@@ -73,6 +73,24 @@ const Report = {
     return { monthlyRows };
   },
 
+  async getPaymentMethodData(startDate, endDate) {
+    const [paymentRows] = await db.execute(`
+      SELECT
+        COALESCE(payment_method, 'unknown')                                     AS payment_method,
+        COUNT(*)                                                                 AS transactions,
+        SUM(CASE WHEN status != 'cancelled' THEN total ELSE 0 END)              AS revenue,
+        SUM(CASE WHEN payment_status = 'paid'    THEN total ELSE 0 END)         AS collected,
+        SUM(CASE WHEN payment_status = 'pending' THEN total ELSE 0 END)         AS pending_amount,
+        SUM(CASE WHEN status = 'cancelled'       THEN 1    ELSE 0 END)          AS cancelled
+      FROM orders
+      WHERE DATE(created_at) BETWEEN ? AND ?
+      GROUP BY payment_method
+      ORDER BY revenue DESC
+    `, [startDate, endDate]);
+
+    return { paymentRows };
+  },
+
   async createTable() {
     const sql = `
       CREATE TABLE IF NOT EXISTS reports (

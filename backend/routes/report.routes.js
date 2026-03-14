@@ -6,5 +6,6 @@ const { verifyToken, isOwner } = require('../middleware/auth.middleware');
 router.get('/daily-sales',        verifyToken, isOwner, reportController.getDailySales);
 router.get('/service-popularity', verifyToken, isOwner, reportController.getServicePopularity);
 router.get('/monthly-sales',      verifyToken, isOwner, reportController.getMonthlySales);
+router.get('/payment-method',     verifyToken, isOwner, reportController.getPaymentMethod);
 
 module.exports = router;
