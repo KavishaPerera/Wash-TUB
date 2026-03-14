@@ -7,5 +7,6 @@ router.get('/daily-sales',        verifyToken, isOwner, reportController.getDail
 router.get('/service-popularity', verifyToken, isOwner, reportController.getServicePopularity);
 router.get('/monthly-sales',      verifyToken, isOwner, reportController.getMonthlySales);
 router.get('/payment-method',     verifyToken, isOwner, reportController.getPaymentMethod);
+router.get('/top-customers',      verifyToken, isOwner, reportController.getTopCustomers);
 
 module.exports = router;

@@ -266,6 +266,13 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
                 .map(q => `${q.quarter}: ${q.months_with_data > 0 ? 'LKR ' + Math.round(q.avg_revenue).toLocaleString() : 'No data'}`)
                 .join('   ');
             doc.text(`Seasonal Avg Revenue — ${seasonalStr}`, margin, y);
+        } else if (ins.topSpender !== undefined) {
+            // Top customers insights
+            doc.text(`VIP Customer: ${ins.topSpender} — LKR ${Number(ins.topSpenderAmount).toLocaleString()}`, margin, y);
+            y += 6;
+            doc.text(`Most Loyal: ${ins.mostLoyal} — ${ins.mostLoyalOrders} orders in period`, margin, y);
+            y += 6;
+            doc.text(`Avg Spend / Customer: LKR ${Number(ins.avgSpendPerCustomer).toLocaleString()}  |  Avg Orders: ${ins.avgOrdersPerCustomer}`, margin, y);
         } else {
             // Payment method insights
             doc.text(`Preferred Method: ${ins.preferredMethod}  |  Top Revenue Method: ${ins.topRevenueMethod}`, margin, y);
@@ -337,6 +344,36 @@ const transformPaymentMethodData = (apiData) => {
             digitalShare:     summary.digitalShare,
             totalPending:     summary.totalPending,
             collectedRate:    summary.collectedRate,
+        },
+    };
+};
+
+const transformTopCustomersData = (apiData) => {
+    const { summary, customer_data } = apiData;
+    return {
+        stats: [
+            { label: 'Total Customers',        value: String(summary.totalCustomers) },
+            { label: 'Combined Spend',         value: `LKR ${Number(summary.combinedSpend).toLocaleString()}` },
+            { label: 'Avg Orders / Customer',  value: String(summary.avgOrdersPerCustomer) },
+            { label: 'Avg Spend / Customer',   value: `LKR ${Number(summary.avgSpendPerCustomer).toLocaleString()}` },
+        ],
+        columns: ['Rank', 'Customer', 'Email', 'Orders', 'Total Spend (LKR)', 'Avg Order (LKR)', 'Last Order'],
+        rows: customer_data.map(row => [
+            String(row.rank),
+            row.customer_name,
+            row.email,
+            String(row.total_orders),
+            Number(row.total_spent).toLocaleString(),
+            Number(row.avg_order_value).toLocaleString(undefined, { maximumFractionDigits: 0 }),
+            row.last_order_date ? new Date(row.last_order_date).toLocaleDateString('en-GB') : '—',
+        ]),
+        insights: {
+            topSpender:           summary.topSpender,
+            topSpenderAmount:     summary.topSpenderAmount,
+            mostLoyal:            summary.mostLoyal,
+            mostLoyalOrders:      summary.mostLoyalOrders,
+            avgSpendPerCustomer:  summary.avgSpendPerCustomer,
+            avgOrdersPerCustomer: summary.avgOrdersPerCustomer,
         },
     };
 };
@@ -473,6 +510,35 @@ const GenerateReport = () => {
                 const now = new Date();
                 const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 const fileName = `Payment_Method_${dateRange.start}_to_${dateRange.end}.pdf`;
+                setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
+                setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                setIsGenerating(false);
+            }
+            return;
+        }
+
+        if (selectedReport === 'top-customers') {
+            if (!dateRange.start || !dateRange.end) {
+                alert('Please select a start date and end date.');
+                return;
+            }
+            setIsGenerating(true);
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const res = await fetch(
+                    `http://localhost:5000/api/reports/top-customers?start_date=${dateRange.start}&end_date=${dateRange.end}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Failed to generate report');
+
+                setReportData(transformTopCustomersData(json));
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const fileName = `Top_Customers_${dateRange.start}_to_${dateRange.end}.pdf`;
                 setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
                 setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             } catch (err) {
@@ -708,7 +774,7 @@ const GenerateReport = () => {
                                     <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
                                         {selectedReport === 'daily-sales'
                                             ? singleDate
-                                            : selectedReport === 'service-popularity' || selectedReport === 'payment-method'
+                                            : selectedReport === 'service-popularity' || selectedReport === 'payment-method' || selectedReport === 'top-customers'
                                             ? `${dateRange.start} to ${dateRange.end}`
                                             : selectedReport === 'monthly-sales'
                                             ? `${selectedYear}${selectedMonth ? ' — ' + ['January','February','March','April','May','June','July','August','September','October','November','December'][Number(selectedMonth) - 1] : ' — All Months'}`
@@ -825,6 +891,46 @@ const GenerateReport = () => {
                                                 <p className="insight-label">Collection Risk</p>
                                                 <p className="insight-value">LKR {Number(reportData.insights.totalPending).toLocaleString()} Pending</p>
                                                 <p className="insight-sub">{reportData.insights.collectedRate}% of revenue collected</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {reportData.insights && selectedReport === 'top-customers' && (
+                                <div className="monthly-insights">
+                                    <h3 className="insights-title">Insights</h3>
+                                    <div className="insights-grid">
+                                        <div className="insight-card trend-vip">
+                                            <span className="insight-icon">👑</span>
+                                            <div>
+                                                <p className="insight-label">VIP Customer</p>
+                                                <p className="insight-value">{reportData.insights.topSpender}</p>
+                                                <p className="insight-sub">LKR {Number(reportData.insights.topSpenderAmount).toLocaleString()} total spend</p>
+                                            </div>
+                                        </div>
+                                        <div className="insight-card trend-loyal">
+                                            <span className="insight-icon">🔁</span>
+                                            <div>
+                                                <p className="insight-label">Most Loyal</p>
+                                                <p className="insight-value">{reportData.insights.mostLoyal}</p>
+                                                <p className="insight-sub">{reportData.insights.mostLoyalOrders} orders in period</p>
+                                            </div>
+                                        </div>
+                                        <div className="insight-card trend-avgspend">
+                                            <span className="insight-icon">💵</span>
+                                            <div>
+                                                <p className="insight-label">Avg Spend / Customer</p>
+                                                <p className="insight-value">LKR {Number(reportData.insights.avgSpendPerCustomer).toLocaleString()}</p>
+                                                <p className="insight-sub">Across top customers</p>
+                                            </div>
+                                        </div>
+                                        <div className="insight-card trend-engagement">
+                                            <span className="insight-icon">📦</span>
+                                            <div>
+                                                <p className="insight-label">Avg Orders / Customer</p>
+                                                <p className="insight-value">{reportData.insights.avgOrdersPerCustomer}</p>
+                                                <p className="insight-sub">Repeat business indicator</p>
                                             </div>
                                         </div>
                                     </div>

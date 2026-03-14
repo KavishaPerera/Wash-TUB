@@ -91,6 +91,30 @@ const Report = {
     return { paymentRows };
   },
 
+  async getTopCustomersData(startDate, endDate, limit = 10) {
+    const [customerRows] = await db.execute(`
+      SELECT
+        u.id                                                                           AS customer_id,
+        CONCAT(u.first_name, ' ', u.last_name)                                         AS customer_name,
+        u.email,
+        u.phone,
+        COUNT(o.id)                                                                    AS total_orders,
+        SUM(CASE WHEN o.status != 'cancelled' THEN o.total ELSE 0 END)                AS total_spent,
+        COALESCE(AVG(CASE WHEN o.status != 'cancelled' THEN o.total ELSE NULL END), 0) AS avg_order_value,
+        MAX(o.created_at)                                                              AS last_order_date,
+        SUM(CASE WHEN o.status = 'cancelled' THEN 1 ELSE 0 END)                       AS cancelled_orders
+      FROM orders o
+      JOIN users u ON o.customer_id = u.id
+      WHERE DATE(o.created_at) BETWEEN ? AND ?
+        AND u.role = 'customer'
+      GROUP BY u.id, u.first_name, u.last_name, u.email, u.phone
+      ORDER BY total_spent DESC
+      LIMIT ${limit}
+    `, [startDate, endDate]);
+
+    return { customerRows };
+  },
+
   async createTable() {
     const sql = `
       CREATE TABLE IF NOT EXISTS reports (

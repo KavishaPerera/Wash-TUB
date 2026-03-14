@@ -170,6 +170,68 @@ const reportController = {
       res.status(500).json({ success: false, message: 'Failed to generate report' });
     }
   },
+  async getTopCustomers(req, res) {
+    try {
+      const { start_date, end_date, limit: limitParam } = req.query;
+
+      if (!start_date || !end_date) {
+        return res.status(400).json({ success: false, message: 'start_date and end_date are required (YYYY-MM-DD)' });
+      }
+      const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRe.test(start_date) || !dateRe.test(end_date)) {
+        return res.status(400).json({ success: false, message: 'Invalid date format. Use YYYY-MM-DD' });
+      }
+      if (start_date > end_date) {
+        return res.status(400).json({ success: false, message: 'start_date must be before or equal to end_date' });
+      }
+
+      const limit = Math.min(Math.max(parseInt(limitParam) || 10, 1), 50);
+
+      const { customerRows } = await Report.getTopCustomersData(start_date, end_date, limit);
+
+      const totalCustomers       = customerRows.length;
+      const combinedSpend        = customerRows.reduce((s, r) => s + Number(r.total_spent), 0);
+      const totalOrdersSum       = customerRows.reduce((s, r) => s + Number(r.total_orders), 0);
+      const avgOrdersPerCustomer = totalCustomers > 0 ? Number((totalOrdersSum / totalCustomers).toFixed(1)) : 0;
+      const avgSpendPerCustomer  = totalCustomers > 0 ? Number((combinedSpend / totalCustomers).toFixed(2)) : 0;
+
+      const topSpender     = customerRows.length > 0 ? customerRows[0].customer_name : 'N/A';
+      const topSpenderAmount = customerRows.length > 0 ? Number(customerRows[0].total_spent) : 0;
+      const mostLoyalRow   = customerRows.length > 0
+        ? customerRows.reduce((a, b) => Number(b.total_orders) > Number(a.total_orders) ? b : a)
+        : null;
+      const mostLoyal      = mostLoyalRow ? mostLoyalRow.customer_name : 'N/A';
+      const mostLoyalOrders = mostLoyalRow ? Number(mostLoyalRow.total_orders) : 0;
+
+      const enrichedCustomers = customerRows.map((row, idx) => ({
+        ...row,
+        rank: idx + 1,
+        spendShare: combinedSpend > 0
+          ? Number(((Number(row.total_spent) / combinedSpend) * 100).toFixed(1))
+          : 0,
+      }));
+
+      res.json({
+        success: true,
+        summary: {
+          totalCustomers,
+          combinedSpend:        Number(combinedSpend.toFixed(2)),
+          avgOrdersPerCustomer,
+          avgSpendPerCustomer,
+          topSpender,
+          topSpenderAmount:     Number(topSpenderAmount.toFixed(2)),
+          mostLoyal,
+          mostLoyalOrders,
+          dateRange: { start: start_date, end: end_date },
+          limit,
+        },
+        customer_data: enrichedCustomers,
+      });
+    } catch (err) {
+      console.error('getTopCustomers error:', err);
+      res.status(500).json({ success: false, message: 'Failed to generate report' });
+    }
+  },
   async getMonthlySales(req, res) {
     try {
       const { year, month } = req.query;
