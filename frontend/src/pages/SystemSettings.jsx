@@ -27,6 +27,19 @@ const SystemSettings = () => {
         } catch { return BUSINESS_DEFAULTS; }
     });
 
+    // FAQ State
+    const FAQ_DEFAULTS = [
+        { id: 1, question: 'How do I schedule a pickup?', answer: 'Simply log in to your account, select "New Order", choose your preferred time slot, and we\'ll handle the rest.' },
+        { id: 2, question: 'What is the turnaround time?', answer: 'Our standard turnaround time is 24-48 hours. Express same-day service is available for selected areas.' },
+        { id: 3, question: 'Do you offer delivery?', answer: 'Yes, we offer free pickup and delivery for orders above LKR 2000 within our service areas.' },
+    ];
+    const [faqs, setFaqs] = useState(() => {
+        try {
+            const saved = localStorage.getItem('washtub_faqs');
+            return saved ? JSON.parse(saved) : FAQ_DEFAULTS;
+        } catch { return FAQ_DEFAULTS; }
+    });
+
     // Delivery Settings State
     const [deliverySettings, setDeliverySettings] = useState({
         standardFee: '350.00',
@@ -45,7 +58,18 @@ const SystemSettings = () => {
 
     const handleSaveBusinessInfo = () => {
         localStorage.setItem('washtub_business_info', JSON.stringify(businessInfo));
+        localStorage.setItem('washtub_faqs', JSON.stringify(faqs));
         alert('Business information saved successfully.');
+    };
+
+    const handleFaqChange = (id, field, value) => {
+        setFaqs(faqs.map(f => f.id === id ? { ...f, [field]: value } : f));
+    };
+    const handleAddFaq = () => {
+        setFaqs([...faqs, { id: Date.now(), question: '', answer: '' }]);
+    };
+    const handleRemoveFaq = (id) => {
+        setFaqs(faqs.filter(f => f.id !== id));
     };
 
     const handleDeliveryChange = (e) => {
@@ -172,6 +196,40 @@ const SystemSettings = () => {
                                         </select>
                                     </div>
                                 </div>
+                                {/* FAQ Manager */}
+                                <div className="faq-manager">
+                                    <div className="faq-manager-header">
+                                        <h3>Frequently Asked Questions</h3>
+                                        <button className="btn btn-secondary btn-sm" onClick={handleAddFaq}>+ Add FAQ</button>
+                                    </div>
+                                    {faqs.map((faq, index) => (
+                                        <div key={faq.id} className="faq-entry">
+                                            <div className="faq-entry-header">
+                                                <span className="faq-entry-label">FAQ #{index + 1}</span>
+                                                <button className="faq-remove-btn" onClick={() => handleRemoveFaq(faq.id)}>Remove</button>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Question</label>
+                                                <input
+                                                    type="text"
+                                                    value={faq.question}
+                                                    onChange={e => handleFaqChange(faq.id, 'question', e.target.value)}
+                                                    placeholder="Enter question"
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Answer</label>
+                                                <textarea
+                                                    rows="3"
+                                                    value={faq.answer}
+                                                    onChange={e => handleFaqChange(faq.id, 'answer', e.target.value)}
+                                                    placeholder="Enter answer"
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
                                 <div className="form-actions">
                                     <button className="btn btn-primary btn-large" onClick={handleSaveBusinessInfo}>Save Changes</button>
                                 </div>

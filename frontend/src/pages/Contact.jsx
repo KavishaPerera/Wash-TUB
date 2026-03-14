@@ -4,6 +4,19 @@ import Footer from '../components/Footer';
 import { Mail, Phone, MapPin, MessageSquare, Clock } from 'lucide-react';
 import './Contact.css';
 
+const getFaqs = () => {
+    const defaults = [
+        { id: 1, question: 'How do I schedule a pickup?', answer: 'Simply log in to your account, select "New Order", choose your preferred time slot, and we\'ll handle the rest.' },
+        { id: 2, question: 'What is the turnaround time?', answer: 'Our standard turnaround time is 24-48 hours. Express same-day service is available for selected areas.' },
+        { id: 3, question: 'Do you offer delivery?', answer: 'Yes, we offer free pickup and delivery for orders above LKR 2000 within our service areas.' },
+    ];
+    try {
+        const saved = localStorage.getItem('washtub_faqs');
+        const parsed = saved ? JSON.parse(saved) : null;
+        return parsed && parsed.length > 0 ? parsed : defaults;
+    } catch { return defaults; }
+};
+
 const getBusinessInfo = () => {
     const defaults = {
         phone1: '+94 11 452 8476',
@@ -21,6 +34,7 @@ const getBusinessInfo = () => {
 
 const Contact = () => {
     const info = getBusinessInfo();
+    const faqs = getFaqs();
     return (
         <div className="contact-page">
             <Navbar />
@@ -94,21 +108,13 @@ const Contact = () => {
                 <div className="contact-container">
                     <h2 className="section-heading">Frequently Asked Questions</h2>
                     <div className="faq-grid">
-                        <div className="faq-item">
-                            <div className="faq-icon"><MessageSquare size={18} /></div>
-                            <h3>How do I schedule a pickup?</h3>
-                            <p>Simply log in to your account, select "New Order", choose your preferred time slot, and we'll handle the rest.</p>
-                        </div>
-                        <div className="faq-item">
-                            <div className="faq-icon"><MessageSquare size={18} /></div>
-                            <h3>What is the turnaround time?</h3>
-                            <p>Our standard turnaround time is 24-48 hours. Express same-day service is available for selected areas.</p>
-                        </div>
-                        <div className="faq-item">
-                            <div className="faq-icon"><MessageSquare size={18} /></div>
-                            <h3>Do you offer delivery?</h3>
-                            <p>Yes, we offer free pickup and delivery for orders above LKR 2000 within our service areas.</p>
-                        </div>
+                        {faqs.map(faq => (
+                            <div key={faq.id} className="faq-item">
+                                <div className="faq-icon"><MessageSquare size={18} /></div>
+                                <h3>{faq.question}</h3>
+                                <p>{faq.answer}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>

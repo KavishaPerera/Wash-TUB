@@ -47,6 +47,63 @@
     font-size: 0.9rem;
 }
 
+/* FAQ Manager */
+.faq-manager {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.faq-manager-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.faq-manager-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-light);
+    margin: 0;
+}
+
+.faq-entry {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.faq-entry-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.faq-entry-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-primary-light, #64b5f6);
+}
+
+.faq-remove-btn {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.faq-remove-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+}
+
 /* Responsive adjustments specific to settings widgets */
 @media (max-width: 768px) {
     .price-input {
