@@ -255,6 +255,28 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
     doc.save(fileName);
 };
 
+const transformServicePopularityData = (apiData) => {
+    const { summary, services } = apiData;
+    return {
+        stats: [
+            { label: 'Unique Items',  value: String(summary.uniqueItems) },
+            { label: 'Total Qty',     value: String(summary.totalQuantity) },
+            { label: 'Total Revenue', value: `LKR ${Number(summary.totalRevenue).toLocaleString()}` },
+            { label: 'Top Item',      value: summary.topItem },
+        ],
+        columns: ['Rank', 'Item', 'Order Type', 'Qty Ordered', 'In Orders', 'Revenue (LKR)', 'Share %'],
+        rows: services.map((row, i) => [
+            String(i + 1),
+            row.item_name,
+            row.method,
+            String(row.total_quantity),
+            String(row.order_count),
+            Number(row.total_revenue).toLocaleString(),
+            `${row.share}%`,
+        ]),
+    };
+};
+
 const transformDailySalesData = (apiData) => {
     const { summary, daily_data } = apiData;
     return {
@@ -304,6 +326,35 @@ const GenerateReport = () => {
     const currentType = REPORT_TYPES.find(r => r.id === selectedReport);
 
     const handleGenerateReport = async () => {
+        if (selectedReport === 'service-popularity') {
+            if (!dateRange.start || !dateRange.end) {
+                alert('Please select a start date and end date.');
+                return;
+            }
+            setIsGenerating(true);
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const res = await fetch(
+                    `http://localhost:5000/api/reports/service-popularity?start_date=${dateRange.start}&end_date=${dateRange.end}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Failed to generate report');
+
+                setReportData(transformServicePopularityData(json));
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const fileName = `Service_Popularity_${dateRange.start}_to_${dateRange.end}.pdf`;
+                setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
+                setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                setIsGenerating(false);
+            }
+            return;
+        }
+
         if (selectedReport !== 'daily-sales') {
             setIsGenerating(true);
             setTimeout(() => {
@@ -496,7 +547,11 @@ const GenerateReport = () => {
                                         {currentType?.icon} {currentType?.label}
                                     </h2>
                                     <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
-                                        {selectedReport === 'daily-sales' ? singleDate : 'Preview — mock data shown.'}
+                                        {selectedReport === 'daily-sales'
+                                            ? singleDate
+                                            : selectedReport === 'service-popularity'
+                                            ? `${dateRange.start} to ${dateRange.end}`
+                                            : 'Preview — mock data shown.'}
                                     </p>
                                 </div>
                                 <button

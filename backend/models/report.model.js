@@ -30,6 +30,25 @@ const Report = {
     return { dailyRows, paymentRows };
   },
 
+  async getServicePopularityData(startDate, endDate) {
+    const [serviceRows] = await db.execute(`
+      SELECT
+        oi.item_name,
+        COALESCE(oi.method, 'N/A') AS method,
+        SUM(oi.quantity) AS total_quantity,
+        COUNT(oi.id)     AS order_count,
+        SUM(oi.subtotal) AS total_revenue
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      WHERE DATE(o.created_at) BETWEEN ? AND ?
+        AND o.status != 'cancelled'
+      GROUP BY oi.item_name, oi.method
+      ORDER BY total_quantity DESC
+    `, [startDate, endDate]);
+
+    return { serviceRows };
+  },
+
   async createTable() {
     const sql = `
       CREATE TABLE IF NOT EXISTS reports (
