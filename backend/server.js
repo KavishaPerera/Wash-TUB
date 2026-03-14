@@ -13,6 +13,9 @@ const orderRoutes = require('./routes/order.routes');
 const db = require('./config/db.config');
 const Order = require('./models/order.model');
 const Report = require('./models/report.model');
+const Payment = require('./models/payment.model');
+const Receipt = require('./models/receipt.model');
+const Notification = require('./models/notification.model');
 
 const app = express();
 
@@ -32,6 +35,12 @@ db.getConnection()
     console.log('✅ Order tables ready');
     await Report.createTable();
     console.log('✅ Reports table ready');
+    await Payment.createTable();
+    console.log('✅ Payments table ready');
+    await Receipt.createTable();
+    console.log('✅ Receipts table ready');
+    await Notification.createTable();
+    console.log('✅ Notifications table ready');
   })
   .catch((err) => {
     console.error('❌ Database connection failed:', err.message);
