@@ -12,6 +12,7 @@ const publicServiceRoutes = require('./routes/publicService.routes');
 const orderRoutes = require('./routes/order.routes');
 const db = require('./config/db.config');
 const Order = require('./models/order.model');
+const Report = require('./models/report.model');
 
 const app = express();
 
@@ -29,6 +30,8 @@ db.getConnection()
     await Order.createTables();
     // await Order.alterTables();
     console.log('✅ Order tables ready');
+    await Report.createTable();
+    console.log('✅ Reports table ready');
   })
   .catch((err) => {
     console.error('❌ Database connection failed:', err.message);
