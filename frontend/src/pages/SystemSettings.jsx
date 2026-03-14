@@ -179,14 +179,10 @@ const SystemSettings = () => {
                                     <label>Address</label>
                                     <textarea rows="3" name="address" value={businessInfo.address} onChange={handleInfoChange}></textarea>
                                 </div>
-                                <div className="form-group full-width">
-                                    <label>Business Hours</label>
-                                    <input type="text" name="businessHours" value={businessInfo.businessHours} onChange={handleInfoChange} placeholder="e.g. Mon - Sun: 7:00 AM - 9:00 PM" />
-                                </div>
                                 <div className="form-row">
                                     <div className="form-group">
-                                        <label>Tax Rate (%)</label>
-                                        <input type="number" name="taxRate" value={businessInfo.taxRate} onChange={handleInfoChange} />
+                                        <label>Business Hours</label>
+                                        <input type="text" name="businessHours" value={businessInfo.businessHours} onChange={handleInfoChange} placeholder="e.g. Mon - Sun: 7:00 AM - 9:00 PM" />
                                     </div>
                                     <div className="form-group">
                                         <label>Currency</label>
@@ -240,7 +236,6 @@ const SystemSettings = () => {
                     {/* Delivery Settings Tab */}
                     {activeTab === 'delivery' && (
                         <section className="dashboard-form-section">
-                            <h2 style={{ marginBottom: '1.5rem', color: 'var(--color-light)' }}>Delivery Parameters</h2>
                             <div className="settings-form">
                                 <div className="form-row">
                                     <div className="form-group">
