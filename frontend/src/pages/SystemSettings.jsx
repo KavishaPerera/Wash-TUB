@@ -166,6 +166,19 @@ const SystemSettings = () => {
     const [selectedCustomers, setSelectedCustomers] = useState([]);
     const [selectedCustomerIds, setSelectedCustomerIds] = useState([]);
     const [lowSalesServices, setLowSalesServices] = useState([]);
+    // ── Low Sales Promotion Form State ────────────────────────────────
+    const LOW_SALES_FORM_DEFAULTS = {
+        code: '', description: '', discountType: 'percentage',
+        discountValue: '', minOrderAmount: '', maxUses: '', expiresAt: '', targetType: 'all',
+    };
+    const [selectedLowSalesIds, setSelectedLowSalesIds] = useState([]);
+    const [lowSalesForm, setLowSalesForm] = useState(LOW_SALES_FORM_DEFAULTS);
+    const [lowSalesTopCustomers, setLowSalesTopCustomers] = useState([]);
+    const [selectedLowSalesCustomers, setSelectedLowSalesCustomers] = useState([]);
+    const [selectedLowSalesCustomerIds, setSelectedLowSalesCustomerIds] = useState([]);
+    const [lowSalesLoading, setLowSalesLoading] = useState(false);
+    const [lowSalesMsg, setLowSalesMsg] = useState('');
+    const [lowSalesError, setLowSalesError] = useState('');
     const [promoLoading, setPromoLoading] = useState(false);
     const [promoMsg, setPromoMsg] = useState('');
     const [promoError, setPromoError] = useState('');
@@ -284,9 +297,113 @@ const SystemSettings = () => {
         setPromoLoading(true);
         try {
             const res = await fetch(`${API_URL}/admin/promotions/low-sales-services`, { headers: authHeaders });
-            if (res.ok) setLowSalesServices(await res.json());
+            if (res.ok) { setLowSalesServices(await res.json()); setSelectedLowSalesIds([]); setLowSalesForm(LOW_SALES_FORM_DEFAULTS); }
         } catch { /* silent */ }
         finally { setPromoLoading(false); }
+    };
+
+    const toggleLowSalesService = (serviceId) => {
+        setSelectedLowSalesIds(prev => {
+            const next = prev.includes(serviceId) ? prev.filter(id => id !== serviceId) : [...prev, serviceId];
+            const names = lowSalesServices.filter(s => next.includes(s.service_id)).map(s => s.service_name).join(', ');
+            setLowSalesForm(f => {
+                const autoFilled = !f.description || f.description.startsWith('Special offer on:');
+                return { ...f, description: names ? `Special offer on: ${names}` : (autoFilled ? '' : f.description) };
+            });
+            return next;
+        });
+    };
+
+    const generateLowSalesCode = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const rand = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        setLowSalesForm(f => ({ ...f, code: `PROMO-${rand}` }));
+    };
+
+    const handleLowSalesFormChange = (e) => {
+        setLowSalesForm(f => ({ ...f, [e.target.name]: e.target.value }));
+    };
+
+    const handleLoadLowSalesTopCustomers = async () => {
+        setLowSalesLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/admin/promotions/top-customers`, { headers: authHeaders });
+            if (res.ok) { setLowSalesTopCustomers(await res.json()); setSelectedLowSalesCustomers([]); setSelectedLowSalesCustomerIds([]); }
+        } catch { /* silent */ }
+        finally { setLowSalesLoading(false); }
+    };
+
+    const toggleLowSalesCustomer = (customer) => {
+        const { email, id } = customer;
+        setSelectedLowSalesCustomers(prev => prev.includes(email) ? prev.filter(e => e !== email) : [...prev, email]);
+        setSelectedLowSalesCustomerIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    };
+
+    const handleCreateLowSalesPromotion = async () => {
+        setLowSalesMsg(''); setLowSalesError('');
+        if (!lowSalesForm.code || !lowSalesForm.discountValue) {
+            setLowSalesError('Code and discount value are required.');
+            return;
+        }
+        setLowSalesLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/admin/promotions`, {
+                method: 'POST',
+                headers: authHeaders,
+                body: JSON.stringify({
+                    code: lowSalesForm.code,
+                    description: lowSalesForm.description,
+                    discountType: lowSalesForm.discountType,
+                    discountValue: parseFloat(lowSalesForm.discountValue),
+                    minOrderAmount: parseFloat(lowSalesForm.minOrderAmount) || 0,
+                    maxUses: lowSalesForm.maxUses ? parseInt(lowSalesForm.maxUses) : null,
+                    expiresAt: lowSalesForm.expiresAt || null,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) { setLowSalesError(data.message || 'Failed to create promotion.'); return; }
+
+            if (lowSalesForm.targetType === 'all' && data.promotion?.id) {
+                try {
+                    const custRes = await fetch(`${API_URL}/admin/promotions/active-customers`, { headers: authHeaders });
+                    const customers = await custRes.json();
+                    const allIds = customers.map(c => c.id);
+                    if (allIds.length > 0) {
+                        await fetch(`${API_URL}/admin/promotions/send-notifications`, {
+                            method: 'POST',
+                            headers: authHeaders,
+                            body: JSON.stringify({ promotionId: data.promotion.id, customerIds: allIds }),
+                        });
+                        setLowSalesMsg(`Promotion created & notifications sent to ${allIds.length} customer(s)!`);
+                    } else {
+                        setLowSalesMsg('Promotion created! (No active customers found.)');
+                    }
+                } catch {
+                    setLowSalesMsg('Promotion created! (Notifications could not be sent.)');
+                }
+            } else if (selectedLowSalesCustomerIds.length > 0 && data.promotion?.id) {
+                try {
+                    await fetch(`${API_URL}/admin/promotions/send-notifications`, {
+                        method: 'POST',
+                        headers: authHeaders,
+                        body: JSON.stringify({ promotionId: data.promotion.id, customerIds: selectedLowSalesCustomerIds }),
+                    });
+                    setLowSalesMsg(`Promotion created & notifications sent to ${selectedLowSalesCustomerIds.length} customer(s)!`);
+                } catch {
+                    setLowSalesMsg('Promotion created! (Notifications could not be sent.)');
+                }
+            } else {
+                setLowSalesMsg('Promotion created successfully!');
+            }
+
+            setLowSalesForm(LOW_SALES_FORM_DEFAULTS);
+            setSelectedLowSalesIds([]);
+            setLowSalesTopCustomers([]);
+            setSelectedLowSalesCustomers([]);
+            setSelectedLowSalesCustomerIds([]);
+            fetchPromotions();
+        } catch { setLowSalesError('Network error.'); }
+        finally { setLowSalesLoading(false); }
     };
 
     const toggleCustomerSelect = (customer) => {
@@ -798,7 +915,7 @@ const SystemSettings = () => {
                                 </div>
                             )}
 
-                            {/* ── Low Sales Services (informational) ── */}
+                            {/* ── Low Sales Services + Promotion Form ── */}
                             <div className="promo-card">
                                 <div className="promo-section-header">
                                     <h3 className="promo-section-title">Low Sales Services <span className="promo-badge-info">Insight</span></h3>
@@ -806,34 +923,212 @@ const SystemSettings = () => {
                                         {promoLoading ? 'Loading…' : 'View Low Sales Services'}
                                     </button>
                                 </div>
-                                <p className="promo-hint">Use this data to decide which services to promote. Create a promo code and target customers to boost these services.</p>
+                                <p className="promo-hint">Select underperforming services, fill in the promotion details, and send to your customers.</p>
+
                                 {lowSalesServices.length > 0 && (
-                                    <div className="promo-table-wrap">
-                                        <table className="promo-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Service</th>
-                                                    <th>Category</th>
-                                                    <th>Unit</th>
-                                                    <th>Orders</th>
-                                                    <th>Revenue (LKR)</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {lowSalesServices.map((s, i) => (
-                                                    <tr key={s.service_id}>
-                                                        <td>{i + 1}</td>
-                                                        <td>{s.service_name}</td>
-                                                        <td>{s.description || '—'}</td>
-                                                        <td>{s.unit_type}</td>
-                                                        <td>{s.order_count}</td>
-                                                        <td>{parseFloat(s.total_revenue).toLocaleString('en-LK', { minimumFractionDigits: 2 })}</td>
+                                    <>
+                                        {/* Services table with checkboxes */}
+                                        <div className="promo-table-wrap">
+                                            <table className="promo-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>#</th>
+                                                        <th>Service</th>
+                                                        <th>Category</th>
+                                                        <th>Unit</th>
+                                                        <th>Orders</th>
+                                                        <th>Revenue (LKR)</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                </thead>
+                                                <tbody>
+                                                    {lowSalesServices.map((s, i) => (
+                                                        <tr
+                                                            key={s.service_id}
+                                                            className={selectedLowSalesIds.includes(s.service_id) ? 'promo-row-selected' : ''}
+                                                            onClick={() => toggleLowSalesService(s.service_id)}
+                                                            style={{ cursor: 'pointer' }}
+                                                        >
+                                                            <td onClick={e => e.stopPropagation()}>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={selectedLowSalesIds.includes(s.service_id)}
+                                                                    onChange={() => toggleLowSalesService(s.service_id)}
+                                                                />
+                                                            </td>
+                                                            <td>{i + 1}</td>
+                                                            <td>{s.service_name}</td>
+                                                            <td>{s.description || '—'}</td>
+                                                            <td>{s.unit_type}</td>
+                                                            <td>{s.order_count}</td>
+                                                            <td>{parseFloat(s.total_revenue).toLocaleString('en-LK', { minimumFractionDigits: 2 })}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                            {selectedLowSalesIds.length > 0 && (
+                                                <p className="promo-selected-count">{selectedLowSalesIds.length} service(s) selected</p>
+                                            )}
+                                        </div>
+
+                                        {/* Embedded promotion form */}
+                                        <div style={{ marginTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.25rem' }}>
+                                            <h4 className="promo-section-title" style={{ marginBottom: '0.75rem' }}>Create & Send Promotion</h4>
+
+                                            {lowSalesMsg && <div className="promo-alert promo-alert-success">{lowSalesMsg}</div>}
+                                            {lowSalesError && <div className="promo-alert promo-alert-error">{lowSalesError}</div>}
+
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <label>Promo Code</label>
+                                                    <div className="promo-code-row">
+                                                        <input
+                                                            type="text"
+                                                            name="code"
+                                                            value={lowSalesForm.code}
+                                                            onChange={handleLowSalesFormChange}
+                                                            placeholder="e.g. PROMO-ABC123"
+                                                            style={{ textTransform: 'uppercase' }}
+                                                        />
+                                                        <button className="btn btn-secondary btn-sm generate-btn" onClick={generateLowSalesCode}>
+                                                            Generate
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Description (optional)</label>
+                                                    <input
+                                                        type="text"
+                                                        name="description"
+                                                        value={lowSalesForm.description}
+                                                        onChange={handleLowSalesFormChange}
+                                                        placeholder="e.g. Special offer on selected services"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <label>Discount Type</label>
+                                                    <select name="discountType" value={lowSalesForm.discountType} onChange={handleLowSalesFormChange}>
+                                                        <option value="percentage">Percentage (%)</option>
+                                                        <option value="fixed">Fixed Amount (LKR)</option>
+                                                    </select>
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Discount Value</label>
+                                                    <input
+                                                        type="number"
+                                                        name="discountValue"
+                                                        value={lowSalesForm.discountValue}
+                                                        onChange={handleLowSalesFormChange}
+                                                        placeholder={lowSalesForm.discountType === 'percentage' ? 'e.g. 10' : 'e.g. 200'}
+                                                        min="0"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <label>Min Order Amount (LKR)</label>
+                                                    <input
+                                                        type="number"
+                                                        name="minOrderAmount"
+                                                        value={lowSalesForm.minOrderAmount}
+                                                        onChange={handleLowSalesFormChange}
+                                                        placeholder="e.g. 500 (leave blank for none)"
+                                                        min="0"
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Max Uses (leave blank for unlimited)</label>
+                                                    <input
+                                                        type="number"
+                                                        name="maxUses"
+                                                        value={lowSalesForm.maxUses}
+                                                        onChange={handleLowSalesFormChange}
+                                                        placeholder="e.g. 50"
+                                                        min="1"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <label>Expiry Date (optional)</label>
+                                                    <input
+                                                        type="date"
+                                                        name="expiresAt"
+                                                        value={lowSalesForm.expiresAt}
+                                                        onChange={handleLowSalesFormChange}
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Target Customers</label>
+                                                    <select name="targetType" value={lowSalesForm.targetType} onChange={handleLowSalesFormChange}>
+                                                        <option value="all">All Active Customers</option>
+                                                        <option value="top">Top Customers (select manually)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            {/* Top customers section for low-sales form */}
+                                            {lowSalesForm.targetType === 'top' && (
+                                                <div className="promo-card" style={{ marginTop: '0.75rem' }}>
+                                                    <div className="promo-section-header">
+                                                        <h4 className="promo-section-title">Top Customers by Spend</h4>
+                                                        <button className="btn btn-secondary btn-sm" onClick={handleLoadLowSalesTopCustomers} disabled={lowSalesLoading}>
+                                                            {lowSalesLoading ? 'Loading…' : 'Load Top Customers'}
+                                                        </button>
+                                                    </div>
+                                                    {lowSalesTopCustomers.length > 0 && (
+                                                        <div className="promo-table-wrap">
+                                                            <table className="promo-table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th></th>
+                                                                        <th>Name</th>
+                                                                        <th>Email</th>
+                                                                        <th>Orders</th>
+                                                                        <th>Total Spent (LKR)</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {lowSalesTopCustomers.map(c => (
+                                                                        <tr key={c.id} className={selectedLowSalesCustomers.includes(c.email) ? 'promo-row-selected' : ''}>
+                                                                            <td>
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={selectedLowSalesCustomers.includes(c.email)}
+                                                                                    onChange={() => toggleLowSalesCustomer(c)}
+                                                                                />
+                                                                            </td>
+                                                                            <td>{c.first_name} {c.last_name}</td>
+                                                                            <td>{c.email}</td>
+                                                                            <td>{c.order_count}</td>
+                                                                            <td>{parseFloat(c.total_spent).toLocaleString('en-LK', { minimumFractionDigits: 2 })}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                            <p className="promo-selected-count">{selectedLowSalesCustomers.length} customer(s) selected</p>
+                                                        </div>
+                                                    )}
+                                                    {lowSalesTopCustomers.length === 0 && <p className="promo-empty">Click "Load Top Customers" to view the ranking.</p>}
+                                                </div>
+                                            )}
+
+                                            <div className="form-actions">
+                                                <button
+                                                    className="btn btn-primary"
+                                                    onClick={handleCreateLowSalesPromotion}
+                                                    disabled={lowSalesLoading}
+                                                >
+                                                    {lowSalesLoading ? 'Creating…' : 'Create & Send Promotion'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
                                 )}
                             </div>
 
