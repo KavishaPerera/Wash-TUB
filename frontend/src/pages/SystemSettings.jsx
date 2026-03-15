@@ -814,6 +814,7 @@ const SystemSettings = () => {
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Service</th>
+                                                    <th>Category</th>
                                                     <th>Unit</th>
                                                     <th>Orders</th>
                                                     <th>Revenue (LKR)</th>
@@ -824,6 +825,7 @@ const SystemSettings = () => {
                                                     <tr key={s.service_id}>
                                                         <td>{i + 1}</td>
                                                         <td>{s.service_name}</td>
+                                                        <td>{s.description || '—'}</td>
                                                         <td>{s.unit_type}</td>
                                                         <td>{s.order_count}</td>
                                                         <td>{parseFloat(s.total_revenue).toLocaleString('en-LK', { minimumFractionDigits: 2 })}</td>

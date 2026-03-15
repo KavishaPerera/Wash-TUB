@@ -74,7 +74,7 @@ const Promotion = {
 
   async getLowSalesServices(limit = 10) {
     const [rows] = await db.query(
-      `SELECT s.service_id, s.service_name, s.unit_type,
+      `SELECT s.service_id, s.service_name, s.description, s.unit_type,
               COUNT(oi.id) as order_count,
               COALESCE(SUM(oi.subtotal), 0) as total_revenue
        FROM services s
