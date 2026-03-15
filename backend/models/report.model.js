@@ -115,6 +115,66 @@ const Report = {
     return { customerRows };
   },
 
+  async getPickupDeliveryData(startDate, endDate) {
+    const [typeRows] = await db.execute(`
+      SELECT
+        delivery_option,
+        COUNT(*) AS order_count,
+        SUM(CASE WHEN status != 'cancelled' THEN total ELSE 0 END) AS total_revenue
+      FROM orders
+      WHERE DATE(created_at) BETWEEN ? AND ?
+        AND status != 'cancelled'
+      GROUP BY delivery_option
+    `, [startDate, endDate]);
+
+    const [slotRows] = await db.execute(`
+      SELECT
+        COALESCE(NULLIF(TRIM(pickup_time), ''), 'Not Set') AS time_slot,
+        COUNT(*) AS request_count
+      FROM orders
+      WHERE DATE(created_at) BETWEEN ? AND ?
+        AND status != 'cancelled'
+      GROUP BY time_slot
+      ORDER BY
+        CASE time_slot
+          WHEN '06:00 AM - 09:00 AM' THEN 1
+          WHEN '09:00 AM - 12:00 PM' THEN 2
+          WHEN '12:00 PM - 03:00 PM' THEN 3
+          WHEN '03:00 PM - 06:00 PM' THEN 4
+          WHEN '06:00 PM - 09:00 PM' THEN 5
+          ELSE 6
+        END ASC
+    `, [startDate, endDate]);
+
+    const [areaRows] = await db.execute(`
+      SELECT
+        COALESCE(NULLIF(TRIM(city), ''), 'Unknown') AS city,
+        COUNT(*) AS order_count,
+        SUM(CASE WHEN status != 'cancelled' THEN total ELSE 0 END) AS total_revenue
+      FROM orders
+      WHERE DATE(created_at) BETWEEN ? AND ?
+        AND delivery_option = 'delivery'
+        AND status != 'cancelled'
+      GROUP BY city
+      ORDER BY order_count DESC
+      LIMIT 10
+    `, [startDate, endDate]);
+
+    const [trendRows] = await db.execute(`
+      SELECT
+        DATE(created_at) AS order_date,
+        delivery_option,
+        COUNT(*) AS order_count
+      FROM orders
+      WHERE DATE(created_at) BETWEEN ? AND ?
+        AND status != 'cancelled'
+      GROUP BY DATE(created_at), delivery_option
+      ORDER BY order_date ASC
+    `, [startDate, endDate]);
+
+    return { typeRows, slotRows, areaRows, trendRows };
+  },
+
   async createTable() {
     const sql = `
       CREATE TABLE IF NOT EXISTS reports (

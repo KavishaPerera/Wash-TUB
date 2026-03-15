@@ -52,10 +52,11 @@ const Checkout = () => {
 
     const PICKUP_TIME_SLOTS = (() => {
         const defaults = [
-            { id: 1, label: '09:00 AM - 12:00 PM' },
-            { id: 2, label: '12:00 PM - 03:00 PM' },
-            { id: 3, label: '03:00 PM - 06:00 PM' },
-            { id: 4, label: '06:00 PM - 09:00 PM' },
+            { id: 1, label: '06:00 AM - 09:00 AM' },
+            { id: 2, label: '09:00 AM - 12:00 PM' },
+            { id: 3, label: '12:00 PM - 03:00 PM' },
+            { id: 4, label: '03:00 PM - 06:00 PM' },
+            { id: 5, label: '06:00 PM - 09:00 PM' },
         ];
         try {
             const saved = localStorage.getItem('washtub_time_slots');

@@ -44,6 +44,7 @@
 .report-type-card.card-green.selected   { background: #f0fdf4; border-color: #22c55e; }
 .report-type-card.card-purple.selected  { background: #faf5ff; border-color: #a855f7; }
 .report-type-card.card-rose.selected    { background: #fff1f2; border-color: #f43f5e; }
+.report-type-card.card-teal.selected    { background: #f0fdfa; border-color: #0d9488; }
 
 /* Per-color icon tints on selected */
 .report-type-card.card-blue.selected   .type-icon-wrap { background: #dbeafe; }
@@ -51,6 +52,7 @@
 .report-type-card.card-green.selected  .type-icon-wrap { background: #dcfce7; }
 .report-type-card.card-purple.selected .type-icon-wrap { background: #ede9fe; }
 .report-type-card.card-rose.selected   .type-icon-wrap { background: #ffe4e6; }
+.report-type-card.card-teal.selected   .type-icon-wrap { background: #ccfbf1; }
 
 .type-icon-wrap {
     width: 52px;
@@ -257,6 +259,45 @@
 .insight-card.trend-loyal      { border-left: 4px solid #4f46e5; background: #eef2ff; }
 .insight-card.trend-avgspend   { border-left: 4px solid #16a34a; background: #f0fdf4; }
 .insight-card.trend-engagement { border-left: 4px solid #0284c7; background: #f0f9ff; }
+/* Pickup & Delivery report cards */
+.insight-card.trend-peak     { border-left: 4px solid #f59e0b; background: #fffbeb; }
+.insight-card.trend-area     { border-left: 4px solid #0d9488; background: #f0fdfa; }
+.insight-card.trend-pickup   { border-left: 4px solid #0284c7; background: #f0f9ff; }
+.insight-card.trend-delivery { border-left: 4px solid #7c3aed; background: #f5f3ff; }
+
+/* ── Chart Layout ─────────────────────────────────────────── */
+.charts-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.chart-panel h4 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.chart-panel--sm   { flex: 0 0 36%; }
+.chart-panel--lg   { flex: 1; }
+.chart-panel--half { flex: 1; }
+
+@media (max-width: 900px) {
+    .charts-row { flex-direction: column; }
+    .chart-panel--sm,
+    .chart-panel--lg,
+    .chart-panel--half { flex: unset; }
+}
 
 .insight-icon { font-size: 1.5rem; line-height: 1; margin-top: 0.1rem; flex-shrink: 0; }
 

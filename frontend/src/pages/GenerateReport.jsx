@@ -1,9 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
+import {
+    Chart as ChartJS,
+    ArcElement, Tooltip, Legend,
+    CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title,
+} from 'chart.js';
+import { Pie, Bar, Line } from 'react-chartjs-2';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
 import './GenerateReport.css';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title);
 
 const REPORT_TYPES = [
     {
@@ -44,6 +52,14 @@ const REPORT_TYPES = [
         icon: '👑',
         desc: 'Top 10 customers ranked by total spend and order count.',
         color: 'rose',
+        dateMode: 'range',
+    },
+    {
+        id: 'pickup-delivery',
+        label: 'Pickup & Delivery',
+        icon: '🚚',
+        desc: 'Demand patterns, busy time slots, high-demand delivery areas, and daily trends.',
+        color: 'teal',
         dateMode: 'range',
     },
 ];
@@ -136,6 +152,7 @@ const REPORT_COLORS = {
     'monthly-sales':      '#16a34a',
     'payment-method':     '#7c3aed',
     'top-customers':      '#e11d48',
+    'pickup-delivery':    '#0d9488',
 };
 
 const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
@@ -241,7 +258,7 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
     doc.setDrawColor(226, 232, 240);
     doc.line(margin, y, margin + contentW, y);
 
-    // ── Insights (monthly-sales / payment-method) ─────────────
+    // ── Insights (pickup-delivery / monthly-sales / payment-method / top-customers) ─────────────
     if (data.insights) {
         const ins = data.insights;
         y += 14;
@@ -255,7 +272,46 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
         doc.setFontSize(8);
         doc.setTextColor(30, 41, 59);
 
-        if (ins.growthTrend !== undefined) {
+        if (ins.peakTimeSlot !== undefined) {
+            // Pickup & Delivery insights
+            doc.text(`Peak Pickup Time: ${ins.peakTimeSlot}  |  Pickup Share: ${ins.pickupShare}%`, margin, y);
+            y += 6;
+            doc.text(`Top Delivery Area: ${ins.topDeliveryArea}  |  Home Delivery Orders: ${ins.deliveryCount}`, margin, y);
+            y += 6;
+            doc.text(`Total Orders in Period: ${ins.totalOrders}`, margin, y);
+            y += 10;
+
+            // Delivery areas table
+            if (data._areaRows && data._areaRows.length > 0) {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(9);
+                doc.setTextColor(15, 23, 42);
+                doc.text('Delivery Areas', margin, y);
+                y += 7;
+
+                const areaCols = ['City', 'Orders', 'Revenue (LKR)'];
+                const areaColW = contentW / areaCols.length;
+                doc.setFillColor(241, 245, 249);
+                doc.setDrawColor(226, 232, 240);
+                doc.rect(margin, y, contentW, 10, 'FD');
+                doc.setTextColor(100, 116, 139);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(7);
+                areaCols.forEach((col, ci) => { doc.text(col.toUpperCase(), margin + ci * areaColW + 3, y + 7); });
+                y += 10;
+
+                data._areaRows.forEach((row, ri) => {
+                    doc.setFillColor(...(ri % 2 === 0 ? [255, 255, 255] : [248, 250, 252]));
+                    doc.setDrawColor(241, 245, 249);
+                    doc.rect(margin, y, contentW, 9, 'FD');
+                    doc.setTextColor(30, 41, 59);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(8);
+                    row.forEach((cell, ci) => { doc.text(String(cell), margin + ci * areaColW + 3, y + 6); });
+                    y += 9;
+                });
+            }
+        } else if (ins.growthTrend !== undefined) {
             // Monthly sales insights
             const growthSign = ins.avgMomGrowth > 0 ? '+' : '';
             doc.text(`Business Trend: ${ins.growthTrend}  |  Avg MoM Growth: ${growthSign}${ins.avgMomGrowth}%`, margin, y);
@@ -410,6 +466,76 @@ const transformMonthlySalesData = (apiData) => {
             worstMonth:   summary.worstMonth,
             seasonal,
         },
+    };
+};
+
+const transformPickupDeliveryData = (apiData) => {
+    const { summary, type_distribution, time_slots, delivery_areas, daily_trend } = apiData;
+
+    // Pie chart
+    const typePieLabels = type_distribution.map(r => r.delivery_option === 'pickup' ? 'Self Pickup' : 'Home Delivery');
+    const typePieCounts = type_distribution.map(r => Number(r.order_count));
+
+    // Time slots bar (already sorted DESC from backend)
+    const slotLabels = time_slots.map(r => r.time_slot);
+    const slotCounts = time_slots.map(r => Number(r.request_count));
+
+    // Delivery areas bar (top 8)
+    const areas = delivery_areas.slice(0, 8);
+
+    // Daily trend line — merge by date
+    const allDates = [...new Set(daily_trend.map(r => {
+        const d = r.order_date;
+        return typeof d === 'string' ? d : new Date(d).toISOString().slice(0, 10);
+    }))].sort();
+    const pickupByDate = {};
+    const deliveryByDate = {};
+    daily_trend.forEach(r => {
+        const d = typeof r.order_date === 'string' ? r.order_date : new Date(r.order_date).toISOString().slice(0, 10);
+        if (r.delivery_option === 'pickup') pickupByDate[d] = Number(r.order_count);
+        else deliveryByDate[d] = Number(r.order_count);
+    });
+
+    return {
+        stats: [
+            { label: 'Total Orders',   value: String(summary.totalOrders) },
+            { label: 'Self Pickup',    value: String(summary.pickupCount) },
+            { label: 'Home Delivery',  value: String(summary.deliveryCount) },
+            { label: 'Peak Time Slot', value: summary.peakTimeSlot || 'N/A' },
+        ],
+        insights: {
+            peakTimeSlot:    summary.peakTimeSlot || 'N/A',
+            topDeliveryArea: summary.topDeliveryArea || 'N/A',
+            pickupShare:     summary.pickupShare,
+            deliveryCount:   summary.deliveryCount,
+            totalOrders:     summary.totalOrders,
+        },
+        chartData: {
+            typePie: {
+                labels: typePieLabels,
+                datasets: [{ data: typePieCounts, backgroundColor: ['#0284c7', '#0d9488'], hoverBackgroundColor: ['#0369a1', '#0f766e'], borderWidth: 0 }],
+            },
+            timeBar: {
+                labels: slotLabels,
+                datasets: [{ label: 'Requests', data: slotCounts, backgroundColor: '#0284c7', borderRadius: 6 }],
+            },
+            areaBar: {
+                labels: areas.map(r => r.city || 'Unknown'),
+                datasets: [{ label: 'Delivery Orders', data: areas.map(r => Number(r.order_count)), backgroundColor: '#0d9488', borderRadius: 6 }],
+            },
+            trendLine: {
+                labels: allDates,
+                datasets: [
+                    { label: 'Self Pickup', data: allDates.map(d => pickupByDate[d] || 0), borderColor: '#0284c7', backgroundColor: 'rgba(2,132,199,0.08)', tension: 0.4, fill: true },
+                    { label: 'Home Delivery', data: allDates.map(d => deliveryByDate[d] || 0), borderColor: '#0d9488', backgroundColor: 'rgba(13,148,136,0.08)', tension: 0.4, fill: true },
+                ],
+            },
+        },
+        // Table: time slots (shown in preview table)
+        columns: ['Time Slot', 'Pickup / Delivery Requests'],
+        rows: time_slots.map(r => [r.time_slot, String(r.request_count)]),
+        // Used in PDF for a second areas table
+        _areaRows: areas.map(r => [r.city || 'Unknown', String(r.order_count), `LKR ${Number(r.total_revenue).toLocaleString()}`]),
     };
 };
 
@@ -570,6 +696,35 @@ const GenerateReport = () => {
                 const now = new Date();
                 const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 const fileName = `Monthly_Sales_${selectedYear}.pdf`;
+                setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
+                setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                setIsGenerating(false);
+            }
+            return;
+        }
+
+        if (selectedReport === 'pickup-delivery') {
+            if (!dateRange.start || !dateRange.end) {
+                alert('Please select a start date and end date.');
+                return;
+            }
+            setIsGenerating(true);
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const res = await fetch(
+                    `http://localhost:5000/api/reports/pickup-delivery?start_date=${dateRange.start}&end_date=${dateRange.end}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Failed to generate report');
+
+                setReportData(transformPickupDeliveryData(json));
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const fileName = `Pickup_Delivery_${dateRange.start}_to_${dateRange.end}.pdf`;
                 setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
                 setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             } catch (err) {
@@ -776,6 +931,8 @@ const GenerateReport = () => {
                                             ? singleDate
                                             : selectedReport === 'service-popularity' || selectedReport === 'payment-method' || selectedReport === 'top-customers'
                                             ? `${dateRange.start} to ${dateRange.end}`
+                                            : selectedReport === 'pickup-delivery'
+                                            ? `${dateRange.start} to ${dateRange.end}`
                                             : selectedReport === 'monthly-sales'
                                             ? `${selectedYear}${selectedMonth ? ' — ' + ['January','February','March','April','May','June','July','August','September','October','November','December'][Number(selectedMonth) - 1] : ' — All Months'}`
                                             : 'Preview — mock data shown.'}
@@ -935,6 +1092,83 @@ const GenerateReport = () => {
                                         </div>
                                     </div>
                                 </div>
+                            )}
+
+                            {selectedReport === 'pickup-delivery' && reportData.chartData && (
+                                <>
+                                    <div className="monthly-insights" style={{ marginBottom: '1.25rem' }}>
+                                        <h3 className="insights-title">Insights</h3>
+                                        <div className="insights-grid">
+                                            <div className="insight-card trend-peak">
+                                                <span className="insight-icon">⏰</span>
+                                                <div>
+                                                    <p className="insight-label">Peak Time Slot</p>
+                                                    <p className="insight-value">{reportData.insights.peakTimeSlot}</p>
+                                                    <p className="insight-sub">Assign more staff during this period</p>
+                                                </div>
+                                            </div>
+                                            <div className="insight-card trend-area">
+                                                <span className="insight-icon">📍</span>
+                                                <div>
+                                                    <p className="insight-label">Top Delivery Area</p>
+                                                    <p className="insight-value">{reportData.insights.topDeliveryArea}</p>
+                                                    <p className="insight-sub">Highest delivery demand location</p>
+                                                </div>
+                                            </div>
+                                            <div className="insight-card trend-pickup">
+                                                <span className="insight-icon">🧺</span>
+                                                <div>
+                                                    <p className="insight-label">Pickup Share</p>
+                                                    <p className="insight-value">{reportData.insights.pickupShare}%</p>
+                                                    <p className="insight-sub">of orders choose self pickup</p>
+                                                </div>
+                                            </div>
+                                            <div className="insight-card trend-delivery">
+                                                <span className="insight-icon">🚚</span>
+                                                <div>
+                                                    <p className="insight-label">Home Deliveries</p>
+                                                    <p className="insight-value">{reportData.insights.deliveryCount}</p>
+                                                    <p className="insight-sub">orders requiring delivery staff</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="charts-row">
+                                        <div className="chart-panel chart-panel--sm">
+                                            <h4>📊 Pickup vs Delivery Distribution</h4>
+                                            <Pie data={reportData.chartData.typePie} options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }} />
+                                        </div>
+                                        <div className="chart-panel chart-panel--lg">
+                                            <h4>📊 Busy Pickup Time Slots</h4>
+                                            <Bar
+                                                data={reportData.chartData.timeBar}
+                                                options={{ responsive: true, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="charts-row">
+                                        {reportData.chartData.areaBar.labels.length > 0 && (
+                                            <div className="chart-panel chart-panel--half">
+                                                <h4>📊 High-Demand Delivery Areas</h4>
+                                                <Bar
+                                                    data={reportData.chartData.areaBar}
+                                                    options={{ responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }}
+                                                />
+                                            </div>
+                                        )}
+                                        {reportData.chartData.trendLine.labels.length > 0 && (
+                                            <div className="chart-panel chart-panel--half">
+                                                <h4>📈 Daily Pickup & Delivery Trend</h4>
+                                                <Line
+                                                    data={reportData.chartData.trendLine}
+                                                    options={{ responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
                             )}
 
                             <div className="preview-table-wrapper">

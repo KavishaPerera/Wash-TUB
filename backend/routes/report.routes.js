@@ -8,5 +8,6 @@ router.get('/service-popularity', verifyToken, isOwner, reportController.getServ
 router.get('/monthly-sales',      verifyToken, isOwner, reportController.getMonthlySales);
 router.get('/payment-method',     verifyToken, isOwner, reportController.getPaymentMethod);
 router.get('/top-customers',      verifyToken, isOwner, reportController.getTopCustomers);
+router.get('/pickup-delivery',    verifyToken, isOwner, reportController.getPickupDelivery);
 
 module.exports = router;

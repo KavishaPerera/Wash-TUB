@@ -232,6 +232,53 @@ const reportController = {
       res.status(500).json({ success: false, message: 'Failed to generate report' });
     }
   },
+  async getPickupDelivery(req, res) {
+    try {
+      const { start_date, end_date } = req.query;
+
+      if (!start_date || !end_date) {
+        return res.status(400).json({ success: false, message: 'start_date and end_date are required (YYYY-MM-DD)' });
+      }
+      const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRe.test(start_date) || !dateRe.test(end_date)) {
+        return res.status(400).json({ success: false, message: 'Invalid date format. Use YYYY-MM-DD' });
+      }
+      if (start_date > end_date) {
+        return res.status(400).json({ success: false, message: 'start_date must be before or equal to end_date' });
+      }
+
+      const { typeRows, slotRows, areaRows, trendRows } = await Report.getPickupDeliveryData(start_date, end_date);
+
+      const totalOrders   = typeRows.reduce((s, r) => s + Number(r.order_count), 0);
+      const pickupRow     = typeRows.find(r => r.delivery_option === 'pickup');
+      const deliveryRow   = typeRows.find(r => r.delivery_option === 'delivery');
+      const pickupCount   = pickupRow   ? Number(pickupRow.order_count)   : 0;
+      const deliveryCount = deliveryRow ? Number(deliveryRow.order_count) : 0;
+      const pickupShare   = totalOrders > 0 ? Number(((pickupCount / totalOrders) * 100).toFixed(1)) : 0;
+      const peakTimeSlot  = slotRows.length > 0 ? slotRows[0].time_slot : 'N/A';
+      const topDeliveryArea = areaRows.length > 0 ? areaRows[0].city : 'N/A';
+
+      res.json({
+        success: true,
+        summary: {
+          totalOrders,
+          pickupCount,
+          deliveryCount,
+          pickupShare,
+          peakTimeSlot,
+          topDeliveryArea,
+          dateRange: { start: start_date, end: end_date },
+        },
+        type_distribution: typeRows,
+        time_slots: slotRows,
+        delivery_areas: areaRows,
+        daily_trend: trendRows,
+      });
+    } catch (err) {
+      console.error('getPickupDelivery error:', err);
+      res.status(500).json({ success: false, message: 'Failed to generate report' });
+    }
+  },
   async getMonthlySales(req, res) {
     try {
       const { year, month } = req.query;
