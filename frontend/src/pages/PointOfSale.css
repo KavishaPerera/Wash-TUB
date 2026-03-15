@@ -518,6 +518,96 @@
     }
 }
 
+/* ── Manual Discount Section ─────────────────────────────── */
+.pos-discount-section {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f7fafc;
+}
+
+.pos-discount-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.pos-discount-type-toggle {
+    display: flex;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.pos-discount-type-toggle button {
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: none;
+    background: #fff;
+    color: #718096;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.pos-discount-type-toggle button.active {
+    background: #3182ce;
+    color: #fff;
+}
+
+.pos-discount-input {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+    box-sizing: border-box;
+}
+
+.pos-discount-input:focus {
+    outline: none;
+    border-color: #3182ce;
+}
+
+.pos-discount-reason {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    background: #fff;
+    color: #4a5568;
+    box-sizing: border-box;
+}
+
+.pos-discount-preview {
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #e53e3e;
+    text-align: right;
+}
+
+.pos-discount-line label {
+    color: #e53e3e;
+}
+
+.discount-line {
+    color: #e53e3e;
+}
+
+.discount-line span:last-child {
+    color: #e53e3e;
+    font-weight: 600;
+}
+
 /* Response Breakpoints */
 @media (max-width: 1024px) {
     .pos-items-grid {

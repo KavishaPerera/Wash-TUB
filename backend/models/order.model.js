@@ -25,12 +25,22 @@ const Order = {
         subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
         delivery_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
         discount DECIMAL(10,2) NOT NULL DEFAULT 0,
+        discount_reason VARCHAR(100) DEFAULT NULL,
         total DECIMAL(10,2) NOT NULL DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE
       ) ENGINE=InnoDB
     `);
+
+    // Migration: add discount_reason only if it doesn't exist (avoids ALTER TABLE MDL deadlock on restart)
+    const [[{ cnt: drCnt }]] = await db.query(
+      `SELECT COUNT(*) as cnt FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME = 'discount_reason'`
+    );
+    if (drCnt === 0) {
+      await db.query(`ALTER TABLE orders ADD COLUMN discount_reason VARCHAR(100) DEFAULT NULL`);
+    }
 
     await db.execute(`
       CREATE TABLE IF NOT EXISTS order_items (
@@ -90,8 +100,8 @@ const Order = {
         `INSERT INTO orders
            (order_number, customer_id, delivery_option, full_name, phone,
             address, city, postal_code, pickup_date, pickup_time,
-            special_instructions, payment_method, payment_status, subtotal, delivery_fee, discount, total)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            special_instructions, payment_method, payment_status, subtotal, delivery_fee, discount, discount_reason, total)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           orderNumber,
           customerId,
@@ -109,6 +119,7 @@ const Order = {
           orderData.subtotal,
           orderData.deliveryFee || 0,
           orderData.discount || 0,
+          orderData.discountReason || null,
           orderData.total,
         ]
       );

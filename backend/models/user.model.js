@@ -23,13 +23,21 @@ const User = {
     `;
     await db.execute(sql);
 
-    // Attempt to add columns if they don't exist (migrations-ish)
-    try {
+    // Migration: add reset columns only if they don't exist (avoids ALTER TABLE MDL deadlock on restart)
+    const [[{ cnt: rpcCnt }]] = await db.query(
+      `SELECT COUNT(*) as cnt FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'reset_password_code'`
+    );
+    if (rpcCnt === 0) {
       await db.execute("ALTER TABLE users ADD COLUMN reset_password_code VARCHAR(6)");
-    } catch (e) { /* ignore if exists */ }
-    try {
+    }
+    const [[{ cnt: rpeCnt }]] = await db.query(
+      `SELECT COUNT(*) as cnt FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'reset_password_expires'`
+    );
+    if (rpeCnt === 0) {
       await db.execute("ALTER TABLE users ADD COLUMN reset_password_expires DATETIME");
-    } catch (e) { /* ignore if exists */ }
+    }
   },
 
   // Create a new user

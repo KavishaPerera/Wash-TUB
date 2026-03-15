@@ -35,6 +35,11 @@ const PointOfSale = () => {
     const [amountGiven, setAmountGiven] = useState('');
     const [finalOrderData, setFinalOrderData] = useState(null);
 
+    // Manual discount state
+    const [discountType, setDiscountType] = useState('percentage');
+    const [discountValue, setDiscountValue] = useState('');
+    const [discountReason, setDiscountReason] = useState('');
+
     // API submission state
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
@@ -170,9 +175,18 @@ const PointOfSale = () => {
         setCart(cart.filter(item => item.cartId !== cartId));
     };
 
-    const calculateTotal = () => {
-        return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const calculateSubtotal = () =>
+        cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    const calculateDiscount = () => {
+        const subtotal = calculateSubtotal();
+        const val = parseFloat(discountValue) || 0;
+        if (val <= 0) return 0;
+        if (discountType === 'percentage') return Math.min((subtotal * val) / 100, subtotal);
+        return Math.min(val, subtotal);
     };
+
+    const calculateTotal = () => calculateSubtotal() - calculateDiscount();
 
     const handleProcessPaymentClick = () => {
         if (cart.length === 0) {
@@ -189,12 +203,19 @@ const PointOfSale = () => {
     };
 
     const handleConfirmPayment = async () => {
+        const subtotal = calculateSubtotal();
+        const discountAmt = calculateDiscount();
         const total = calculateTotal();
         const paid = parseFloat(amountGiven);
 
         if (isNaN(paid) || paid < total) {
             alert('Please enter a valid amount greater than or equal to the total.');
             return;
+        }
+
+        if (discountAmt > 0 && !discountReason) {
+            const confirmed = window.confirm('No discount reason selected. Continue without a reason?');
+            if (!confirmed) return;
         }
 
         setIsSubmitting(true);
@@ -223,6 +244,8 @@ const PointOfSale = () => {
                     items: orderItems,
                     paymentMethod: 'cash',
                     amountGiven: paid,
+                    discount: discountAmt,
+                    discountReason: discountReason || null,
                 }),
             });
 
@@ -237,6 +260,9 @@ const PointOfSale = () => {
                 orderNumber: data.orderNumber,
                 customer: customerDetails,
                 items: cart,
+                subtotal,
+                discountAmount: discountAmt,
+                discountReason: discountReason || null,
                 totalAmount: total,
                 amountGiven: paid,
                 balance: paid - total,
@@ -261,6 +287,9 @@ const PointOfSale = () => {
         setAmountGiven('');
         setFinalOrderData(null);
         setSubmitError('');
+        setDiscountValue('');
+        setDiscountReason('');
+        setDiscountType('percentage');
     };
 
     const handlePrintReceipt = () => {
@@ -412,10 +441,56 @@ const PointOfSale = () => {
                     )}
                 </div>
 
+                {/* Manual Discount Section */}
+                {cart.length > 0 && (
+                    <div className="pos-discount-section">
+                        <div className="pos-discount-header">
+                            <span>Manual Discount</span>
+                            <div className="pos-discount-type-toggle">
+                                <button
+                                    className={discountType === 'percentage' ? 'active' : ''}
+                                    onClick={() => { setDiscountType('percentage'); setDiscountValue(''); }}
+                                    type="button"
+                                >%</button>
+                                <button
+                                    className={discountType === 'fixed' ? 'active' : ''}
+                                    onClick={() => { setDiscountType('fixed'); setDiscountValue(''); }}
+                                    type="button"
+                                >LKR</button>
+                            </div>
+                        </div>
+                        <input
+                            type="number"
+                            className="pos-discount-input"
+                            placeholder={discountType === 'percentage' ? 'e.g. 10' : 'e.g. 200'}
+                            value={discountValue}
+                            onChange={e => setDiscountValue(e.target.value)}
+                            min="0"
+                            max={discountType === 'percentage' ? 100 : undefined}
+                        />
+                        <select
+                            className="pos-discount-reason"
+                            value={discountReason}
+                            onChange={e => setDiscountReason(e.target.value)}
+                        >
+                            <option value="">-- Reason (optional) --</option>
+                            <option value="Customer Loyalty">Customer Loyalty</option>
+                            <option value="Complaint Resolution">Complaint Resolution</option>
+                            <option value="Special Day Promotion">Special Day Promotion</option>
+                            <option value="End-of-Day Offer">End-of-Day Offer</option>
+                        </select>
+                        {calculateDiscount() > 0 && (
+                            <div className="pos-discount-preview">
+                                Discount: -LKR {calculateDiscount().toFixed(2)}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 <div className="order-panel-footer">
                     <div className="order-total">
                         <span>Total</span>
-                        <span className="total-value">LKR {calculateTotal()}</span>
+                        <span className="total-value">LKR {calculateTotal().toFixed(2)}</span>
                     </div>
                     <button
                         className="process-payment-btn"
@@ -443,6 +518,16 @@ const PointOfSale = () => {
                 <div className="overlay">
                     <div className="payment-modal">
                         <h2>Payment Details</h2>
+                        {calculateDiscount() > 0 && (
+                            <>
+                                <div className="input-group">
+                                    <label>Subtotal: <strong>LKR {calculateSubtotal().toFixed(2)}</strong></label>
+                                </div>
+                                <div className="input-group pos-discount-line">
+                                    <label>Discount ({discountReason || 'Manual'}): <strong style={{ color: '#e53e3e' }}>-LKR {calculateDiscount().toFixed(2)}</strong></label>
+                                </div>
+                            </>
+                        )}
                         <div className="input-group">
                             <label>Total Amount: <strong>LKR {calculateTotal().toFixed(2)}</strong></label>
                         </div>
@@ -509,6 +594,18 @@ const PointOfSale = () => {
                                 ))}
                             </div>
 
+                            {finalOrderData.discountAmount > 0 && (
+                                <>
+                                    <div className="receipt-summary">
+                                        <span>Subtotal:</span>
+                                        <span>LKR {finalOrderData.subtotal.toFixed(2)}</span>
+                                    </div>
+                                    <div className="receipt-summary discount-line">
+                                        <span>Discount ({finalOrderData.discountReason || 'Manual'}):</span>
+                                        <span>-LKR {finalOrderData.discountAmount.toFixed(2)}</span>
+                                    </div>
+                                </>
+                            )}
                             <div className="receipt-summary">
                                 <span>Total Amount:</span>
                                 <span>LKR {finalOrderData.totalAmount.toFixed(2)}</span>

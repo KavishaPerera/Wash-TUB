@@ -30,19 +30,25 @@ const Notification = {
 
   // Add new columns to existing table if they don't exist yet
   async migrateTable() {
-    const migrations = [
-      `ALTER TABLE notifications ADD COLUMN type VARCHAR(50) NOT NULL DEFAULT 'info' AFTER user_id`,
-      `ALTER TABLE notifications ADD COLUMN title VARCHAR(255) NOT NULL DEFAULT '' AFTER type`,
-      `ALTER TABLE notifications ADD COLUMN is_read TINYINT(1) NOT NULL DEFAULT 0 AFTER message`,
-      `ALTER TABLE notifications MODIFY COLUMN order_id INT NULL`,
+    // Check each column via information_schema before attempting ALTER — avoids MDL deadlock on restart
+    const columnMigrations = [
+      { column: 'type',    sql: `ALTER TABLE notifications ADD COLUMN type VARCHAR(50) NOT NULL DEFAULT 'info' AFTER user_id` },
+      { column: 'title',   sql: `ALTER TABLE notifications ADD COLUMN title VARCHAR(255) NOT NULL DEFAULT '' AFTER type` },
+      { column: 'is_read', sql: `ALTER TABLE notifications ADD COLUMN is_read TINYINT(1) NOT NULL DEFAULT 0 AFTER message` },
     ];
-    for (const sql of migrations) {
-      try {
-        await db.execute(sql);
-      } catch (err) {
-        // ER_DUP_FIELDNAME = column already exists — safe to ignore
-        if (err.code !== 'ER_DUP_FIELDNAME') throw err;
-      }
+    for (const { column, sql } of columnMigrations) {
+      const [[{ cnt }]] = await db.query(
+        `SELECT COUNT(*) as cnt FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'notifications' AND COLUMN_NAME = ?`,
+        [column]
+      );
+      if (cnt === 0) await db.execute(sql);
+    }
+    // MODIFY COLUMN is safe to run every time (it's idempotent — no lock if schema already matches)
+    try {
+      await db.execute(`ALTER TABLE notifications MODIFY COLUMN order_id INT NULL`);
+    } catch (err) {
+      if (err.code !== 'ER_DUP_FIELDNAME') throw err;
     }
   },
 

@@ -19,13 +19,14 @@ const Promotion = {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
     console.log('Promotions table ready');
-    // Add applicable_service_ids column if it doesn't exist (migration for existing tables)
-    try {
+    // Migration: add applicable_service_ids only if it doesn't exist (avoids ALTER TABLE MDL deadlock on restart)
+    const [[{ cnt: pCnt }]] = await db.query(
+      `SELECT COUNT(*) as cnt FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'promotions' AND COLUMN_NAME = 'applicable_service_ids'`
+    );
+    if (pCnt === 0) {
       await db.query(`ALTER TABLE promotions ADD COLUMN applicable_service_ids TEXT DEFAULT NULL`);
       console.log('Promotions: added applicable_service_ids column');
-    } catch (err) {
-      if (err.code !== 'ER_DUP_FIELDNAME') throw err;
-      // Column already exists — safe to ignore
     }
   },
 

@@ -408,7 +408,7 @@ const orderController = {
   // ---------------------------------------------------------------
   async createPosOrder(req, res) {
     try {
-      const { customer, items, paymentMethod, amountGiven } = req.body;
+      const { customer, items, paymentMethod, amountGiven, discount, discountReason } = req.body;
 
       if (!items || items.length === 0) {
         return res.status(400).json({ message: 'Order must contain at least one item.' });
@@ -428,7 +428,8 @@ const orderController = {
 
       // Calculate totals on server side
       const subtotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-      const total = subtotal;
+      const appliedDiscount = Math.min(Math.max(parseFloat(discount) || 0, 0), subtotal);
+      const total = subtotal - appliedDiscount;
 
       const orderData = {
         deliveryOption: 'pickup',
@@ -443,7 +444,8 @@ const orderController = {
         paymentMethod: paymentMethod || 'cash',
         subtotal,
         deliveryFee: 0,
-        discount: 0,
+        discount: appliedDiscount,
+        discountReason: appliedDiscount > 0 ? (discountReason || null) : null,
         total,
       };
 
@@ -457,6 +459,9 @@ const orderController = {
         message: 'POS order created successfully!',
         orderId,
         orderNumber,
+        subtotal,
+        discount: appliedDiscount,
+        discountReason: appliedDiscount > 0 ? (discountReason || null) : null,
         total,
         customer: {
           firstName: customer.firstName,
