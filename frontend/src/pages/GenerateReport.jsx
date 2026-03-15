@@ -370,6 +370,51 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
 
 const transformServicePopularityData = (apiData) => {
     const { summary, services } = apiData;
+
+    const amberPalette = ['#f59e0b', '#d97706', '#b45309', '#92400e', '#fbbf24', '#fde68a', '#fef3c7', '#78350f'];
+
+    // Group by item_name for Pie and Revenue Bar (sum across methods)
+    const revenueByItem = {};
+    services.forEach(r => {
+        const key = r.item_name;
+        revenueByItem[key] = (revenueByItem[key] || 0) + Number(r.total_revenue);
+    });
+    const revenueEntries = Object.entries(revenueByItem)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
+
+    const revenuePie = {
+        labels: revenueEntries.map(([name]) => name),
+        datasets: [{
+            data: revenueEntries.map(([, rev]) => Number(rev.toFixed(2))),
+            backgroundColor: amberPalette,
+            hoverBackgroundColor: amberPalette,
+            borderWidth: 0,
+        }],
+    };
+
+    const revenueBar = {
+        labels: revenueEntries.map(([name]) => name),
+        datasets: [{
+            label: 'Revenue (LKR)',
+            data: revenueEntries.map(([, rev]) => Number(rev.toFixed(2))),
+            backgroundColor: revenueEntries.map((_, i) => i === 0 ? '#d97706' : '#fbbf24'),
+            borderRadius: 6,
+        }],
+    };
+
+    // Quantity bar: keep item_name + method granularity, top 10
+    const top10 = services.slice(0, 10);
+    const quantityBar = {
+        labels: top10.map(r => r.method && r.method !== 'N/A' ? `${r.item_name} · ${r.method}` : r.item_name),
+        datasets: [{
+            label: 'Qty Ordered',
+            data: top10.map(r => Number(r.total_quantity)),
+            backgroundColor: '#d97706',
+            borderRadius: 6,
+        }],
+    };
+
     return {
         stats: [
             { label: 'Unique Items',  value: String(summary.uniqueItems) },
@@ -387,6 +432,7 @@ const transformServicePopularityData = (apiData) => {
             Number(row.total_revenue).toLocaleString(),
             `${row.share}%`,
         ]),
+        chartData: { revenuePie, quantityBar, revenueBar },
     };
 };
 
@@ -1204,6 +1250,45 @@ const GenerateReport = () => {
                                         </div>
                                     </div>
                                 </div>
+                            )}
+
+                            {selectedReport === 'service-popularity' && reportData.chartData && (
+                                <>
+                                    <div className="charts-row">
+                                        <div className="chart-panel chart-panel--sm">
+                                            <h4>💰 Revenue Share by Service</h4>
+                                            <Pie
+                                                data={reportData.chartData.revenuePie}
+                                                options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }}
+                                            />
+                                        </div>
+                                        <div className="chart-panel chart-panel--lg">
+                                            <h4>📦 Top Services by Quantity Ordered</h4>
+                                            <Bar
+                                                data={reportData.chartData.quantityBar}
+                                                options={{
+                                                    responsive: true,
+                                                    indexAxis: 'y',
+                                                    plugins: { legend: { display: false } },
+                                                    scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="charts-row">
+                                        <div className="chart-panel chart-panel--half">
+                                            <h4>📊 Revenue by Service (LKR)</h4>
+                                            <Bar
+                                                data={reportData.chartData.revenueBar}
+                                                options={{
+                                                    responsive: true,
+                                                    plugins: { legend: { display: false } },
+                                                    scales: { y: { beginAtZero: true } },
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </>
                             )}
 
                             {selectedReport === 'pickup-delivery' && reportData.chartData && (
