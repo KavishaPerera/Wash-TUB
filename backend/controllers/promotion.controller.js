@@ -1,4 +1,5 @@
 const Promotion = require('../models/promotion.model');
+const Notification = require('../models/notification.model');
 const nodemailer = require('nodemailer');
 
 const createTransporter = () =>
@@ -165,6 +166,46 @@ exports.getLowSalesServices = async (req, res) => {
     res.json(services);
   } catch (err) {
     console.error('getLowSalesServices error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.sendPromotionNotifications = async (req, res) => {
+  try {
+    const { promotionId, customerIds } = req.body;
+
+    if (!promotionId || !Array.isArray(customerIds) || customerIds.length === 0) {
+      return res.status(400).json({ message: 'promotionId and at least one customerId are required' });
+    }
+
+    const promo = await Promotion.getById(promotionId);
+    if (!promo) return res.status(404).json({ message: 'Promotion not found' });
+
+    const discountText =
+      promo.discount_type === 'percentage'
+        ? `${promo.discount_value}% off your order`
+        : `LKR ${parseFloat(promo.discount_value).toFixed(2)} off your order`;
+
+    const expiryText = promo.expires_at
+      ? ` Valid until ${new Date(promo.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.`
+      : '';
+
+    const title = 'Exclusive Promo For You!';
+    const message = `Use code ${promo.code} to get ${discountText}.${expiryText}${promo.description ? ' ' + promo.description : ''}`;
+
+    const notifications = customerIds.map(userId => ({
+      orderId: null,
+      userId,
+      type: 'promotion',
+      title,
+      message,
+    }));
+
+    await Notification.createBulk(notifications);
+
+    res.json({ message: `Notifications sent to ${customerIds.length} customer(s)`, sent: customerIds.length });
+  } catch (err) {
+    console.error('sendPromotionNotifications error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

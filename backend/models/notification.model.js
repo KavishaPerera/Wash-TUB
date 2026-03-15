@@ -6,7 +6,7 @@ const Notification = {
     const sql = `
       CREATE TABLE IF NOT EXISTS notifications (
         notification_id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-        order_id INT NOT NULL,
+        order_id INT NULL,
         user_id INT NOT NULL,
         type VARCHAR(50) NOT NULL DEFAULT 'info',
         title VARCHAR(255) NOT NULL DEFAULT '',
@@ -22,7 +22,6 @@ const Notification = {
         CONSTRAINT fk_notif_user
           FOREIGN KEY (user_id) REFERENCES users(id)
           ON DELETE CASCADE,
-        INDEX idx_notif_order_time (order_id, sent_at),
         INDEX idx_notif_user_time (user_id, sent_at)
       ) ENGINE=InnoDB
     `;
@@ -35,6 +34,7 @@ const Notification = {
       `ALTER TABLE notifications ADD COLUMN type VARCHAR(50) NOT NULL DEFAULT 'info' AFTER user_id`,
       `ALTER TABLE notifications ADD COLUMN title VARCHAR(255) NOT NULL DEFAULT '' AFTER type`,
       `ALTER TABLE notifications ADD COLUMN is_read TINYINT(1) NOT NULL DEFAULT 0 AFTER message`,
+      `ALTER TABLE notifications MODIFY COLUMN order_id INT NULL`,
     ];
     for (const sql of migrations) {
       try {
@@ -53,6 +53,12 @@ const Notification = {
       [orderId, userId, type, title, message]
     );
     return result.insertId;
+  },
+
+  async createBulk(notifications) {
+    for (const n of notifications) {
+      await this.create(n);
+    }
   },
 
   async getByUserId(userId) {

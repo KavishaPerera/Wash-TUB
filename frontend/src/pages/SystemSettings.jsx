@@ -164,6 +164,7 @@ const SystemSettings = () => {
     const [promotions, setPromotions] = useState([]);
     const [topCustomers, setTopCustomers] = useState([]);
     const [selectedCustomers, setSelectedCustomers] = useState([]);
+    const [selectedCustomerIds, setSelectedCustomerIds] = useState([]);
     const [lowSalesServices, setLowSalesServices] = useState([]);
     const [promoLoading, setPromoLoading] = useState(false);
     const [promoMsg, setPromoMsg] = useState('');
@@ -218,10 +219,27 @@ const SystemSettings = () => {
             });
             const data = await res.json();
             if (!res.ok) { setPromoError(data.message || 'Failed to create promotion.'); return; }
-            setPromoMsg('Promotion created successfully!');
+
+            // Send in-app notifications to selected top customers
+            if (selectedCustomerIds.length > 0 && data.promotion?.id) {
+                try {
+                    await fetch(`${API_URL}/admin/promotions/send-notifications`, {
+                        method: 'POST',
+                        headers: authHeaders,
+                        body: JSON.stringify({ promotionId: data.promotion.id, customerIds: selectedCustomerIds }),
+                    });
+                    setPromoMsg(`Promotion created & notifications sent to ${selectedCustomerIds.length} customer(s)!`);
+                } catch {
+                    setPromoMsg('Promotion created! (Notifications could not be sent.)');
+                }
+            } else {
+                setPromoMsg('Promotion created successfully!');
+            }
+
             setPromoForm(PROMO_FORM_DEFAULTS);
             setTopCustomers([]);
             setSelectedCustomers([]);
+            setSelectedCustomerIds([]);
             fetchPromotions();
         } catch { setPromoError('Network error.'); }
         finally { setPromoLoading(false); }
@@ -239,7 +257,7 @@ const SystemSettings = () => {
         setPromoLoading(true);
         try {
             const res = await fetch(`${API_URL}/admin/promotions/top-customers`, { headers: authHeaders });
-            if (res.ok) { setTopCustomers(await res.json()); setSelectedCustomers([]); }
+            if (res.ok) { setTopCustomers(await res.json()); setSelectedCustomers([]); setSelectedCustomerIds([]); }
         } catch { /* silent */ }
         finally { setPromoLoading(false); }
     };
@@ -253,9 +271,13 @@ const SystemSettings = () => {
         finally { setPromoLoading(false); }
     };
 
-    const toggleCustomerSelect = (email) => {
+    const toggleCustomerSelect = (customer) => {
+        const { email, id } = customer;
         setSelectedCustomers(prev =>
             prev.includes(email) ? prev.filter(e => e !== email) : [...prev, email]
+        );
+        setSelectedCustomerIds(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
         );
     };
 
@@ -740,7 +762,7 @@ const SystemSettings = () => {
                                                                 <input
                                                                     type="checkbox"
                                                                     checked={selectedCustomers.includes(c.email)}
-                                                                    onChange={() => toggleCustomerSelect(c.email)}
+                                                                    onChange={() => toggleCustomerSelect(c)}
                                                                 />
                                                             </td>
                                                             <td>{c.first_name} {c.last_name}</td>

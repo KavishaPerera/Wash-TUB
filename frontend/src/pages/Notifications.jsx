@@ -18,6 +18,7 @@ const TYPE_META = {
     delivery_scheduled: { icon: '📦', css: 'notif-delivered' },
     order_delivered:    { icon: '🏠', css: 'notif-delivered' },
     order_cancelled:    { icon: '❌', css: 'notif-cancelled' },
+    promotion:          { icon: '🎁', css: 'notif-promo' },
 };
 
 const fmtTime = (isoString) => {
@@ -215,7 +216,9 @@ const Notifications = () => {
                                         <div className="notif-content">
                                             <div className="notif-header-row">
                                                 <h3 className="notif-title">{notification.title}</h3>
-                                                <span className="notif-order-id">#{notification.order_id}</span>
+                                                {notification.order_id && (
+                                                    <span className="notif-order-id">#{notification.order_id}</span>
+                                                )}
                                             </div>
                                             <p className="notif-message">{notification.message}</p>
                                             <span className="notif-time">{fmtTime(notification.sent_at)}</span>
@@ -252,6 +255,7 @@ const Notifications = () => {
                         <div className="legend-item"><span className="legend-icon">✅</span><span>Finished</span></div>
                         <div className="legend-item"><span className="legend-icon">🚚</span><span>Out for Delivery</span></div>
                         <div className="legend-item"><span className="legend-icon">🏠</span><span>Delivered</span></div>
+                        <div className="legend-item"><span className="legend-icon">🎁</span><span>Promotion</span></div>
                     </div>
                 </section>
             </main>

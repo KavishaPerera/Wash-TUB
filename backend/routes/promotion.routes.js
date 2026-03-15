@@ -10,6 +10,7 @@ router.delete('/admin/promotions/:id', verifyToken, isOwner, promotionController
 router.get('/admin/promotions/top-customers', verifyToken, isOwner, promotionController.getTopCustomers);
 router.get('/admin/promotions/low-sales-services', verifyToken, isOwner, promotionController.getLowSalesServices);
 router.post('/admin/promotions/send-emails', verifyToken, isOwner, promotionController.sendPromotionEmails);
+router.post('/admin/promotions/send-notifications', verifyToken, isOwner, promotionController.sendPromotionNotifications);
 
 // Customer route — validate a promo code
 router.post('/promotions/validate', verifyToken, promotionController.validatePromoCode);
