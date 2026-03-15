@@ -20,6 +20,8 @@ const PaymentSuccess = () => {
     const items         = location.state?.items         || [];
     const subtotal      = location.state?.subtotal      || 0;
     const deliveryFee   = location.state?.deliveryFee   || 0;
+    const discount      = location.state?.discount      || 0;
+    const promoCode     = location.state?.promoCode     || null;
 
     const downloadReceipt = () => {
         const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -186,6 +188,14 @@ const PaymentSuccess = () => {
 
         drawTotalRow('Subtotal',     `LKR ${Number(subtotal).toFixed(2)}`);
         drawTotalRow('Delivery Fee', `LKR ${Number(deliveryFee).toFixed(2)}`);
+        if (discount > 0) {
+            drawTotalRow(
+                promoCode ? `Promo Discount (${promoCode})` : 'Promo Discount',
+                `- LKR ${Number(discount).toFixed(2)}`,
+                false,
+                [22, 163, 74]
+            );
+        }
         y += 2;
         doc.setDrawColor(14, 165, 233);
         doc.setLineWidth(1);

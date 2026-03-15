@@ -317,6 +317,8 @@ const Checkout = () => {
                     })),
                     subtotal: totalAmount,
                     deliveryFee,
+                    discount: discounts,
+                    promoCode: appliedPromo?.code || null,
                 },
             });
         } catch (err) {
