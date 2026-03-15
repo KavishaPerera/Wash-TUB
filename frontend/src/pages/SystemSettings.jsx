@@ -345,6 +345,10 @@ const SystemSettings = () => {
             setLowSalesError('Code and discount value are required.');
             return;
         }
+        if (selectedLowSalesIds.length === 0) {
+            setLowSalesError('Please select at least one service to apply this promotion to.');
+            return;
+        }
         setLowSalesLoading(true);
         try {
             const res = await fetch(`${API_URL}/admin/promotions`, {
@@ -358,6 +362,7 @@ const SystemSettings = () => {
                     minOrderAmount: parseFloat(lowSalesForm.minOrderAmount) || 0,
                     maxUses: lowSalesForm.maxUses ? parseInt(lowSalesForm.maxUses) : null,
                     expiresAt: lowSalesForm.expiresAt || null,
+                    applicableServiceIds: selectedLowSalesIds,
                 }),
             });
             const data = await res.json();

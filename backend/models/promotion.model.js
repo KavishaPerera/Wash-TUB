@@ -14,18 +14,30 @@ const Promotion = {
         used_count INT DEFAULT 0,
         is_active TINYINT DEFAULT 1,
         expires_at DATETIME DEFAULT NULL,
+        applicable_service_ids TEXT DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
     console.log('Promotions table ready');
+    // Add applicable_service_ids column if it doesn't exist (migration for existing tables)
+    try {
+      await db.query(`ALTER TABLE promotions ADD COLUMN applicable_service_ids TEXT DEFAULT NULL`);
+      console.log('Promotions: added applicable_service_ids column');
+    } catch (err) {
+      if (err.code !== 'ER_DUP_FIELDNAME') throw err;
+      // Column already exists — safe to ignore
+    }
   },
 
   async create(data) {
-    const { code, description, discountType, discountValue, minOrderAmount, maxUses, expiresAt } = data;
+    const { code, description, discountType, discountValue, minOrderAmount, maxUses, expiresAt, applicableServiceIds } = data;
+    const serviceIdsJson = (Array.isArray(applicableServiceIds) && applicableServiceIds.length > 0)
+      ? JSON.stringify(applicableServiceIds)
+      : null;
     const [result] = await db.query(
-      `INSERT INTO promotions (code, description, discount_type, discount_value, min_order_amount, max_uses, expires_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [code, description || null, discountType, discountValue, minOrderAmount || 0, maxUses || null, expiresAt || null]
+      `INSERT INTO promotions (code, description, discount_type, discount_value, min_order_amount, max_uses, expires_at, applicable_service_ids)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [code, description || null, discountType, discountValue, minOrderAmount || 0, maxUses || null, expiresAt || null, serviceIdsJson]
     );
     return result.insertId;
   },

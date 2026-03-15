@@ -167,7 +167,11 @@ const Checkout = () => {
             const res = await fetch(`${API}/promotions/validate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` },
-                body: JSON.stringify({ code: promoCode.trim(), orderTotal: totalAmount }),
+                body: JSON.stringify({
+                    code: promoCode.trim(),
+                    orderTotal: totalAmount,
+                    cartServiceIds: cartItems.map(item => item.serviceId),
+                }),
             });
             const data = await res.json();
             if (!res.ok) { setPromoError(data.message || 'Invalid promo code'); setAppliedPromo(null); }

@@ -54,7 +54,7 @@ const buildPromoEmail = (firstName, code, discountType, discountValue, expiresAt
 
 exports.createPromotion = async (req, res) => {
   try {
-    const { code, description, discountType, discountValue, minOrderAmount, maxUses, expiresAt } = req.body;
+    const { code, description, discountType, discountValue, minOrderAmount, maxUses, expiresAt, applicableServiceIds } = req.body;
 
     if (!code || !discountType || !discountValue) {
       return res.status(400).json({ message: 'Code, discount type, and discount value are required' });
@@ -69,7 +69,7 @@ exports.createPromotion = async (req, res) => {
       return res.status(400).json({ message: 'Percentage discount cannot exceed 100%' });
     }
 
-    const id = await Promotion.create({ code: code.toUpperCase(), description, discountType, discountValue, minOrderAmount, maxUses, expiresAt });
+    const id = await Promotion.create({ code: code.toUpperCase(), description, discountType, discountValue, minOrderAmount, maxUses, expiresAt, applicableServiceIds });
     const promo = await Promotion.getById(id);
     res.status(201).json({ message: 'Promotion created successfully', promotion: promo });
   } catch (err) {
@@ -104,7 +104,7 @@ exports.deletePromotion = async (req, res) => {
 
 exports.validatePromoCode = async (req, res) => {
   try {
-    const { code, orderTotal } = req.body;
+    const { code, orderTotal, cartServiceIds } = req.body;
     if (!code) return res.status(400).json({ message: 'Promo code is required' });
 
     const promo = await Promotion.getByCode(code.toUpperCase());
@@ -123,6 +123,19 @@ exports.validatePromoCode = async (req, res) => {
       return res.status(400).json({
         message: `Minimum order amount of LKR ${parseFloat(promo.min_order_amount).toFixed(2)} required`
       });
+    }
+
+    // Check service restriction for low-sales promotions
+    if (promo.applicable_service_ids) {
+      const allowedIds = JSON.parse(promo.applicable_service_ids);
+      const cartIds = Array.isArray(cartServiceIds) ? cartServiceIds.map(Number) : [];
+      const hasMatch = cartIds.some(id => allowedIds.includes(id));
+      if (!hasMatch) {
+        const hint = promo.description ? ` (${promo.description})` : '';
+        return res.status(400).json({
+          message: `This promo code is only valid for specific services${hint}. Add the required service to your order.`
+        });
+      }
     }
 
     let discountAmount;

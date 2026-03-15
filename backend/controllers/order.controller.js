@@ -110,13 +110,30 @@ const orderController = {
           const usageOk = promo.max_uses === null || promo.used_count < promo.max_uses;
           const meetsMin = subtotal >= parseFloat(promo.min_order_amount);
           if (notExpired && usageOk && meetsMin) {
-            if (promo.discount_type === 'percentage') {
-              discount = (subtotal * parseFloat(promo.discount_value)) / 100;
+            // Check service restriction (for low-sales promotions)
+            if (promo.applicable_service_ids) {
+              const allowedIds = JSON.parse(promo.applicable_service_ids);
+              const hasMatch = items.some(item => allowedIds.includes(Number(item.serviceId)));
+              if (!hasMatch) {
+                // Promo not valid for these items — skip discount silently
+              } else {
+                if (promo.discount_type === 'percentage') {
+                  discount = (subtotal * parseFloat(promo.discount_value)) / 100;
+                } else {
+                  discount = parseFloat(promo.discount_value);
+                }
+                discount = Math.min(discount, subtotal);
+                appliedPromoId = promo.id;
+              }
             } else {
-              discount = parseFloat(promo.discount_value);
+              if (promo.discount_type === 'percentage') {
+                discount = (subtotal * parseFloat(promo.discount_value)) / 100;
+              } else {
+                discount = parseFloat(promo.discount_value);
+              }
+              discount = Math.min(discount, subtotal);
+              appliedPromoId = promo.id;
             }
-            discount = Math.min(discount, subtotal);
-            appliedPromoId = promo.id;
           }
         }
       }
