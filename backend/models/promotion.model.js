@@ -94,6 +94,14 @@ const Promotion = {
        WHERE role = 'customer' AND is_active = 1`
     );
     return rows;
+  },
+
+  async getAllActiveCustomers() {
+    const [rows] = await db.query(
+      `SELECT id, first_name, last_name, email FROM users
+       WHERE role = 'customer' AND is_active = 1`
+    );
+    return rows;
   }
 };
 

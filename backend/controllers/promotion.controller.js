@@ -210,6 +210,16 @@ exports.sendPromotionNotifications = async (req, res) => {
   }
 };
 
+exports.getAllActiveCustomers = async (req, res) => {
+  try {
+    const customers = await Promotion.getAllActiveCustomers();
+    res.json(customers);
+  } catch (err) {
+    console.error('getAllActiveCustomers error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 exports.sendPromotionEmails = async (req, res) => {
   try {
     const { promotionId, emails } = req.body;

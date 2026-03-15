@@ -220,8 +220,26 @@ const SystemSettings = () => {
             const data = await res.json();
             if (!res.ok) { setPromoError(data.message || 'Failed to create promotion.'); return; }
 
-            // Send in-app notifications to selected top customers
-            if (selectedCustomerIds.length > 0 && data.promotion?.id) {
+            // Send in-app notifications based on target type
+            if (promoForm.targetType === 'all' && data.promotion?.id) {
+                try {
+                    const custRes = await fetch(`${API_URL}/admin/promotions/active-customers`, { headers: authHeaders });
+                    const customers = await custRes.json();
+                    const allIds = customers.map(c => c.id);
+                    if (allIds.length > 0) {
+                        await fetch(`${API_URL}/admin/promotions/send-notifications`, {
+                            method: 'POST',
+                            headers: authHeaders,
+                            body: JSON.stringify({ promotionId: data.promotion.id, customerIds: allIds }),
+                        });
+                        setPromoMsg(`Promotion created & notifications sent to ${allIds.length} customer(s)!`);
+                    } else {
+                        setPromoMsg('Promotion created! (No active customers found.)');
+                    }
+                } catch {
+                    setPromoMsg('Promotion created! (Notifications could not be sent.)');
+                }
+            } else if (selectedCustomerIds.length > 0 && data.promotion?.id) {
                 try {
                     await fetch(`${API_URL}/admin/promotions/send-notifications`, {
                         method: 'POST',
