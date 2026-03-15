@@ -500,6 +500,51 @@ const transformMonthlySalesData = (apiData) => {
     const maxRevenue = monthly_data.length > 0
         ? Math.max(...monthly_data.map(r => Number(r.revenue)))
         : 0;
+
+    const monthLabels = monthly_data.map(r => r.month_name.slice(0, 3));
+
+    const revenueLine = {
+        labels: monthLabels,
+        datasets: [{
+            label: 'Revenue (LKR)',
+            data: monthly_data.map(r => Number(r.revenue)),
+            borderColor: '#16a34a',
+            backgroundColor: 'rgba(22,163,74,0.08)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: monthly_data.map(r =>
+                Number(r.revenue) === maxRevenue && maxRevenue > 0 ? '#16a34a' : 'rgba(22,163,74,0.3)'
+            ),
+            pointRadius: monthly_data.map(r =>
+                Number(r.revenue) === maxRevenue && maxRevenue > 0 ? 6 : 3
+            ),
+            pointBorderColor: '#16a34a',
+        }],
+    };
+
+    const ordersBar = {
+        labels: monthLabels,
+        datasets: [{
+            label: 'Orders',
+            data: monthly_data.map(r => Number(r.orders)),
+            backgroundColor: monthly_data.map(r =>
+                Number(r.revenue) === maxRevenue && maxRevenue > 0 ? '#16a34a' : '#4ade80'
+            ),
+            borderRadius: 6,
+        }],
+    };
+
+    const activeSeasonal = seasonal.filter(q => q.months_with_data > 0);
+    const seasonalBar = {
+        labels: activeSeasonal.map(q => q.quarter),
+        datasets: [{
+            label: 'Avg Revenue (LKR)',
+            data: activeSeasonal.map(q => Number(q.avg_revenue)),
+            backgroundColor: ['#16a34a', '#22c55e', '#4ade80', '#86efac'].slice(0, activeSeasonal.length),
+            borderRadius: 6,
+        }],
+    };
+
     return {
         stats: [
             { label: 'Year',          value: String(summary.year) },
@@ -527,6 +572,7 @@ const transformMonthlySalesData = (apiData) => {
             worstMonth:   summary.worstMonth,
             seasonal,
         },
+        chartData: { revenueLine, ordersBar, seasonalBar },
     };
 };
 
@@ -1170,6 +1216,50 @@ const GenerateReport = () => {
                                         </div>
                                     </div>
                                 </div>
+                            )}
+
+                            {selectedReport === 'monthly-sales' && reportData.chartData && (
+                                <>
+                                    <div className="charts-row">
+                                        <div className="chart-panel" style={{ flex: 1 }}>
+                                            <h4>📈 Monthly Revenue Trend (LKR)</h4>
+                                            <Line
+                                                data={reportData.chartData.revenueLine}
+                                                options={{
+                                                    responsive: true,
+                                                    plugins: { legend: { display: false } },
+                                                    scales: { y: { beginAtZero: true } },
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="charts-row">
+                                        <div className="chart-panel chart-panel--half">
+                                            <h4>📦 Orders per Month</h4>
+                                            <Bar
+                                                data={reportData.chartData.ordersBar}
+                                                options={{
+                                                    responsive: true,
+                                                    plugins: { legend: { display: false } },
+                                                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                                                }}
+                                            />
+                                        </div>
+                                        {reportData.chartData.seasonalBar.labels.length > 0 && (
+                                            <div className="chart-panel chart-panel--half">
+                                                <h4>🌦️ Seasonal Avg Revenue (LKR)</h4>
+                                                <Bar
+                                                    data={reportData.chartData.seasonalBar}
+                                                    options={{
+                                                        responsive: true,
+                                                        plugins: { legend: { display: false } },
+                                                        scales: { y: { beginAtZero: true } },
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
                             )}
 
                             {reportData.insights && selectedReport === 'payment-method' && (
