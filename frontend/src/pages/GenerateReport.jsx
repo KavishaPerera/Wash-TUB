@@ -62,6 +62,14 @@ const REPORT_TYPES = [
         color: 'teal',
         dateMode: 'range',
     },
+    {
+        id: 'weekly-performance',
+        label: 'Weekly Business Performance',
+        icon: '📆',
+        desc: 'Order volume and revenue by day of the week. Identify busiest days and plan holidays, promotions, and maintenance.',
+        color: 'blue',
+        dateMode: 'range',
+    },
 ];
 
 const MOCK_DATA = {
@@ -153,6 +161,7 @@ const REPORT_COLORS = {
     'payment-method':     '#7c3aed',
     'top-customers':      '#e11d48',
     'pickup-delivery':    '#0d9488',
+    'weekly-performance': '#4f46e5',
 };
 
 const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
@@ -329,6 +338,12 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
             doc.text(`Most Loyal: ${ins.mostLoyal} — ${ins.mostLoyalOrders} orders in period`, margin, y);
             y += 6;
             doc.text(`Avg Spend / Customer: LKR ${Number(ins.avgSpendPerCustomer).toLocaleString()}  |  Avg Orders: ${ins.avgOrdersPerCustomer}`, margin, y);
+        } else if (ins.busiestDay !== undefined) {
+            // Weekly performance insights
+            doc.text(`Best day for promotions: ${ins.busiestDay}`, margin, y); y += 6;
+            doc.text(`Best day for weekly holiday: ${ins.quietestDay}`, margin, y); y += 6;
+            doc.text(`Best day for maintenance: ${ins.quietestDay}`, margin, y); y += 6;
+            doc.text(`Peak revenue day: ${ins.bestRevenueDay}  |  Avg daily orders: ${ins.avgDailyOrders}`, margin, y);
         } else {
             // Payment method insights
             doc.text(`Preferred Method: ${ins.preferredMethod}  |  Top Revenue Method: ${ins.topRevenueMethod}`, margin, y);
@@ -562,6 +577,74 @@ const transformDailySalesData = (apiData) => {
     };
 };
 
+const transformWeeklyPerformanceData = (apiData) => {
+    const { summary, weekly_data } = apiData;
+    const dayLabels = weekly_data.map(r => r.day_name.slice(0, 3));
+
+    const ordersBarData = {
+        labels: dayLabels,
+        datasets: [{
+            label: 'Orders',
+            data: weekly_data.map(r => r.total_orders),
+            backgroundColor: weekly_data.map(r =>
+                r.day_name === summary.busiestDay  ? '#4f46e5' :
+                r.day_name === summary.quietestDay ? '#94a3b8' : '#818cf8'
+            ),
+            borderRadius: 6,
+        }],
+    };
+
+    const revenueBarData = {
+        labels: dayLabels,
+        datasets: [{
+            label: 'Revenue (LKR)',
+            data: weekly_data.map(r => r.total_revenue),
+            backgroundColor: weekly_data.map(r =>
+                r.day_name === summary.bestRevenueDay ? '#4f46e5' : '#818cf8'
+            ),
+            borderRadius: 6,
+        }],
+    };
+
+    return {
+        stats: [
+            { label: 'Total Orders',     value: String(summary.totalOrders) },
+            { label: 'Total Revenue',    value: `LKR ${Number(summary.totalRevenue).toLocaleString()}` },
+            { label: 'Busiest Day',      value: summary.busiestDay },
+            { label: 'Best Revenue Day', value: summary.bestRevenueDay },
+        ],
+        insights: {
+            busiestDay:     summary.busiestDay,
+            quietestDay:    summary.quietestDay,
+            bestRevenueDay: summary.bestRevenueDay,
+            avgDailyOrders: summary.avgDailyOrders,
+        },
+        chartData: {
+            ordersBar:  ordersBarData,
+            revenueBar: revenueBarData,
+        },
+        columns: ['Day', 'Orders', 'Revenue (LKR)', 'Avg Order (LKR)', 'Completed', 'Cancelled', 'Completion %', 'Cancel %', 'Rev Share %', 'Status'],
+        rows: weekly_data.map(r => [
+            r.day_name,
+            String(r.total_orders),
+            Number(r.total_revenue).toLocaleString(),
+            Number(r.avg_order_value).toLocaleString(undefined, { maximumFractionDigits: 0 }),
+            String(r.completed_orders),
+            String(r.cancelled_orders),
+            `${r.completion_rate}%`,
+            `${r.cancellation_rate}%`,
+            `${r.revenue_share}%`,
+            r.day_name === summary.busiestDay  ? 'Busiest' :
+            r.day_name === summary.quietestDay ? 'Quietest' : 'Normal',
+        ]),
+        _weeklyRaw: weekly_data.map(r => ({
+            ...r,
+            isBusiest:  r.day_name === summary.busiestDay,
+            isQuietest: r.day_name === summary.quietestDay,
+        })),
+    };
+};
+
 const GenerateReport = () => {
     const navigate = useNavigate();
     const [selectedReport, setSelectedReport] = useState('daily-sales');
@@ -725,6 +808,35 @@ const GenerateReport = () => {
                 const now = new Date();
                 const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 const fileName = `Pickup_Delivery_${dateRange.start}_to_${dateRange.end}.pdf`;
+                setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
+                setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                setIsGenerating(false);
+            }
+            return;
+        }
+
+        if (selectedReport === 'weekly-performance') {
+            if (!dateRange.start || !dateRange.end) {
+                alert('Please select a start date and end date.');
+                return;
+            }
+            setIsGenerating(true);
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const res = await fetch(
+                    `http://localhost:5000/api/reports/weekly-performance?start_date=${dateRange.start}&end_date=${dateRange.end}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Failed to generate report');
+
+                setReportData(transformWeeklyPerformanceData(json));
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const fileName = `Weekly_Performance_${dateRange.start}_to_${dateRange.end}.pdf`;
                 setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
                 setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             } catch (err) {
@@ -931,7 +1043,7 @@ const GenerateReport = () => {
                                             ? singleDate
                                             : selectedReport === 'service-popularity' || selectedReport === 'payment-method' || selectedReport === 'top-customers'
                                             ? `${dateRange.start} to ${dateRange.end}`
-                                            : selectedReport === 'pickup-delivery'
+                                            : selectedReport === 'pickup-delivery' || selectedReport === 'weekly-performance'
                                             ? `${dateRange.start} to ${dateRange.end}`
                                             : selectedReport === 'monthly-sales'
                                             ? `${selectedYear}${selectedMonth ? ' — ' + ['January','February','March','April','May','June','July','August','September','October','November','December'][Number(selectedMonth) - 1] : ' — All Months'}`
@@ -1171,6 +1283,74 @@ const GenerateReport = () => {
                                 </>
                             )}
 
+                            {selectedReport === 'weekly-performance' && reportData.chartData && (
+                                <>
+                                    <div className="monthly-insights" style={{ marginBottom: '1.25rem' }}>
+                                        <h3 className="insights-title">Business Insights</h3>
+                                        <div className="insights-grid">
+                                            <div className="insight-card trend-vip">
+                                                <span className="insight-icon">🔥</span>
+                                                <div>
+                                                    <p className="insight-label">Best Day for Promotions</p>
+                                                    <p className="insight-value">{reportData.insights.busiestDay}</p>
+                                                    <p className="insight-sub">Highest customer traffic — maximise upsell</p>
+                                                </div>
+                                            </div>
+                                            <div className="insight-card trend-preferred">
+                                                <span className="insight-icon">🏖️</span>
+                                                <div>
+                                                    <p className="insight-label">Best Day for Holiday</p>
+                                                    <p className="insight-value">{reportData.insights.quietestDay}</p>
+                                                    <p className="insight-sub">Lowest order volume — least business impact</p>
+                                                </div>
+                                            </div>
+                                            <div className="insight-card trend-seasonal">
+                                                <span className="insight-icon">🔧</span>
+                                                <div>
+                                                    <p className="insight-label">Best Day for Maintenance</p>
+                                                    <p className="insight-value">{reportData.insights.quietestDay}</p>
+                                                    <p className="insight-sub">Schedule machine servicing on quiet days</p>
+                                                </div>
+                                            </div>
+                                            <div className="insight-card trend-revenue">
+                                                <span className="insight-icon">💰</span>
+                                                <div>
+                                                    <p className="insight-label">Peak Revenue Day</p>
+                                                    <p className="insight-value">{reportData.insights.bestRevenueDay}</p>
+                                                    <p className="insight-sub">Avg {reportData.insights.avgDailyOrders} orders/day across period</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="charts-row">
+                                        <div className="chart-panel chart-panel--half">
+                                            <h4>📊 Orders by Day of Week</h4>
+                                            <Bar
+                                                data={reportData.chartData.ordersBar}
+                                                options={{
+                                                    responsive: true,
+                                                    indexAxis: 'y',
+                                                    plugins: { legend: { display: false } },
+                                                    scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="chart-panel chart-panel--half">
+                                            <h4>💰 Revenue by Day of Week (LKR)</h4>
+                                            <Bar
+                                                data={reportData.chartData.revenueBar}
+                                                options={{
+                                                    responsive: true,
+                                                    plugins: { legend: { display: false } },
+                                                    scales: { y: { beginAtZero: true } },
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
                             <div className="preview-table-wrapper">
                                 <table className="preview-table">
                                     <thead>
@@ -1179,7 +1359,8 @@ const GenerateReport = () => {
                                     <tbody>
                                         {reportData.rows.map((row, i) => {
                                             const raw = reportData._raw?.[i];
-                                            const cls = raw?.isBest ? 'row-busy' : raw?.isBusy ? 'row-busy' : raw?.isDrop ? 'row-drop' : '';
+                                            const weekly = reportData._weeklyRaw?.[i];
+                                            const cls = weekly?.isBusiest ? 'row-busy' : weekly?.isQuietest ? 'row-drop' : raw?.isBest ? 'row-busy' : raw?.isBusy ? 'row-busy' : raw?.isDrop ? 'row-drop' : '';
                                             return (
                                                 <tr key={i} className={cls}>
                                                     {row.map((cell, j) => <td key={j}>{cell}</td>)}

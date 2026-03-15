@@ -178,6 +178,24 @@ const Report = {
     return { typeRows, slotRows, areaRows, trendRows };
   },
 
+  async getWeeklyPerformanceData(startDate, endDate) {
+    const [weeklyRows] = await db.execute(`
+      SELECT
+        DAYOFWEEK(created_at)  AS day_num,
+        DAYNAME(created_at)    AS day_name,
+        COUNT(*)               AS total_orders,
+        SUM(CASE WHEN status != 'cancelled' THEN total ELSE 0 END)          AS total_revenue,
+        AVG(CASE WHEN status != 'cancelled' THEN total ELSE NULL END)        AS avg_order_value,
+        SUM(CASE WHEN status IN ('delivered','finished') THEN 1 ELSE 0 END)  AS completed_orders,
+        SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END)                AS cancelled_orders
+      FROM orders
+      WHERE DATE(created_at) BETWEEN ? AND ?
+      GROUP BY DAYOFWEEK(created_at), DAYNAME(created_at)
+      ORDER BY DAYOFWEEK(created_at)
+    `, [startDate, endDate]);
+    return { weeklyRows };
+  },
+
   async createTable() {
     const sql = `
       CREATE TABLE IF NOT EXISTS reports (

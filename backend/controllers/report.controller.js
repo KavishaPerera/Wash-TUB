@@ -353,6 +353,88 @@ const reportController = {
       res.status(500).json({ success: false, message: 'Failed to generate report' });
     }
   },
+  async getWeeklyPerformance(req, res) {
+    try {
+      const { start_date, end_date } = req.query;
+
+      if (!start_date || !end_date) {
+        return res.status(400).json({ success: false, message: 'start_date and end_date are required (YYYY-MM-DD)' });
+      }
+      const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRe.test(start_date) || !dateRe.test(end_date)) {
+        return res.status(400).json({ success: false, message: 'Invalid date format. Use YYYY-MM-DD' });
+      }
+      if (start_date > end_date) {
+        return res.status(400).json({ success: false, message: 'start_date must be before or equal to end_date' });
+      }
+
+      const { weeklyRows } = await Report.getWeeklyPerformanceData(start_date, end_date);
+
+      // MySQL DAYOFWEEK: 1=Sun, 2=Mon, ..., 7=Sat
+      // Re-order Mon–Sun for display
+      const dayOrder = [
+        { day_num: 2, day_name: 'Monday' },
+        { day_num: 3, day_name: 'Tuesday' },
+        { day_num: 4, day_name: 'Wednesday' },
+        { day_num: 5, day_name: 'Thursday' },
+        { day_num: 6, day_name: 'Friday' },
+        { day_num: 7, day_name: 'Saturday' },
+        { day_num: 1, day_name: 'Sunday' },
+      ];
+
+      const rawByDayNum = {};
+      weeklyRows.forEach(r => { rawByDayNum[r.day_num] = r; });
+
+      const totalOrders  = weeklyRows.reduce((s, r) => s + Number(r.total_orders),  0);
+      const totalRevenue = weeklyRows.reduce((s, r) => s + Number(r.total_revenue), 0);
+
+      const weekly_data = dayOrder.map(({ day_num, day_name }) => {
+        const r = rawByDayNum[day_num];
+        if (!r) {
+          return { day_num, day_name, total_orders: 0, total_revenue: 0, avg_order_value: 0, completed_orders: 0, cancelled_orders: 0, completion_rate: 0, cancellation_rate: 0, revenue_share: 0 };
+        }
+        const orders    = Number(r.total_orders);
+        const revenue   = Number(r.total_revenue);
+        const completed = Number(r.completed_orders);
+        const cancelled = Number(r.cancelled_orders);
+        return {
+          day_num,
+          day_name,
+          total_orders:      orders,
+          total_revenue:     Number(revenue.toFixed(2)),
+          avg_order_value:   Number(Number(r.avg_order_value || 0).toFixed(2)),
+          completed_orders:  completed,
+          cancelled_orders:  cancelled,
+          completion_rate:   orders > 0 ? Number(((completed / orders) * 100).toFixed(1)) : 0,
+          cancellation_rate: orders > 0 ? Number(((cancelled / orders) * 100).toFixed(1)) : 0,
+          revenue_share:     totalRevenue > 0 ? Number(((revenue / totalRevenue) * 100).toFixed(1)) : 0,
+        };
+      });
+
+      const avgDailyOrders = Number((totalOrders / 7).toFixed(1));
+      const busiestDay     = weekly_data.reduce((a, b) => b.total_orders  > a.total_orders  ? b : a);
+      const quietestDay    = weekly_data.reduce((a, b) => b.total_orders  < a.total_orders  ? b : a);
+      const bestRevenueDay = weekly_data.reduce((a, b) => b.total_revenue > a.total_revenue ? b : a);
+
+      res.json({
+        success: true,
+        summary: {
+          totalOrders,
+          totalRevenue:    Number(totalRevenue.toFixed(2)),
+          avgDailyOrders,
+          busiestDay:      busiestDay.day_name,
+          quietestDay:     quietestDay.day_name,
+          bestRevenueDay:  bestRevenueDay.day_name,
+          daysWithData:    weeklyRows.length,
+          dateRange: { start: start_date, end: end_date },
+        },
+        weekly_data,
+      });
+    } catch (err) {
+      console.error('getWeeklyPerformance error:', err);
+      res.status(500).json({ success: false, message: 'Failed to generate report' });
+    }
+  },
 };
 
 module.exports = reportController;
