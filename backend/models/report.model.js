@@ -148,16 +148,19 @@ const Report = {
 
     const [areaRows] = await db.execute(`
       SELECT
-        COALESCE(NULLIF(TRIM(city), ''), 'Unknown') AS city,
+        city,
         COUNT(*) AS order_count,
         SUM(CASE WHEN status != 'cancelled' THEN total ELSE 0 END) AS total_revenue
       FROM orders
       WHERE DATE(created_at) BETWEEN ? AND ?
         AND delivery_option = 'delivery'
         AND status != 'cancelled'
+        AND city IN (
+          'Battaramulla', 'Hokandara', 'Koswatta', 'Malabe',
+          'Pelawatta', 'Sri Jayawardenapura', 'Thalawathugoda'
+        )
       GROUP BY city
       ORDER BY order_count DESC
-      LIMIT 10
     `, [startDate, endDate]);
 
     const [trendRows] = await db.execute(`
