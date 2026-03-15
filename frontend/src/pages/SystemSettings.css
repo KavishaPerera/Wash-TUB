@@ -219,3 +219,189 @@
         min-width: 60px;
     }
 }
+
+/* ── Promotions Tab ─────────────────────────────────────────────── */
+.promo-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.promo-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e3a5f;
+    margin: 0 0 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.promo-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.promo-section-header .promo-section-title {
+    margin-bottom: 0;
+}
+
+.promo-code-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.promo-code-row input {
+    flex: 1;
+}
+
+.generate-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.promo-alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.promo-alert-success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #16a34a;
+}
+
+.promo-alert-error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #dc2626;
+}
+
+.promo-table-wrap {
+    overflow-x: auto;
+    margin-top: 0.75rem;
+}
+
+.promo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.promo-table th {
+    background: rgba(255, 255, 255, 0.08);
+    color: #1e3a5f;
+    font-weight: 600;
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    white-space: nowrap;
+}
+
+.promo-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #334155;
+    vertical-align: middle;
+}
+
+.promo-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.promo-row-selected {
+    background: rgba(59, 130, 246, 0.08) !important;
+}
+
+.promo-status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.badge-active {
+    background: rgba(34, 197, 94, 0.15);
+    color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.badge-inactive {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.promo-badge-info {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.15);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.promo-hint {
+    font-size: 0.82rem;
+    color: rgba(30, 58, 95, 0.6);
+    margin: 0 0 0.75rem;
+    font-style: italic;
+}
+
+.promo-empty {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+    margin: 0.5rem 0;
+}
+
+.promo-selected-count {
+    font-size: 0.8rem;
+    color: #2563eb;
+    margin: 0.5rem 0 0;
+}
+
+.promo-actions {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.btn-xs {
+    padding: 0.2rem 0.6rem !important;
+    font-size: 0.78rem !important;
+}
+
+.btn-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.28);
+}
+
+@media (max-width: 768px) {
+    .promo-code-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .promo-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}

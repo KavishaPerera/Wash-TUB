@@ -1,6 +1,7 @@
 const Order = require('../models/order.model');
 const User = require('../models/user.model');
 const Notification = require('../models/notification.model');
+const Promotion = require('../models/promotion.model');
 
 // Notification messages for each order status
 const STATUS_NOTIFICATIONS = {
@@ -85,7 +86,7 @@ const orderController = {
   async createOrder(req, res) {
     try {
       const customerId = req.userId;
-      const { deliveryDetails, items } = req.body;
+      const { deliveryDetails, items, promoCode } = req.body;
 
       if (!items || items.length === 0) {
         return res.status(400).json({ message: 'Order must contain at least one item.' });
@@ -98,7 +99,28 @@ const orderController = {
       // Calculate totals on server side for security
       const subtotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
       const deliveryFee = deliveryDetails.deliveryOption === 'delivery' ? 200 : 0;
-      const discount = 0; // future: coupon system
+
+      // Validate and apply promo code if provided
+      let discount = 0;
+      let appliedPromoId = null;
+      if (promoCode) {
+        const promo = await Promotion.getByCode(promoCode.toUpperCase());
+        if (promo && promo.is_active) {
+          const notExpired = !promo.expires_at || new Date(promo.expires_at) >= new Date();
+          const usageOk = promo.max_uses === null || promo.used_count < promo.max_uses;
+          const meetsMin = subtotal >= parseFloat(promo.min_order_amount);
+          if (notExpired && usageOk && meetsMin) {
+            if (promo.discount_type === 'percentage') {
+              discount = (subtotal * parseFloat(promo.discount_value)) / 100;
+            } else {
+              discount = parseFloat(promo.discount_value);
+            }
+            discount = Math.min(discount, subtotal);
+            appliedPromoId = promo.id;
+          }
+        }
+      }
+
       const total = subtotal + deliveryFee - discount;
 
       const orderData = {
@@ -119,6 +141,11 @@ const orderController = {
       };
 
       const { orderId, orderNumber } = await Order.create(customerId, orderData, items);
+
+      // Increment promo usage after successful order creation
+      if (appliedPromoId) {
+        await Promotion.incrementUsedCount(appliedPromoId);
+      }
 
       // Notify customer that their order was received
       await notifyCustomer(orderId, customerId, 'pending', orderNumber);

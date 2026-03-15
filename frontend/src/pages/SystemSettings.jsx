@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './SystemSettings.css';
@@ -155,6 +155,167 @@ const SystemSettings = () => {
         setCities(cities.filter(c => c.id !== id));
     };
 
+    // ── Promotions State ──────────────────────────────────────────────
+    const PROMO_FORM_DEFAULTS = {
+        code: '', description: '', discountType: 'percentage',
+        discountValue: '', minOrderAmount: '', maxUses: '', expiresAt: '', targetType: 'all',
+    };
+    const [promoForm, setPromoForm] = useState(PROMO_FORM_DEFAULTS);
+    const [promotions, setPromotions] = useState([]);
+    const [topCustomers, setTopCustomers] = useState([]);
+    const [selectedCustomers, setSelectedCustomers] = useState([]);
+    const [lowSalesServices, setLowSalesServices] = useState([]);
+    const [promoLoading, setPromoLoading] = useState(false);
+    const [promoMsg, setPromoMsg] = useState('');
+    const [promoError, setPromoError] = useState('');
+    const [sendingEmails, setSendingEmails] = useState(null); // promotionId being sent
+
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const API_URL = 'http://localhost:5000/api';
+    const authHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+
+    const fetchPromotions = async () => {
+        try {
+            const res = await fetch(`${API_URL}/admin/promotions`, { headers: authHeaders });
+            if (res.ok) setPromotions(await res.json());
+        } catch { /* silent */ }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'promotions') fetchPromotions();
+    }, [activeTab]);
+
+    const generateCode = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const rand = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        setPromoForm(f => ({ ...f, code: `PROMO-${rand}` }));
+    };
+
+    const handlePromoFormChange = (e) => {
+        setPromoForm(f => ({ ...f, [e.target.name]: e.target.value }));
+    };
+
+    const handleCreatePromotion = async () => {
+        setPromoMsg(''); setPromoError('');
+        if (!promoForm.code || !promoForm.discountValue) {
+            setPromoError('Code and discount value are required.');
+            return;
+        }
+        setPromoLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/admin/promotions`, {
+                method: 'POST',
+                headers: authHeaders,
+                body: JSON.stringify({
+                    code: promoForm.code,
+                    description: promoForm.description,
+                    discountType: promoForm.discountType,
+                    discountValue: parseFloat(promoForm.discountValue),
+                    minOrderAmount: parseFloat(promoForm.minOrderAmount) || 0,
+                    maxUses: promoForm.maxUses ? parseInt(promoForm.maxUses) : null,
+                    expiresAt: promoForm.expiresAt || null,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) { setPromoError(data.message || 'Failed to create promotion.'); return; }
+            setPromoMsg('Promotion created successfully!');
+            setPromoForm(PROMO_FORM_DEFAULTS);
+            setTopCustomers([]);
+            setSelectedCustomers([]);
+            fetchPromotions();
+        } catch { setPromoError('Network error.'); }
+        finally { setPromoLoading(false); }
+    };
+
+    const handleDeletePromotion = async (id) => {
+        if (!window.confirm('Delete this promotion?')) return;
+        try {
+            await fetch(`${API_URL}/admin/promotions/${id}`, { method: 'DELETE', headers: authHeaders });
+            fetchPromotions();
+        } catch { /* silent */ }
+    };
+
+    const handleLoadTopCustomers = async () => {
+        setPromoLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/admin/promotions/top-customers`, { headers: authHeaders });
+            if (res.ok) { setTopCustomers(await res.json()); setSelectedCustomers([]); }
+        } catch { /* silent */ }
+        finally { setPromoLoading(false); }
+    };
+
+    const handleLoadLowSalesServices = async () => {
+        setPromoLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/admin/promotions/low-sales-services`, { headers: authHeaders });
+            if (res.ok) setLowSalesServices(await res.json());
+        } catch { /* silent */ }
+        finally { setPromoLoading(false); }
+    };
+
+    const toggleCustomerSelect = (email) => {
+        setSelectedCustomers(prev =>
+            prev.includes(email) ? prev.filter(e => e !== email) : [...prev, email]
+        );
+    };
+
+    const handleSendEmails = async (promotionId) => {
+        const promo = promotions.find(p => p.id === promotionId);
+        if (!promo) return;
+
+        let recipients;
+        if (promo.target_type === 'top_customers' || selectedCustomers.length > 0) {
+            if (selectedCustomers.length === 0) {
+                alert('Select at least one customer to send the email to.');
+                return;
+            }
+            recipients = topCustomers
+                .filter(c => selectedCustomers.includes(c.email))
+                .map(c => ({ email: c.email, first_name: c.first_name }));
+        } else {
+            recipients = selectedCustomers.map(e => ({ email: e, first_name: 'Valued Customer' }));
+        }
+
+        if (recipients.length === 0) {
+            alert('No recipients selected.');
+            return;
+        }
+
+        setSendingEmails(promotionId);
+        try {
+            const res = await fetch(`${API_URL}/admin/promotions/send-emails`, {
+                method: 'POST',
+                headers: authHeaders,
+                body: JSON.stringify({ promotionId, emails: recipients }),
+            });
+            const data = await res.json();
+            alert(data.message || 'Emails sent.');
+        } catch { alert('Failed to send emails.'); }
+        finally { setSendingEmails(null); }
+    };
+
+    const handleSendToSelected = async (promoId) => {
+        if (selectedCustomers.length === 0) {
+            alert('Select at least one customer first.');
+            return;
+        }
+        const recipients = topCustomers
+            .filter(c => selectedCustomers.includes(c.email))
+            .map(c => ({ email: c.email, first_name: c.first_name }));
+
+        setSendingEmails(promoId);
+        try {
+            const res = await fetch(`${API_URL}/admin/promotions/send-emails`, {
+                method: 'POST',
+                headers: authHeaders,
+                body: JSON.stringify({ promotionId: promoId, emails: recipients }),
+            });
+            const data = await res.json();
+            alert(data.message || 'Emails sent.');
+        } catch { alert('Failed to send emails.'); }
+        finally { setSendingEmails(null); }
+    };
+
     return (
         <div className="dashboard">
             {/* Sidebar */}
@@ -217,6 +378,12 @@ const SystemSettings = () => {
                             onClick={() => setActiveTab('delivery')}
                         >
                             🚚 Delivery Settings
+                        </button>
+                        <button
+                            className={`settings-tab ${activeTab === 'promotions' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('promotions')}
+                        >
+                            🎁 Promotions
                         </button>
                     </div>
 
@@ -428,6 +595,274 @@ const SystemSettings = () => {
                                 <div className="form-actions">
                                     <button className="btn btn-primary btn-large" onClick={handleSaveDeliverySettings}>Update Delivery Settings</button>
                                 </div>
+                            </div>
+                        </section>
+                    )}
+                    {/* Promotions Tab */}
+                    {activeTab === 'promotions' && (
+                        <section className="dashboard-form-section">
+                            {/* ── Create Promotion ── */}
+                            <div className="promo-card">
+                                <h3 className="promo-section-title">Create New Promotion</h3>
+                                {promoMsg && <div className="promo-alert promo-alert-success">{promoMsg}</div>}
+                                {promoError && <div className="promo-alert promo-alert-error">{promoError}</div>}
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Promo Code</label>
+                                        <div className="promo-code-row">
+                                            <input
+                                                type="text"
+                                                name="code"
+                                                value={promoForm.code}
+                                                onChange={handlePromoFormChange}
+                                                placeholder="e.g. PROMO-ABC123"
+                                                style={{ textTransform: 'uppercase' }}
+                                            />
+                                            <button className="btn btn-secondary btn-sm generate-btn" onClick={generateCode}>
+                                                Generate
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Description (optional)</label>
+                                        <input
+                                            type="text"
+                                            name="description"
+                                            value={promoForm.description}
+                                            onChange={handlePromoFormChange}
+                                            placeholder="e.g. New Year Special"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Discount Type</label>
+                                        <select name="discountType" value={promoForm.discountType} onChange={handlePromoFormChange}>
+                                            <option value="percentage">Percentage (%)</option>
+                                            <option value="fixed">Fixed Amount (LKR)</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Discount Value</label>
+                                        <input
+                                            type="number"
+                                            name="discountValue"
+                                            value={promoForm.discountValue}
+                                            onChange={handlePromoFormChange}
+                                            placeholder={promoForm.discountType === 'percentage' ? 'e.g. 10' : 'e.g. 200'}
+                                            min="0"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Min Order Amount (LKR)</label>
+                                        <input
+                                            type="number"
+                                            name="minOrderAmount"
+                                            value={promoForm.minOrderAmount}
+                                            onChange={handlePromoFormChange}
+                                            placeholder="e.g. 500 (leave blank for none)"
+                                            min="0"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Max Uses (leave blank for unlimited)</label>
+                                        <input
+                                            type="number"
+                                            name="maxUses"
+                                            value={promoForm.maxUses}
+                                            onChange={handlePromoFormChange}
+                                            placeholder="e.g. 50"
+                                            min="1"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Expiry Date (optional)</label>
+                                        <input
+                                            type="date"
+                                            name="expiresAt"
+                                            value={promoForm.expiresAt}
+                                            onChange={handlePromoFormChange}
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Target Customers for Email</label>
+                                        <select name="targetType" value={promoForm.targetType} onChange={handlePromoFormChange}>
+                                            <option value="all">All Active Customers</option>
+                                            <option value="top">Top Customers (select manually)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="form-actions">
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={handleCreatePromotion}
+                                        disabled={promoLoading}
+                                    >
+                                        {promoLoading ? 'Creating…' : 'Create Promotion'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* ── Top Customers (shown when target = top) ── */}
+                            {promoForm.targetType === 'top' && (
+                                <div className="promo-card">
+                                    <div className="promo-section-header">
+                                        <h3 className="promo-section-title">Top Customers by Spend</h3>
+                                        <button className="btn btn-secondary btn-sm" onClick={handleLoadTopCustomers} disabled={promoLoading}>
+                                            {promoLoading ? 'Loading…' : 'Load Top Customers'}
+                                        </button>
+                                    </div>
+                                    {topCustomers.length > 0 && (
+                                        <div className="promo-table-wrap">
+                                            <table className="promo-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Name</th>
+                                                        <th>Email</th>
+                                                        <th>Orders</th>
+                                                        <th>Total Spent (LKR)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {topCustomers.map(c => (
+                                                        <tr key={c.id} className={selectedCustomers.includes(c.email) ? 'promo-row-selected' : ''}>
+                                                            <td>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={selectedCustomers.includes(c.email)}
+                                                                    onChange={() => toggleCustomerSelect(c.email)}
+                                                                />
+                                                            </td>
+                                                            <td>{c.first_name} {c.last_name}</td>
+                                                            <td>{c.email}</td>
+                                                            <td>{c.order_count}</td>
+                                                            <td>{parseFloat(c.total_spent).toLocaleString('en-LK', { minimumFractionDigits: 2 })}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                            <p className="promo-selected-count">{selectedCustomers.length} customer(s) selected</p>
+                                        </div>
+                                    )}
+                                    {topCustomers.length === 0 && <p className="promo-empty">Click "Load Top Customers" to view the ranking.</p>}
+                                </div>
+                            )}
+
+                            {/* ── Low Sales Services (informational) ── */}
+                            <div className="promo-card">
+                                <div className="promo-section-header">
+                                    <h3 className="promo-section-title">Low Sales Services <span className="promo-badge-info">Insight</span></h3>
+                                    <button className="btn btn-secondary btn-sm" onClick={handleLoadLowSalesServices} disabled={promoLoading}>
+                                        {promoLoading ? 'Loading…' : 'View Low Sales Services'}
+                                    </button>
+                                </div>
+                                <p className="promo-hint">Use this data to decide which services to promote. Create a promo code and target customers to boost these services.</p>
+                                {lowSalesServices.length > 0 && (
+                                    <div className="promo-table-wrap">
+                                        <table className="promo-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Service</th>
+                                                    <th>Unit</th>
+                                                    <th>Orders</th>
+                                                    <th>Revenue (LKR)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {lowSalesServices.map((s, i) => (
+                                                    <tr key={s.service_id}>
+                                                        <td>{i + 1}</td>
+                                                        <td>{s.service_name}</td>
+                                                        <td>{s.unit_type}</td>
+                                                        <td>{s.order_count}</td>
+                                                        <td>{parseFloat(s.total_revenue).toLocaleString('en-LK', { minimumFractionDigits: 2 })}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* ── Active Promotions ── */}
+                            <div className="promo-card">
+                                <h3 className="promo-section-title">Active Promotions</h3>
+                                {promotions.length === 0 ? (
+                                    <p className="promo-empty">No promotions created yet.</p>
+                                ) : (
+                                    <div className="promo-table-wrap">
+                                        <table className="promo-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Code</th>
+                                                    <th>Discount</th>
+                                                    <th>Min Order</th>
+                                                    <th>Uses</th>
+                                                    <th>Expires</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {promotions.map(p => {
+                                                    const isExpired = p.expires_at && new Date(p.expires_at) < new Date();
+                                                    const isFull = p.max_uses !== null && p.used_count >= p.max_uses;
+                                                    const active = p.is_active && !isExpired && !isFull;
+                                                    return (
+                                                        <tr key={p.id}>
+                                                            <td><strong>{p.code}</strong></td>
+                                                            <td>
+                                                                {p.discount_type === 'percentage'
+                                                                    ? `${parseFloat(p.discount_value)}% off`
+                                                                    : `LKR ${parseFloat(p.discount_value).toFixed(2)} off`}
+                                                            </td>
+                                                            <td>{parseFloat(p.min_order_amount) > 0 ? `LKR ${parseFloat(p.min_order_amount).toFixed(2)}` : '—'}</td>
+                                                            <td>{p.used_count}{p.max_uses ? ` / ${p.max_uses}` : ''}</td>
+                                                            <td>{p.expires_at ? new Date(p.expires_at).toLocaleDateString('en-GB') : '—'}</td>
+                                                            <td>
+                                                                <span className={`promo-status-badge ${active ? 'badge-active' : 'badge-inactive'}`}>
+                                                                    {active ? 'Active' : isExpired ? 'Expired' : isFull ? 'Used Up' : 'Inactive'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="promo-actions">
+                                                                <button
+                                                                    className="btn btn-secondary btn-xs"
+                                                                    onClick={() => {
+                                                                        if (promoForm.targetType === 'top' && selectedCustomers.length > 0) {
+                                                                            handleSendToSelected(p.id);
+                                                                        } else {
+                                                                            handleSendEmails(p.id);
+                                                                        }
+                                                                    }}
+                                                                    disabled={sendingEmails === p.id}
+                                                                >
+                                                                    {sendingEmails === p.id ? 'Sending…' : '📧 Send'}
+                                                                </button>
+                                                                <button
+                                                                    className="btn btn-danger btn-xs"
+                                                                    onClick={() => handleDeletePromotion(p.id)}
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                         </section>
                     )}

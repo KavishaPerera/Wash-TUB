@@ -12,6 +12,10 @@ const Checkout = () => {
     const { cartItems, totalAmount, clearCart } = useCart();
     const [currentStep, setCurrentStep] = useState(1); // 1 = Delivery Details, 2 = Payment
     const [submitting, setSubmitting] = useState(false);
+    const [promoCode, setPromoCode] = useState('');
+    const [appliedPromo, setAppliedPromo] = useState(null);
+    const [promoError, setPromoError] = useState('');
+    const [promoLoading, setPromoLoading] = useState(false);
 
     // Auth guard — must be logged in as a customer to access checkout
     const token = localStorage.getItem('token');
@@ -151,8 +155,28 @@ const Checkout = () => {
     };
 
     const deliveryFee = formData.deliveryOption === 'delivery' ? DELIVERY_FEE : PICKUP_FEE;
-    const discounts = 0;
+    const discounts = appliedPromo ? appliedPromo.discountAmount : 0;
     const grandTotal = totalAmount + deliveryFee - discounts;
+
+    const applyPromoCode = async () => {
+        if (!promoCode.trim()) return;
+        setPromoError('');
+        setPromoLoading(true);
+        try {
+            const t = localStorage.getItem('token');
+            const res = await fetch(`${API}/promotions/validate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` },
+                body: JSON.stringify({ code: promoCode.trim(), orderTotal: totalAmount }),
+            });
+            const data = await res.json();
+            if (!res.ok) { setPromoError(data.message || 'Invalid promo code'); setAppliedPromo(null); }
+            else { setAppliedPromo(data); setPromoError(''); }
+        } catch { setPromoError('Could not validate promo code. Try again.'); }
+        finally { setPromoLoading(false); }
+    };
+
+    const removePromo = () => { setAppliedPromo(null); setPromoCode(''); setPromoError(''); };
 
     const handleDeliverySubmit = (e) => {
         e.preventDefault();
@@ -251,6 +275,7 @@ const Checkout = () => {
                     quantity: item.quantity,
                     totalPrice: item.totalPrice,
                 })),
+                promoCode: appliedPromo?.code || null,
             };
 
             const res = await fetch(`${API}/orders`, {
@@ -566,6 +591,40 @@ const Checkout = () => {
                 <form onSubmit={handlePaymentSubmit} className="checkout-content">
                     {/* Payment Options Section */}
                     <div className="payment-form-section">
+                        {/* Promo Code Card */}
+                        <div className="payment-card promo-code-card">
+                            <h2 className="section-title">Promo Code</h2>
+                            {appliedPromo ? (
+                                <div className="promo-applied">
+                                    <span className="promo-applied-text">
+                                        ✓ <strong>{appliedPromo.code}</strong> — LKR {appliedPromo.discountAmount.toFixed(2)} off
+                                        {appliedPromo.description ? ` (${appliedPromo.description})` : ''}
+                                    </span>
+                                    <button type="button" className="promo-remove-btn" onClick={removePromo}>Remove</button>
+                                </div>
+                            ) : (
+                                <div className="promo-input-row">
+                                    <input
+                                        type="text"
+                                        className="promo-input"
+                                        value={promoCode}
+                                        onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                                        placeholder="Enter promo code"
+                                        onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), applyPromoCode())}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="promo-apply-btn"
+                                        onClick={applyPromoCode}
+                                        disabled={promoLoading || !promoCode.trim()}
+                                    >
+                                        {promoLoading ? 'Checking…' : 'Apply'}
+                                    </button>
+                                </div>
+                            )}
+                            {promoError && <p className="promo-error-text">{promoError}</p>}
+                        </div>
+
                         <div className="payment-card">
                             <h2 className="section-title">Payment Method</h2>
 
@@ -696,10 +755,12 @@ const Checkout = () => {
                                     <span className="totals-label">Delivery Fee</span>
                                     <span className="totals-value">{deliveryFee === 0 ? 'Free' : `LKR ${deliveryFee.toFixed(2)}`}</span>
                                 </div>
-                                <div className="totals-row">
-                                    <span className="totals-label">Discounts</span>
-                                    <span className="totals-value discount">{discounts}</span>
-                                </div>
+                                {appliedPromo && (
+                                    <div className="totals-row">
+                                        <span className="totals-label">Promo Discount ({appliedPromo.code})</span>
+                                        <span className="totals-value discount">− LKR {discounts.toFixed(2)}</span>
+                                    </div>
+                                )}
                                 <div className="totals-row total-final">
                                     <span className="totals-label">Total</span>
                                     <span className="totals-value total-amount">LKR {grandTotal.toFixed(2)}</span>
