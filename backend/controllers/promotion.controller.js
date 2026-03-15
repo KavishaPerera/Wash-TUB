@@ -196,15 +196,28 @@ exports.sendPromotionNotifications = async (req, res) => {
 
     const discountText =
       promo.discount_type === 'percentage'
-        ? `${promo.discount_value}% off your order`
-        : `LKR ${parseFloat(promo.discount_value).toFixed(2)} off your order`;
+        ? `${promo.discount_value}% off`
+        : `LKR ${parseFloat(promo.discount_value).toFixed(2)} off`;
 
     const expiryText = promo.expires_at
       ? ` Valid until ${new Date(promo.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.`
       : '';
 
-    const title = 'Exclusive Promo For You!';
-    const message = `Use code ${promo.code} to get ${discountText}.${expiryText}${promo.description ? ' ' + promo.description : ''}`;
+    // Build service-specific label if this is a low-sales promotion
+    let serviceLabel = '';
+    let title = 'Exclusive Promo For You!';
+
+    if (promo.applicable_service_ids) {
+      const serviceIds = JSON.parse(promo.applicable_service_ids);
+      const services = await Promotion.getServicesByIds(serviceIds);
+      const labels = services.map(s => s.description ? `${s.service_name} - ${s.description}` : s.service_name);
+      serviceLabel = labels.join(', ');
+      title = `Special Offer on ${serviceLabel}!`;
+    }
+
+    const message = serviceLabel
+      ? `Use code ${promo.code} to get ${discountText} on: ${serviceLabel}.${expiryText}`
+      : `Use code ${promo.code} to get ${discountText} your order.${expiryText}${promo.description ? ' ' + promo.description : ''}`;
 
     const notifications = customerIds.map(userId => ({
       orderId: null,

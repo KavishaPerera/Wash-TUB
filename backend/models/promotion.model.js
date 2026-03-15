@@ -114,6 +114,16 @@ const Promotion = {
        WHERE role = 'customer' AND is_active = 1`
     );
     return rows;
+  },
+
+  async getServicesByIds(ids) {
+    if (!ids || ids.length === 0) return [];
+    const placeholders = ids.map(() => '?').join(',');
+    const [rows] = await db.query(
+      `SELECT service_id, service_name, description FROM services WHERE service_id IN (${placeholders})`,
+      ids
+    );
+    return rows;
   }
 };
 
