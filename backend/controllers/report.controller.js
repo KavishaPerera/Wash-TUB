@@ -112,10 +112,12 @@ const reportController = {
 
       const { paymentRows } = await Report.getPaymentMethodData(start_date, end_date);
 
-      const totalTransactions = paymentRows.reduce((s, r) => s + Number(r.transactions), 0);
-      const totalRevenue      = paymentRows.reduce((s, r) => s + Number(r.revenue),      0);
-      const totalCollected    = paymentRows.reduce((s, r) => s + Number(r.collected),    0);
-      const totalPending      = paymentRows.reduce((s, r) => s + Number(r.pending_amount), 0);
+      const totalTransactions = paymentRows.reduce((s, r) => s + Number(r.transactions),    0);
+      const totalRevenue      = paymentRows.reduce((s, r) => s + Number(r.revenue),          0);
+      const totalCollected    = paymentRows.reduce((s, r) => s + Number(r.collected),        0);
+      const totalPending      = paymentRows.reduce((s, r) => s + Number(r.pending_amount),   0);
+      const totalDiscounts    = paymentRows.reduce((s, r) => s + Number(r.total_discounts),  0);
+      const discountedOrders  = paymentRows.reduce((s, r) => s + Number(r.discounted_orders), 0);
       const collectedRate     = totalRevenue > 0 ? (totalCollected / totalRevenue) * 100 : 0;
 
       // Preferred method (most transactions) and top revenue method
@@ -144,9 +146,9 @@ const reportController = {
       // Per-row revenue share %
       const enrichedPayments = paymentRows.map(row => ({
         ...row,
-        share: totalRevenue > 0
-          ? Number(((Number(row.revenue) / totalRevenue) * 100).toFixed(1))
-          : 0,
+        share:             totalRevenue > 0 ? Number(((Number(row.revenue) / totalRevenue) * 100).toFixed(1)) : 0,
+        total_discounts:   Number(row.total_discounts),
+        discounted_orders: Number(row.discounted_orders),
       }));
 
       res.json({
@@ -156,11 +158,13 @@ const reportController = {
           totalRevenue:   Number(totalRevenue.toFixed(2)),
           totalCollected: Number(totalCollected.toFixed(2)),
           totalPending:   Number(totalPending.toFixed(2)),
-          collectedRate:  Number(collectedRate.toFixed(1)),
+          collectedRate:   Number(collectedRate.toFixed(1)),
           preferredMethod,
           topRevenueMethod,
           cashShare,
           digitalShare,
+          totalDiscounts:  Number(totalDiscounts.toFixed(2)),
+          discountedOrders,
           dateRange: { start: start_date, end: end_date },
         },
         payment_data: enrichedPayments,

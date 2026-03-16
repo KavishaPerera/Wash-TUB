@@ -40,9 +40,9 @@ const REPORT_TYPES = [
     },
     {
         id: 'payment-method',
-        label: 'Payment Method',
+        label: 'Payment Report',
         icon: '💳',
-        desc: 'Breakdown of Cash, Card, and Online payments by count and total.',
+        desc: 'Breakdown of payments by method — revenue, collections, and discounts given.',
         color: 'purple',
         dateMode: 'range',
     },
@@ -345,12 +345,14 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
             doc.text(`Best day for maintenance: ${ins.quietestDay}`, margin, y); y += 6;
             doc.text(`Peak revenue day: ${ins.bestRevenueDay}  |  Avg daily orders: ${ins.avgDailyOrders}`, margin, y);
         } else {
-            // Payment method insights
+            // Payment report insights
             doc.text(`Preferred Method: ${ins.preferredMethod}  |  Top Revenue Method: ${ins.topRevenueMethod}`, margin, y);
             y += 6;
             doc.text(`Digital Adoption: ${ins.digitalShare}% Digital  |  ${ins.cashShare}% Cash`, margin, y);
             y += 6;
             doc.text(`Collection Risk: LKR ${Number(ins.totalPending).toLocaleString()} pending  |  ${ins.collectedRate}% of revenue collected`, margin, y);
+            y += 6;
+            doc.text(`Total Discounts: LKR ${Number(ins.totalDiscounts).toLocaleString()}  |  Discounted Orders: ${ins.discountedOrders}`, margin, y);
         }
     }
 
@@ -444,14 +446,16 @@ const transformPaymentMethodData = (apiData) => {
             { label: 'Total Revenue',       value: `LKR ${Number(summary.totalRevenue).toLocaleString()}` },
             { label: 'Collected',           value: `LKR ${Number(summary.totalCollected).toLocaleString()}` },
             { label: 'Pending',             value: `LKR ${Number(summary.totalPending).toLocaleString()}` },
+            { label: 'Total Discounts',     value: `LKR ${Number(summary.totalDiscounts).toLocaleString()}` },
         ],
-        columns: ['Method', 'Transactions', 'Revenue (LKR)', 'Collected (LKR)', 'Pending (LKR)', 'Share %'],
+        columns: ['Method', 'Transactions', 'Revenue (LKR)', 'Collected (LKR)', 'Pending (LKR)', 'Discounts (LKR)', 'Share %'],
         rows: payment_data.map(row => [
             row.payment_method.charAt(0).toUpperCase() + row.payment_method.slice(1),
             String(row.transactions),
             Number(row.revenue).toLocaleString(),
             Number(row.collected).toLocaleString(),
             Number(row.pending_amount).toLocaleString(),
+            Number(row.total_discounts).toLocaleString(),
             `${row.share}%`,
         ]),
         insights: {
@@ -461,6 +465,8 @@ const transformPaymentMethodData = (apiData) => {
             digitalShare:     summary.digitalShare,
             totalPending:     summary.totalPending,
             collectedRate:    summary.collectedRate,
+            totalDiscounts:   summary.totalDiscounts,
+            discountedOrders: summary.discountedOrders,
         },
     };
 };
@@ -810,7 +816,7 @@ const GenerateReport = () => {
                 setReportData(transformPaymentMethodData(json));
                 const now = new Date();
                 const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                const fileName = `Payment_Method_${dateRange.start}_to_${dateRange.end}.pdf`;
+                const fileName = `Payment_Report_${dateRange.start}_to_${dateRange.end}.pdf`;
                 setGeneratedReports(prev => [{ id: Date.now(), name: fileName, type: currentType.label, date: dateStr, size: '—' }, ...prev]);
                 setTimeout(() => { document.getElementById('report-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             } catch (err) {
@@ -1296,6 +1302,14 @@ const GenerateReport = () => {
                                                 <p className="insight-label">Collection Risk</p>
                                                 <p className="insight-value">LKR {Number(reportData.insights.totalPending).toLocaleString()} Pending</p>
                                                 <p className="insight-sub">{reportData.insights.collectedRate}% of revenue collected</p>
+                                            </div>
+                                        </div>
+                                        <div className="insight-card trend-discount">
+                                            <span className="insight-icon">🏷️</span>
+                                            <div>
+                                                <p className="insight-label">Discounts Given</p>
+                                                <p className="insight-value">LKR {Number(reportData.insights.totalDiscounts).toLocaleString()}</p>
+                                                <p className="insight-sub">{reportData.insights.discountedOrders} discounted orders</p>
                                             </div>
                                         </div>
                                     </div>
