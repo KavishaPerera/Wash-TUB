@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { Bell, RefreshCw } from 'lucide-react';
+import { Bell, RefreshCw, ShoppingBag, Activity, CheckCircle } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import './CustomerDashboard.css';
 
@@ -237,18 +237,21 @@ const CustomerDashboard = () => {
                 {/* Stats Cards */}
                 <section className="stats-section">
                     <div className="stat-card">
+                        <div className="stat-icon"><ShoppingBag size={28} /></div>
                         <div className="stat-info">
                             <p className="stat-label">Total Orders</p>
                             <h3 className="stat-value">{loading ? '—' : totalOrders}</h3>
                         </div>
                     </div>
                     <div className="stat-card">
+                        <div className="stat-icon"><Activity size={28} /></div>
                         <div className="stat-info">
                             <p className="stat-label">Active Orders</p>
                             <h3 className="stat-value">{loading ? '—' : activeOrders}</h3>
                         </div>
                     </div>
                     <div className="stat-card">
+                        <div className="stat-icon"><CheckCircle size={28} /></div>
                         <div className="stat-info">
                             <p className="stat-label">Completed</p>
                             <h3 className="stat-value">{loading ? '—' : completedOrders}</h3>

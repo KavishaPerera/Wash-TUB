@@ -200,6 +200,8 @@
     justify-content: center;
     font-size: 1.75rem;
     flex-shrink: 0;
+    background: #eff6ff;
+    color: #1d4ed8;
 }
 
 .stat-info {
