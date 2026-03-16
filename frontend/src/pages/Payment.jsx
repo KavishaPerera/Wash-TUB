@@ -53,6 +53,8 @@ const Payment = () => {
                     status: normaliseStatus(order.payment_status),
                     date: new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
                     rawDate: new Date(order.created_at),
+                    discount: Number(order.discount || 0),
+                    discountReason: order.discount_reason || null,
                 }));
 
                 setPayments(mapped);
@@ -171,6 +173,14 @@ const Payment = () => {
                             <td style="padding:10px 8px; color:#64748b; font-weight:600;">Amount</td>
                             <td style="padding:10px 8px; font-weight:700; font-size:1.1rem;">${payment.amount}</td>
                         </tr>
+                        ${Number(payment.discount) > 0 ? `
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:10px 8px; color:#64748b; font-weight:600;">Discount</td>
+                            <td style="padding:10px 8px; font-weight:700; color:#16a34a;">
+                                - Rs. ${Number(payment.discount).toLocaleString('en-LK', { minimumFractionDigits: 2 })}
+                                ${payment.discountReason ? `<span style="font-size:0.8rem; color:#64748b; font-weight:400;"> (${payment.discountReason})</span>` : ''}
+                            </td>
+                        </tr>` : ''}
                         <tr style="border-bottom:1px solid #e2e8f0;">
                             <td style="padding:10px 8px; color:#64748b; font-weight:600;">Payment Method</td>
                             <td style="padding:10px 8px;">${displayMethod}</td>
@@ -326,6 +336,7 @@ const Payment = () => {
                                         <th>Order ID</th>
                                         <th>Customer</th>
                                         <th>Amount</th>
+                                        <th>Discount</th>
                                         <th>Method</th>
                                         <th>Date</th>
                                         <th>Actions</th>
@@ -333,13 +344,16 @@ const Payment = () => {
                                 </thead>
                                 <tbody>
                                     {loading ? (
-                                        <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Loading payments...</td></tr>
+                                        <tr><td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Loading payments...</td></tr>
                                     ) : filteredPayments.map(payment => (
                                         <tr key={payment.id}>
                                             <td className="payment-id" style={{ fontWeight: '600', color: '#000000' }}>{payment.id}</td>
                                             <td className="order-id">{payment.orderId}</td>
                                             <td>{payment.customer}</td>
                                             <td className="payment-amount" style={{ fontWeight: '700', color: '#000000' }}>{payment.amount}</td>
+                                            <td style={{ color: payment.discount > 0 ? '#16a34a' : '#94a3b8', fontWeight: payment.discount > 0 ? '700' : '400' }}>
+                                                {payment.discount > 0 ? `- Rs. ${payment.discount.toLocaleString('en-LK', { minimumFractionDigits: 2 })}` : '—'}
+                                            </td>
                                             <td>
                                                 <span className={`method-badge ${getMethodBadgeClass(payment.method)}`}>
                                                     {(payment.methodLabel || payment.method).toUpperCase()}
