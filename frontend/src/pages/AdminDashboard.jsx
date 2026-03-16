@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Clock, Activity, DollarSign } from 'lucide-react';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
 
@@ -90,24 +91,36 @@ const AdminDashboard = () => {
                     {/* Stats */}
                     <section className="stats-section admin-stats">
                         <div className="stat-card">
+                            <div className="stat-icon">
+                                <ShoppingBag size={20} />
+                            </div>
                             <div className="stat-info">
                                 <p className="stat-label">Total Orders</p>
                                 <h3 className="stat-value">{loading ? '—' : totalOrders}</h3>
                             </div>
                         </div>
                         <div className="stat-card">
+                            <div className="stat-icon">
+                                <Clock size={20} />
+                            </div>
                             <div className="stat-info">
                                 <p className="stat-label">Pending</p>
                                 <h3 className="stat-value">{loading ? '—' : pendingCount}</h3>
                             </div>
                         </div>
                         <div className="stat-card">
+                            <div className="stat-icon">
+                                <Activity size={20} />
+                            </div>
                             <div className="stat-info">
                                 <p className="stat-label">Active Orders</p>
                                 <h3 className="stat-value">{loading ? '—' : activeCount}</h3>
                             </div>
                         </div>
                         <div className="stat-card">
+                            <div className="stat-icon">
+                                <DollarSign size={20} />
+                            </div>
                             <div className="stat-info">
                                 <p className="stat-label">Total Revenue</p>
                                 <h3 className="stat-value">{loading ? '—' : `LKR ${totalRevenue.toFixed(0)}`}</h3>

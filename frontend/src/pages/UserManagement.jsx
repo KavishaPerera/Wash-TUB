@@ -4,6 +4,7 @@ import './CustomerDashboard.css';
 import './AdminDashboard.css';
 import './UserManagement.css';
 import Swal from 'sweetalert2';
+import { Users, UserCheck, Briefcase, CircleCheck } from 'lucide-react';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -225,24 +226,28 @@ const UserManagement = () => {
                     {/* Stats Cards */}
                     <section className="stats-section admin-stats">
                         <div className="stat-card">
+                            <div className="stat-icon"><Users size={20} /></div>
                             <div className="stat-info">
                                 <p className="stat-label">Total Users</p>
                                 <h3 className="stat-value">{users.length}</h3>
                             </div>
                         </div>
                         <div className="stat-card">
+                            <div className="stat-icon"><UserCheck size={20} /></div>
                             <div className="stat-info">
                                 <p className="stat-label">Customers</p>
                                 <h3 className="stat-value">{users.filter(u => u.role === 'customer').length}</h3>
                             </div>
                         </div>
                         <div className="stat-card">
+                            <div className="stat-icon"><Briefcase size={20} /></div>
                             <div className="stat-info">
                                 <p className="stat-label">Staff</p>
                                 <h3 className="stat-value">{users.filter(u => u.role === 'staff').length}</h3>
                             </div>
                         </div>
                         <div className="stat-card">
+                            <div className="stat-icon"><CircleCheck size={20} /></div>
                             <div className="stat-info">
                                 <p className="stat-label">Active Users</p>
                                 <h3 className="stat-value">{users.filter(u => u.isActive).length}</h3>

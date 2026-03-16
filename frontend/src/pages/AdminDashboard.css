@@ -28,9 +28,13 @@
 .admin-stats .stat-icon {
     width: 36px;
     height: 36px;
-    font-size: 1.1rem;
     border-radius: 8px;
     margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    color: #1d4ed8;
 }
 
 /* ---- Compact label ---- */

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
 import './AllOrders.css';
+import { ShoppingBag, Clock, Activity, Truck } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -128,10 +129,10 @@ const AllOrders = () => {
                 <div className="dashboard-content">
                     {/* Stats */}
                     <section className="stats-section admin-stats">
-                        <div className="stat-card"><div className="stat-info"><p className="stat-label">Total Orders</p><h3 className="stat-value">{loading ? '—' : totalOrders}</h3></div></div>
-                        <div className="stat-card"><div className="stat-info"><p className="stat-label">Pending</p><h3 className="stat-value">{loading ? '—' : pendingCount}</h3></div></div>
-                        <div className="stat-card"><div className="stat-info"><p className="stat-label">Active</p><h3 className="stat-value">{loading ? '—' : activeCount}</h3></div></div>
-                        <div className="stat-card"><div className="stat-info"><p className="stat-label">Delivered</p><h3 className="stat-value">{loading ? '—' : doneCount}</h3></div></div>
+                        <div className="stat-card"><div className="stat-icon"><ShoppingBag size={20} /></div><div className="stat-info"><p className="stat-label">Total Orders</p><h3 className="stat-value">{loading ? '—' : totalOrders}</h3></div></div>
+                        <div className="stat-card"><div className="stat-icon"><Clock size={20} /></div><div className="stat-info"><p className="stat-label">Pending</p><h3 className="stat-value">{loading ? '—' : pendingCount}</h3></div></div>
+                        <div className="stat-card"><div className="stat-icon"><Activity size={20} /></div><div className="stat-info"><p className="stat-label">Active</p><h3 className="stat-value">{loading ? '—' : activeCount}</h3></div></div>
+                        <div className="stat-card"><div className="stat-icon"><Truck size={20} /></div><div className="stat-info"><p className="stat-label">Delivered</p><h3 className="stat-value">{loading ? '—' : doneCount}</h3></div></div>
                     </section>
 
                     {/* Search + Filter */}

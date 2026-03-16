@@ -4,6 +4,7 @@ import './CustomerDashboard.css';
 import './AdminDashboard.css';
 import './ServiceManagement.css';
 import Swal from 'sweetalert2';
+import { Package, CheckCircle, XCircle } from 'lucide-react';
 
 const API_URL = 'http://localhost:5000/api';
 const UNIT_LABELS = { KG: 'per KG', PIECE: 'per Piece', ITEM: 'per Item' };
@@ -150,9 +151,9 @@ const ServiceManagement = () => {
                     )}
                     <div className="service-management-container">
                         <section className="stats-section admin-stats">
-                            <div className="stat-card"><div className="stat-info"><p className="stat-label">Total Services</p><h3 className="stat-value">{services.length}</h3></div></div>
-                            <div className="stat-card"><div className="stat-info"><p className="stat-label">Active</p><h3 className="stat-value">{services.filter(s => s.isActive).length}</h3></div></div>
-                            <div className="stat-card"><div className="stat-info"><p className="stat-label">Inactive</p><h3 className="stat-value">{services.filter(s => !s.isActive).length}</h3></div></div>
+                            <div className="stat-card"><div className="stat-icon"><Package size={20} /></div><div className="stat-info"><p className="stat-label">Total Services</p><h3 className="stat-value">{services.length}</h3></div></div>
+                            <div className="stat-card"><div className="stat-icon"><CheckCircle size={20} /></div><div className="stat-info"><p className="stat-label">Active</p><h3 className="stat-value">{services.filter(s => s.isActive).length}</h3></div></div>
+                            <div className="stat-card"><div className="stat-icon"><XCircle size={20} /></div><div className="stat-info"><p className="stat-label">Inactive</p><h3 className="stat-value">{services.filter(s => !s.isActive).length}</h3></div></div>
                         </section>
 
                         <section className="add-service-section" style={{ marginBottom: '1.25rem' }}>

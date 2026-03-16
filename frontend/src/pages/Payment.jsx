@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './AdminDashboard.css';
 import Swal from 'sweetalert2';
+import { CreditCard, DollarSign, Clock } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -254,12 +255,14 @@ const Payment = () => {
                     {/* Stats Cards */}
                     <section className="stats-section admin-stats">
                         <div className="stat-card">
+                            <div className="stat-icon"><CreditCard size={20} /></div>
                             <div className="stat-info">
                                 <p className="stat-label">Total Transactions</p>
                                 <h3 className="stat-value">{loading ? '...' : filteredPayments.length}</h3>
                             </div>
                         </div>
                         <div className="stat-card">
+                            <div className="stat-icon"><DollarSign size={20} /></div>
                             <div className="stat-info">
                                 <p className="stat-label">Total Revenue</p>
                                 <h3 className="stat-value" style={{ color: '#000000' }}>
@@ -268,6 +271,7 @@ const Payment = () => {
                             </div>
                         </div>
                         <div className="stat-card">
+                            <div className="stat-icon"><Clock size={20} /></div>
                             <div className="stat-info">
                                 <p className="stat-label">Pending Payments</p>
                                 <h3 className="stat-value" style={{ color: '#d97706' }}>
