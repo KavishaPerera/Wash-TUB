@@ -21,7 +21,6 @@ const PaymentSuccess = () => {
     const subtotal      = location.state?.subtotal      || 0;
     const deliveryFee   = location.state?.deliveryFee   || 0;
     const discount      = location.state?.discount      || 0;
-    const promoCode     = location.state?.promoCode     || null;
 
     const downloadReceipt = () => {
         const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -190,7 +189,7 @@ const PaymentSuccess = () => {
         drawTotalRow('Delivery Fee', `LKR ${Number(deliveryFee).toFixed(2)}`);
         if (discount > 0) {
             drawTotalRow(
-                promoCode ? `Promo Discount (${promoCode})` : 'Promo Discount',
+                'Promo Discount',
                 `- LKR ${Number(discount).toFixed(2)}`,
                 false,
                 [22, 163, 74]
