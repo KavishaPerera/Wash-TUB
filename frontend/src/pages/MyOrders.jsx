@@ -279,6 +279,12 @@ const MyOrders = () => {
                                     <span>Delivery Fee</span><span>LKR {parseFloat(selectedOrder.delivery_fee).toFixed(2)}</span>
                                 </div>
                             )}
+                            {parseFloat(selectedOrder.discount || 0) > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.9rem' }}>
+                                    <span style={{ color: '#16a34a' }}>Discount{selectedOrder.discount_reason ? ` (${selectedOrder.discount_reason})` : ''}</span>
+                                    <span style={{ color: '#16a34a' }}>- LKR {parseFloat(selectedOrder.discount).toFixed(2)}</span>
+                                </div>
+                            )}
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.05rem', color: '#0f172a', marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0' }}>
                                 <span>Total</span>
                                 <span style={{ color: '#0284c7' }}>LKR {parseFloat(selectedOrder.total).toFixed(2)}</span>
