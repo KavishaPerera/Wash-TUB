@@ -296,10 +296,30 @@ const AllOrders = () => {
                             </table>
                         </div>
 
-                        {/* Total */}
-                        <div style={{ padding: '1rem 1.5rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.05rem' }}>
-                            <span style={{ color: '#e2e8f0' }}>Total</span>
-                            <span style={{ color: '#38bdf8' }}>LKR {parseFloat(selectedOrder.total).toFixed(2)}</span>
+                        {/* Pricing Summary */}
+                        <div style={{ padding: '1rem 1.5rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                                <span style={{ color: '#94a3b8' }}>Subtotal</span>
+                                <span style={{ color: '#e2e8f0' }}>LKR {parseFloat(selectedOrder.subtotal || 0).toFixed(2)}</span>
+                            </div>
+                            {parseFloat(selectedOrder.delivery_fee || 0) > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                                    <span style={{ color: '#94a3b8' }}>Delivery Fee</span>
+                                    <span style={{ color: '#e2e8f0' }}>LKR {parseFloat(selectedOrder.delivery_fee).toFixed(2)}</span>
+                                </div>
+                            )}
+                            {parseFloat(selectedOrder.discount || 0) > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                                    <span style={{ color: '#4ade80' }}>
+                                        Discount{selectedOrder.discount_reason ? ` (${selectedOrder.discount_reason})` : ''}
+                                    </span>
+                                    <span style={{ color: '#4ade80' }}>- LKR {parseFloat(selectedOrder.discount).toFixed(2)}</span>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.05rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: '0.5rem' }}>
+                                <span style={{ color: '#e2e8f0' }}>Total</span>
+                                <span style={{ color: '#38bdf8' }}>LKR {parseFloat(selectedOrder.total).toFixed(2)}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
