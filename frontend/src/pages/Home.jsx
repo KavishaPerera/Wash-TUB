@@ -24,7 +24,7 @@ const Home = () => {
                     </p>
                     <div className="hero-buttons">
                         <Link to="/signup" className="btn btn-primary">
-                            Get Started Free
+                            Start Here
                         </Link>
                         <Link to="/pricing" className="btn btn-secondary">
                             View Pricing
