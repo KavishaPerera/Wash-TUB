@@ -350,8 +350,6 @@ const buildPdfReport = (reportTypeId, reportLabel, data, dateStr) => {
             y += 6;
             doc.text(`Digital Adoption: ${ins.digitalShare}% Digital  |  ${ins.cashShare}% Cash`, margin, y);
             y += 6;
-            doc.text(`Collection Risk: LKR ${Number(ins.totalPending).toLocaleString()} pending  |  ${ins.collectedRate}% of revenue collected`, margin, y);
-            y += 6;
             doc.text(`Total Discounts: LKR ${Number(ins.totalDiscounts).toLocaleString()}  |  Discounted Orders: ${ins.discountedOrders}`, margin, y);
         }
     }
@@ -445,16 +443,14 @@ const transformPaymentMethodData = (apiData) => {
             { label: 'Total Transactions', value: String(summary.totalTransactions) },
             { label: 'Total Revenue',       value: `LKR ${Number(summary.totalRevenue).toLocaleString()}` },
             { label: 'Collected',           value: `LKR ${Number(summary.totalCollected).toLocaleString()}` },
-            { label: 'Pending',             value: `LKR ${Number(summary.totalPending).toLocaleString()}` },
             { label: 'Total Discounts',     value: `LKR ${Number(summary.totalDiscounts).toLocaleString()}` },
         ],
-        columns: ['Method', 'Transactions', 'Revenue (LKR)', 'Collected (LKR)', 'Pending (LKR)', 'Discounts (LKR)', 'Share %'],
+        columns: ['Method', 'Transactions', 'Revenue (LKR)', 'Collected (LKR)', 'Discounts (LKR)', 'Share %'],
         rows: payment_data.map(row => [
             row.payment_method.charAt(0).toUpperCase() + row.payment_method.slice(1),
             String(row.transactions),
             Number(row.revenue).toLocaleString(),
             Number(row.collected).toLocaleString(),
-            Number(row.pending_amount).toLocaleString(),
             Number(row.total_discounts).toLocaleString(),
             `${row.share}%`,
         ]),
@@ -1294,14 +1290,6 @@ const GenerateReport = () => {
                                                 <p className="insight-label">Digital Adoption</p>
                                                 <p className="insight-value">{reportData.insights.digitalShare}% Digital</p>
                                                 <p className="insight-sub">{reportData.insights.cashShare}% Cash — improve digital options</p>
-                                            </div>
-                                        </div>
-                                        <div className="insight-card trend-risk">
-                                            <span className="insight-icon">⚠️</span>
-                                            <div>
-                                                <p className="insight-label">Collection Risk</p>
-                                                <p className="insight-value">LKR {Number(reportData.insights.totalPending).toLocaleString()} Pending</p>
-                                                <p className="insight-sub">{reportData.insights.collectedRate}% of revenue collected</p>
                                             </div>
                                         </div>
                                         <div className="insight-card trend-discount">
