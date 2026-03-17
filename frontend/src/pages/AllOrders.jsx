@@ -104,8 +104,8 @@ const AllOrders = () => {
                     <Link to="/admin-dashboard" className="nav-item"><span>Overview</span></Link>
                     <Link to="/user-management" className="nav-item"><span>User Management</span></Link>
                     <Link to="/service-management" className="nav-item"><span>Service Management</span></Link>
-                    <a href="#" className="nav-item active"><span>All Orders</span></a>
-                    <Link to="/payment" className="nav-item"><span>Payment</span></Link>
+                    <a href="#" className="nav-item active"><span>All Order Updates</span></a>
+                    <Link to="/payment" className="nav-item"><span>Payment Updates</span></Link>
                     <Link to="/generate-report" className="nav-item"><span>Generate Reports</span></Link>
                     <Link to="/system-settings" className="nav-item"><span>System Settings</span></Link>
                 </nav>

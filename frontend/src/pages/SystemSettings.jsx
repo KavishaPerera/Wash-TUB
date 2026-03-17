@@ -497,10 +497,10 @@ const SystemSettings = () => {
                         <span>Service Management</span>
                     </Link>
                     <Link to="/all-orders" className="nav-item">
-                        <span>All Orders</span>
+                        <span>All Order Updates</span>
                     </Link>
                     <Link to="/payment" className="nav-item">
-                        <span>Payment</span>
+                        <span>Payment Updates</span>
                     </Link>
                     <Link to="/generate-report" className="nav-item">
                         <span>Generate Reports</span>

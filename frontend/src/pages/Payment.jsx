@@ -222,10 +222,10 @@ const Payment = () => {
                         <span>Service Management</span>
                     </Link>
                     <Link to="/all-orders" className="nav-item">
-                        <span>All Orders</span>
+                        <span>All Order Updates</span>
                     </Link>
                     <a href="#" className="nav-item active">
-                        <span>Payment</span>
+                        <span>Payment Updates</span>
                     </a>
                     <Link to="/generate-report" className="nav-item">
                         <span>Generate Reports</span>
