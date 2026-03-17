@@ -98,6 +98,9 @@ const MyOrders = () => {
                     <Link to="/notifications" className="nav-item">
                         <span>Notifications</span>
                     </Link>
+                    <Link to="/profile" className="nav-item">
+                        <span>Profile</span>
+                    </Link>
                 </nav>
                 <button className="logout-btn" onClick={handleLogout}>
                     <span>Logout</span>

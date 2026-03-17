@@ -142,6 +142,9 @@ const Notifications = () => {
                         <span>Notifications</span>
                         {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
                     </a>
+                    <Link to="/profile" className="nav-item">
+                        <span>Profile</span>
+                    </Link>
                 </nav>
                 <button className="logout-btn" onClick={handleLogout}>
                     <span>Logout</span>
