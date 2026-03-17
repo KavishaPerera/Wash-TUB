@@ -23,6 +23,7 @@ const UserManagement = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [viewUser, setViewUser] = useState(null);
 
     const getToken = () => localStorage.getItem('token');
 
@@ -140,6 +141,12 @@ const UserManagement = () => {
     };
 
     const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); sessionStorage.removeItem('token'); sessionStorage.removeItem('user'); navigate('/signin'); };
+
+    useEffect(() => {
+        const handleEsc = (e) => { if (e.key === 'Escape') setViewUser(null); };
+        document.addEventListener('keydown', handleEsc);
+        return () => document.removeEventListener('keydown', handleEsc);
+    }, []);
 
     // -----------------------------------------------------------
     // Filtered list
@@ -317,6 +324,12 @@ const UserManagement = () => {
                                                 <td>{formatDate(user.createdAt)}</td>
                                                 <td className="actions-cell">
                                                     <button
+                                                        className="btn-action btn-view"
+                                                        onClick={() => setViewUser(user)}
+                                                    >
+                                                        View
+                                                    </button>
+                                                    <button
                                                         className={`btn-action ${user.isActive ? 'btn-toggle' : 'btn-edit'}`}
                                                         onClick={() => handleToggleStatus(user.id, user.isActive, user.name)}
                                                     >
@@ -343,6 +356,55 @@ const UserManagement = () => {
                     </section>
                 </div>
             </main>
+
+            {/* View User Modal */}
+        {viewUser && (
+            <div className="user-modal-overlay" onClick={() => setViewUser(null)}>
+                <div className="user-modal-card" onClick={(e) => e.stopPropagation()}>
+                    <button className="user-modal-close" onClick={() => setViewUser(null)}>×</button>
+
+                    {/* Avatar + name */}
+                    <div className="user-modal-header">
+                        <div className="user-modal-avatar">
+                            {viewUser.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                        </div>
+                        <div className="user-modal-title">
+                            <h2>{viewUser.name}</h2>
+                            <div className="user-modal-badges">
+                                <span className={`role-badge ${getRoleBadgeClass(viewUser.role)}`}>
+                                    {ROLE_LABELS[viewUser.role] || viewUser.role}
+                                </span>
+                                <span className={`status-badge ${viewUser.isActive ? 'status-active' : 'status-inactive'}`}>
+                                    {viewUser.isActive ? 'Active' : 'Inactive'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Info rows */}
+                    <div className="user-modal-body">
+                        <div className="user-modal-info-row">
+                            <span className="user-modal-label">Email</span>
+                            <span className="user-modal-value">{viewUser.email}</span>
+                        </div>
+                        <div className="user-modal-info-row">
+                            <span className="user-modal-label">Phone</span>
+                            <span className="user-modal-value">{viewUser.phone || '—'}</span>
+                        </div>
+                        {viewUser.address && (
+                            <div className="user-modal-info-row">
+                                <span className="user-modal-label">Address</span>
+                                <span className="user-modal-value">{viewUser.address}</span>
+                            </div>
+                        )}
+                        <div className="user-modal-info-row">
+                            <span className="user-modal-label">Joined</span>
+                            <span className="user-modal-value">{formatDate(viewUser.createdAt)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
         </div>
     );
 };
