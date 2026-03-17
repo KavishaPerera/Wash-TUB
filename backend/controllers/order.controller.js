@@ -9,7 +9,7 @@ const STATUS_NOTIFICATIONS = {
   pending: {
     type: 'order_received',
     title: 'Order Received',
-    message: (num) => `Your order ${num} has been received and is awaiting confirmation.`,
+    message: (num) => `Your order ${num} has been received and is awaiting confirmation. If you need to change the pickup time or have any other details, please contact Wash Tub Laundry.`,
   },
   confirmed: {
     type: 'order_confirmed',
@@ -49,7 +49,7 @@ const STATUS_NOTIFICATIONS = {
   delivery_scheduled: {
     type: 'delivery_scheduled',
     title: 'Delivery Scheduled',
-    message: (num) => `Your delivery for order ${num} has been scheduled. Please be available to receive it.`,
+    message: (num) => `Your delivery for order ${num} has been scheduled and will arrive within 24 hours. For any changes please contact Wash Tub Laundry.`,
   },
   delivered: {
     type: 'order_delivered',
