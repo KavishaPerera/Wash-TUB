@@ -2,6 +2,7 @@ const Order = require('../models/order.model');
 const User = require('../models/user.model');
 const Notification = require('../models/notification.model');
 const Promotion = require('../models/promotion.model');
+const { sendSms } = require('../services/sms.service');
 
 // Notification messages for each order status
 const STATUS_NOTIFICATIONS = {
@@ -61,6 +62,32 @@ const STATUS_NOTIFICATIONS = {
     message: (num) => `Your order ${num} has been cancelled.`,
   },
 };
+
+// Helper — silently send an SMS to a POS walk-in customer when their order is finished.
+async function notifyPosCustomerBySms(order) {
+  if (!order.special_instructions || !order.special_instructions.includes('POS Walk-in Order')) return;
+  if (!order.phone) return;
+
+  const body =
+    `Hi ${order.full_name}, your laundry (order ${order.order_number}) is finished and ready for pickup! Thank you for choosing Wash Tub.`;
+
+  const sid = await sendSms(order.phone, body);
+
+  try {
+    await Notification.create({
+      orderId:           order.id,
+      userId:            order.customer_id,
+      type:              'order_finished',
+      title:             'Order Finished',
+      message:           body,
+      channel:           'SMS',
+      deliveryStatus:    sid ? 'SENT' : 'FAILED',
+      providerMessageId: sid || null,
+    });
+  } catch (err) {
+    console.error(`[SMS] Failed to record SMS notification for order ${order.order_number}:`, err.message);
+  }
+}
 
 // Helper — silently create a notification (never throws, so order ops aren't blocked)
 async function notifyCustomer(orderId, customerId, status, orderNumber) {
@@ -326,6 +353,11 @@ const orderController = {
 
       // Notify the customer about the status change
       await notifyCustomer(order.id, order.customer_id, status, order.order_number);
+
+      // Send SMS to POS walk-in customer when their laundry is finished
+      if (status === 'finished') {
+        await notifyPosCustomerBySms(order);
+      }
 
       res.json({ message: `Order status updated to "${status}".` });
     } catch (error) {

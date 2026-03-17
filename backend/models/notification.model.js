@@ -52,11 +52,11 @@ const Notification = {
     }
   },
 
-  async create({ orderId, userId, type, title, message }) {
+  async create({ orderId, userId, type, title, message, channel = 'PUSH', deliveryStatus = 'SENT', providerMessageId = null }) {
     const [result] = await db.execute(
-      `INSERT INTO notifications (order_id, user_id, type, title, message, channel, delivery_status)
-       VALUES (?, ?, ?, ?, ?, 'PUSH', 'SENT')`,
-      [orderId, userId, type, title, message]
+      `INSERT INTO notifications (order_id, user_id, type, title, message, channel, delivery_status, provider_message_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [orderId, userId, type, title, message, channel, deliveryStatus, providerMessageId]
     );
     return result.insertId;
   },
