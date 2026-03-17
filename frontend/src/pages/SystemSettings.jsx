@@ -585,7 +585,7 @@ const SystemSettings = () => {
                                 </div>
                                 <div className="form-group full-width">
                                     <label>Address</label>
-                                    <textarea rows="3" name="address" value={businessInfo.address} onChange={handleInfoChange}></textarea>
+                                    <textarea rows="2" name="address" value={businessInfo.address} onChange={handleInfoChange}></textarea>
                                 </div>
                                 <div className="form-row">
                                     <div className="form-group">
@@ -624,7 +624,7 @@ const SystemSettings = () => {
                                             <div className="form-group">
                                                 <label>Answer</label>
                                                 <textarea
-                                                    rows="3"
+                                                    rows="2"
                                                     value={faq.answer}
                                                     onChange={e => handleFaqChange(faq.id, 'answer', e.target.value)}
                                                     placeholder="Enter answer"

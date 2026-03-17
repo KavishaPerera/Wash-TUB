@@ -1,6 +1,28 @@
 /* --- SystemSettings Widget Styles --- */
 /* (Page layout styles are imported from CustomerDashboard.css) */
 
+/* ── Compact Settings Form ─────────────────────────────── */
+.settings-form .form-group {
+    margin-bottom: 0.75rem;
+}
+
+.settings-form .form-row {
+    gap: 0.75rem;
+    margin-bottom: 0;
+}
+
+.settings-form label {
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+}
+
+.settings-form input,
+.settings-form select,
+.settings-form textarea {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
 /* Price Table Specifics */
 .price-input {
     width: 100px;
@@ -49,8 +71,8 @@
 
 /* FAQ Manager */
 .faq-manager {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -72,15 +94,15 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-md);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.65rem;
 }
 
 .faq-entry-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .faq-entry-label {
