@@ -50,6 +50,7 @@ db.getConnection()
     console.log('✅ Notifications table ready');
     await Promotion.createTable();
     await Complaint.createTable();
+    await Complaint.migrateTable();
     console.log('✅ Complaints table ready');
   })
   .catch((err) => {

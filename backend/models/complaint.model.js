@@ -10,7 +10,7 @@ const Complaint = {
         customer_id INT NOT NULL,
         subject     VARCHAR(255) NOT NULL,
         message     TEXT NOT NULL,
-        status      ENUM('open','resolved') NOT NULL DEFAULT 'open',
+        status      ENUM('submitted','resolved') NOT NULL DEFAULT 'submitted',
         created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (order_id)    REFERENCES orders(id) ON DELETE SET NULL,
@@ -66,6 +66,15 @@ const Complaint = {
       [id]
     );
     return rows[0];
+  },
+
+  async migrateTable() {
+    // Migrate any existing 'open' rows to 'submitted'
+    await db.execute(`UPDATE complaints SET status = 'submitted' WHERE status = 'open'`);
+    // Alter the ENUM column to replace 'open' with 'submitted'
+    await db.execute(
+      `ALTER TABLE complaints MODIFY COLUMN status ENUM('submitted','resolved') NOT NULL DEFAULT 'submitted'`
+    );
   },
 
   async updateStatus(id, status) {

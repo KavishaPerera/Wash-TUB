@@ -60,7 +60,7 @@ const AllComplaints = () => {
     }, [complaints, searchTerm, filterStatus]);
 
     const totalCount = complaints.length;
-    const openCount = complaints.filter(c => c.status === 'open').length;
+    const openCount = complaints.filter(c => c.status === 'submitted').length;
     const resolvedCount = complaints.filter(c => c.status === 'resolved').length;
 
     const updateStatus = async (complaintId, newStatus) => {
@@ -135,7 +135,7 @@ const AllComplaints = () => {
                         <div className="stat-card">
                             <div className="stat-icon"><Clock size={20} /></div>
                             <div className="stat-info">
-                                <p className="stat-label">Open</p>
+                                <p className="stat-label">Submitted</p>
                                 <h3 className="stat-value">{loading ? '—' : openCount}</h3>
                             </div>
                         </div>
@@ -163,7 +163,7 @@ const AllComplaints = () => {
                             onChange={(e) => setFilterStatus(e.target.value)}
                         >
                             <option value="all">All Statuses</option>
-                            <option value="open">Open</option>
+                            <option value="submitted">Submitted</option>
                             <option value="resolved">Resolved</option>
                         </select>
                     </div>
@@ -237,7 +237,7 @@ const AllComplaints = () => {
                                     onChange={(e) => updateStatus(selectedComplaint.id, e.target.value)}
                                     disabled={updatingId === selectedComplaint.id}
                                 >
-                                    <option value="open">Open</option>
+                                    <option value="submitted">Submitted</option>
                                     <option value="resolved">Resolved</option>
                                 </select>
                                 {updatingId === selectedComplaint.id && <span className="ac-updating">Saving...</span>}

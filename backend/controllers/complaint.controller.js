@@ -65,8 +65,8 @@ const complaintController = {
   async updateStatus(req, res) {
     try {
       const { status } = req.body;
-      if (!['open', 'resolved'].includes(status)) {
-        return res.status(400).json({ message: 'Invalid status. Must be open or resolved' });
+      if (!['submitted', 'resolved'].includes(status)) {
+        return res.status(400).json({ message: 'Invalid status. Must be submitted or resolved' });
       }
       const updated = await Complaint.updateStatus(req.params.id, status);
       if (!updated) {

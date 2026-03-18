@@ -201,7 +201,7 @@ const MyComplaints = () => {
 
                 {/* Filter Tabs */}
                 <div className="complaints-filters">
-                    {['all', 'open', 'resolved'].map(f => (
+                    {['all', 'submitted', 'resolved'].map(f => (
                         <button
                             key={f}
                             className={`filter-tab${activeFilter === f ? ' active' : ''}`}
