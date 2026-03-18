@@ -120,6 +120,22 @@ const Checkout = () => {
             setFormData(prev => ({ ...prev, pickupDate: '' }));
             return;
         }
+        if (name === 'pickupDate' && value) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            if (new Date(value) < tomorrow) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Pickup Date',
+                    text: 'Pickup must be scheduled at least 24 hours in advance. Please select tomorrow or a later date.',
+                    confirmButtonColor: '#0ea5e9',
+                });
+                setFormData(prev => ({ ...prev, pickupDate: '' }));
+                return;
+            }
+        }
         if (name === 'city') {
             setFormData(prev => ({ ...prev, city: value, postalCode: CITY_POSTAL_MAP[value] || '' }));
         } else if (name === 'cardNumber') {
@@ -220,6 +236,23 @@ const Checkout = () => {
                 confirmButtonColor: '#0ea5e9',
             });
             return;
+        }
+
+        // Pickup must be at least 24 hours in advance
+        {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            if (new Date(formData.pickupDate) < tomorrow) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Pickup Date',
+                    text: 'Pickup must be scheduled at least 24 hours in advance. Please select tomorrow or a later date.',
+                    confirmButtonColor: '#0ea5e9',
+                });
+                return;
+            }
         }
 
         // All good — proceed to payment
@@ -484,7 +517,7 @@ const Checkout = () => {
                                             name="pickupDate"
                                             value={formData.pickupDate}
                                             onChange={handleInputChange}
-                                            min={new Date().toISOString().split('T')[0]}
+                                            min={(() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; })()}
                                             required
                                         />
                                     </div>

@@ -112,6 +112,17 @@ const NewOrder = () => {
             return;
         }
 
+        if (deliveryData.pickupDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            if (new Date(deliveryData.pickupDate) < tomorrow) {
+                alert('Pickup must be scheduled at least 24 hours in advance. Please select tomorrow or a later date.');
+                return;
+            }
+        }
+
         // Create order object
         const orderData = {
             items: basket,
@@ -359,6 +370,7 @@ const NewOrder = () => {
                                             value={deliveryData.pickupDate}
                                             onChange={handleDeliveryChange}
                                             placeholder="mm/dd/yyyy"
+                                            min={(() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; })()}
                                         />
                                     </div>
                                     <div className="form-group">
