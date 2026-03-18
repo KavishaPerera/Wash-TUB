@@ -203,6 +203,9 @@ const CustomerDashboard = () => {
                         <span>Notifications</span>
                         {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
                     </a>
+                    <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/my-complaints'); }}>
+                        <span>Feedback/Complaints</span>
+                    </a>
                     <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); navigate('/profile'); }}>
                         <span>Profile</span>
                     </a>

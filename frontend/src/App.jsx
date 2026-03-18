@@ -35,6 +35,8 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import OrderSuccess from './pages/OrderSuccess';
 import PaymentSuccess from './pages/PaymentSuccess';
+import MyComplaints from './pages/MyComplaints';
+import AllComplaints from './pages/AllComplaints';
 import { CartProvider } from './context/CartContext';
 import { StaffOrdersProvider } from './context/StaffOrdersContext';
 import { NotificationProvider } from './context/NotificationContext';
@@ -84,6 +86,8 @@ function App() {
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/my-complaints" element={<MyComplaints />} />
+              <Route path="/all-complaints" element={<AllComplaints />} />
             </Routes>
           </div>
         </Router>

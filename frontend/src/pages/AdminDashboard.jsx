@@ -71,6 +71,7 @@ const AdminDashboard = () => {
                     <Link to="/all-orders" className="nav-item"><span>All Order Updates</span></Link>
                     <Link to="/payment" className="nav-item"><span>Payment Updates</span></Link>
                     <Link to="/generate-report" className="nav-item"><span>Generate Reports</span></Link>
+                    <Link to="/all-complaints" className="nav-item"><span>Feedback/Complaints</span></Link>
                     <Link to="/system-settings" className="nav-item"><span>System Settings</span></Link>
                 </nav>
                 <button className="logout-btn" onClick={handleLogout}><span>Logout</span></button>
