@@ -472,6 +472,11 @@
     margin: 0 0 0.25rem;
 }
 
+.receipt-header p {
+    font-size: 0.9rem;
+    margin: 0.15rem 0;
+}
+
 .receipt-items {
     margin-bottom: 1.5rem;
     border-bottom: 1px dashed #000;

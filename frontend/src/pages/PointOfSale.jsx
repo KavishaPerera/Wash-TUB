@@ -618,10 +618,10 @@ const PointOfSale = () => {
                                 <span>LKR {finalOrderData.balance.toFixed(2)}</span>
                             </div>
 
-                            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                                <CheckCircle size={24} style={{ color: '#38a169', marginBottom: '0.5rem' }} />
-                                <p>Payment Received - Thank You!</p>
-                                <p>Please come again.</p>
+                            <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
+                                <CheckCircle size={16} style={{ color: '#38a169', marginBottom: '0.25rem' }} />
+                                <p style={{ fontSize: '0.9rem', margin: '0.15rem 0' }}>Payment Received - Thank You!</p>
+                                <p style={{ fontSize: '0.9rem', margin: '0.15rem 0' }}>Please come again.</p>
                             </div>
                         </div>
 
