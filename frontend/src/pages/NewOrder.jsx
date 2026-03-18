@@ -117,8 +117,10 @@ const NewOrder = () => {
             today.setHours(0, 0, 0, 0);
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 1);
-            if (new Date(deliveryData.pickupDate) < tomorrow) {
-                alert('Pickup must be scheduled at least 24 hours in advance. Please select tomorrow or a later date.');
+            const maxDate = new Date(today);
+            maxDate.setDate(maxDate.getDate() + 10);
+            if (new Date(deliveryData.pickupDate) < tomorrow || new Date(deliveryData.pickupDate) > maxDate) {
+                alert('Please select a pickup date between tomorrow and the next 10 days.');
                 return;
             }
         }
@@ -371,6 +373,7 @@ const NewOrder = () => {
                                             onChange={handleDeliveryChange}
                                             placeholder="mm/dd/yyyy"
                                             min={(() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; })()}
+                                            max={(() => { const d = new Date(); d.setDate(d.getDate() + 10); return d.toISOString().split('T')[0]; })()}
                                         />
                                     </div>
                                     <div className="form-group">
