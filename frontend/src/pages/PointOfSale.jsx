@@ -576,7 +576,6 @@ const PointOfSale = () => {
                                 <h2>Wash Tub Laundry</h2>
                                 <p>478/A, Pannipitiya Rd, Pelawatta</p>
                                 <p>Tel: +94 11 452 8476</p>
-                                <br />
                                 {finalOrderData.orderNumber && (
                                     <p style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Order #: {finalOrderData.orderNumber}</p>
                                 )}
