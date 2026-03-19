@@ -215,14 +215,6 @@ const DeliveryProfile = () => {
                                 <h2 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: '#0f172a' }}>{fullName}</h2>
                                 <p style={{ margin: '0.2rem 0 0', fontSize: '0.83rem', color: '#64748b' }}>{profileData.email}</p>
                             </div>
-                            <div style={{ display: 'flex', gap: '1rem', flexShrink: 0 }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: '#475569' }}>
-                                    <Shield size={13} color="#38bdf8" /> Verified
-                                </span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: '#10b981' }}>
-                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }} /> Online
-                                </span>
-                            </div>
                         </div>
 
                         {/* Personal Information */}
