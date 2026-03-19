@@ -5,7 +5,10 @@ import { useStaffOrders } from '../context/StaffOrdersContext';
 import { useState, useEffect } from 'react';
 import './StaffDashboard.css';
 
-const workflowSteps = ['In Progress', 'Ready', 'Finished'];
+const getWorkflowSteps = (order) =>
+    order?.specialInstructions === 'POS Walk-in Order'
+        ? ['Pending', 'In Progress', 'Ready', 'Finished']
+        : ['In Progress', 'Ready', 'Finished'];
 
 const StaffDashboard = () => {
     const navigate = useNavigate();
@@ -208,18 +211,21 @@ const StaffDashboard = () => {
                             {/* Workflow */}
                             <p style={{ margin: '0 0 1rem', fontSize: '0.9rem', fontWeight: 700, color: '#0f172a' }}>Update Progress</p>
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.25rem' }}>
-                                {workflowSteps.map((step, index) => {
-                                    const currentIndex = workflowSteps.indexOf(live.status);
+                                {getWorkflowSteps(live).map((step, index) => {
+                                    const steps = getWorkflowSteps(live);
+                                    const currentIndex = steps.indexOf(live.status);
                                     const isCompleted = currentIndex >= index;
                                     const isActive = live.status === step;
+                                    const isPending = step === 'Pending';
                                     return (
                                         <div
                                             key={step}
                                             onClick={() => {
+                                                if (isPending) return;
                                                 updateOrderStatus(live.id, step);
                                                 setModalOrder(prev => ({ ...prev, status: step }));
                                             }}
-                                            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}
+                                            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', cursor: isPending ? 'default' : 'pointer' }}
                                         >
                                             <div style={{
                                                 width: '38px', height: '38px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem',

@@ -29,7 +29,10 @@ const StaffUpdateOrder = () => {
 
     // Always derive selectedOrder from the shared context so it stays fresh
     const selectedOrder = orders.find(o => o.id === selectedOrderId);
-    const workflowSteps = ['In Progress', 'Ready', 'Finished'];
+    const getWorkflowSteps = (order) =>
+        order?.specialInstructions === 'POS Walk-in Order'
+            ? ['Pending', 'In Progress', 'Ready', 'Finished']
+            : ['In Progress', 'Ready', 'Finished'];
 
     const handleStatusUpdate = (newStatus) => {
         if (!selectedOrderId) return;
@@ -75,16 +78,18 @@ const StaffUpdateOrder = () => {
                         <div className="status-update-section" style={{ background: '#fff', borderRadius: '16px', padding: '1.75rem', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
                             <h3 style={{ margin: '0 0 1.75rem', fontSize: '1.35rem', fontWeight: 800, color: '#0f172a' }}>Update Progress</h3>
                             <div className="status-workflow">
-                                {workflowSteps.map((step, index) => {
-                                    const currentIndex = workflowSteps.indexOf(selectedOrder.status);
+                                {getWorkflowSteps(selectedOrder).map((step, index) => {
+                                    const steps = getWorkflowSteps(selectedOrder);
+                                    const currentIndex = steps.indexOf(selectedOrder.status);
                                     const isCompleted = currentIndex >= index;
                                     const isActive = selectedOrder.status === step;
+                                    const isPending = step === 'Pending';
                                     return (
                                         <div
                                             key={step}
                                             className={`status-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
-                                            onClick={() => handleStatusUpdate(step)}
-                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => !isPending && handleStatusUpdate(step)}
+                                            style={{ cursor: isPending ? 'default' : 'pointer' }}
                                         >
                                             <div className="step-circle">
                                                 {isCompleted ? <Check size={16} /> : <span>{index + 1}</span>}
@@ -197,14 +202,17 @@ const StaffUpdateOrder = () => {
                                 <div className="status-update-section">
                                     <h3>Update Progress</h3>
                                     <div className="status-workflow">
-                                        {workflowSteps.map((step, index) => {
-                                            const isCompleted = workflowSteps.indexOf(selectedOrder.status) >= index;
+                                        {getWorkflowSteps(selectedOrder).map((step, index) => {
+                                            const steps = getWorkflowSteps(selectedOrder);
+                                            const isCompleted = steps.indexOf(selectedOrder.status) >= index;
                                             const isActive = selectedOrder.status === step;
+                                            const isPending = step === 'Pending';
                                             return (
                                                 <div
                                                     key={step}
                                                     className={`status-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
-                                                    onClick={() => handleStatusUpdate(step)}
+                                                    onClick={() => !isPending && handleStatusUpdate(step)}
+                                                    style={{ cursor: isPending ? 'default' : 'pointer' }}
                                                 >
                                                     <div className="step-circle">
                                                         {isCompleted ? <Check size={16} /> : <span>{index + 1}</span>}

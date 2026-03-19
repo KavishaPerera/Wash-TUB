@@ -336,13 +336,17 @@ const orderController = {
           'ready':              ['finished'],
         };
 
+        const isPosOrder = order.special_instructions === 'POS Walk-in Order';
         const allowedStaff = staffTransitions[currentStatus] || [];
 
         // Staff can also cancel orders from any status
         if (status !== 'cancelled' && !allowedStaff.includes(status)) {
-          return res.status(403).json({
-            message: `Staff cannot change status from "${currentStatus}" to "${status}".`,
-          });
+          // POS walk-in orders start at pending — allow staff to kick off processing
+          if (!(isPosOrder && currentStatus === 'pending' && status === 'processing')) {
+            return res.status(403).json({
+              message: `Staff cannot change status from "${currentStatus}" to "${status}".`,
+            });
+          }
         }
       }
 
@@ -483,9 +487,8 @@ const orderController = {
 
       const { orderId, orderNumber } = await Order.create(customerId, orderData, items);
 
-      // POS cash payments are paid immediately
+      // POS cash payments are paid immediately; order stays 'pending' until staff starts processing
       await Order.updatePaymentStatus(orderId, 'paid');
-      await Order.updateStatus(orderId, 'processing');
 
       res.status(201).json({
         message: 'POS order created successfully!',
