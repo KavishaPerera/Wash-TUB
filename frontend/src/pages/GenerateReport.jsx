@@ -1075,15 +1075,6 @@ const GenerateReport = () => {
                             <h1>Generate Reports</h1>
                             <p>Create and download detailed business reports</p>
                         </div>
-                        <div className="header-right">
-                            <button
-                                className="btn btn-primary"
-                                onClick={() => document.getElementById('report-form-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1.4rem', fontSize: '0.95rem', borderRadius: '10px' }}
-                            >
-                                <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>+</span> New Report
-                            </button>
-                        </div>
                     </div>
                 </header>
 
