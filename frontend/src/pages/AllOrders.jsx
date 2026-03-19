@@ -8,7 +8,7 @@ import { ShoppingBag, Clock, Activity, Truck } from 'lucide-react';
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const STATUS_LABEL = {
-    pending: 'Pending', confirmed: 'Confirmed',
+    pending: 'Pending',
     pickup_scheduled: 'Pickup Scheduled', picked_up: 'Picked Up',
     processing: 'Processing', ready: 'Ready',
     out_for_delivery: 'Out for Delivery', delivered: 'Delivered',

@@ -28,7 +28,7 @@ const statusClass = (status) => {
 };
 
 // Filters shown in the filter bar — "All" + key statuses
-const FILTERS = ['All', 'Pending', 'Confirmed', 'In Progress', 'Ready', 'Finished', 'Delivered', 'Cancelled'];
+const FILTERS = ['All', 'Pending', 'In Progress', 'Ready', 'Finished', 'Delivered', 'Cancelled'];
 
 const StaffAllTasks = () => {
     const navigate = useNavigate();
