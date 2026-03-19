@@ -270,15 +270,6 @@ const Payment = () => {
                                 </h3>
                             </div>
                         </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><Clock size={20} /></div>
-                            <div className="stat-info">
-                                <p className="stat-label">Pending Payments</p>
-                                <h3 className="stat-value" style={{ color: '#d97706' }}>
-                                    {loading ? '...' : filteredPayments.filter(p => p.status === 'pending').length}
-                                </h3>
-                            </div>
-                        </div>
                     </section>
 
                     {/* Filters */}
