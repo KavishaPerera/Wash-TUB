@@ -1545,11 +1545,11 @@ const GenerateReport = () => {
                     <section className="dashboard-table-section" style={{ padding: '2rem' }}>
                         <div className="section-header">
                             <h2>Recent Reports</h2>
-                            <span className="reports-count">{generatedReports.length} Files</span>
+                            <span className="reports-count">{Math.min(generatedReports.length, 3)} Files</span>
                         </div>
 
                         <div className="reports-list">
-                            {generatedReports.map(report => (
+                            {generatedReports.slice(0, 3).map(report => (
                                 <div key={report.id} className="report-item">
                                     <div className="report-icon">📄</div>
                                     <div className="report-info">
