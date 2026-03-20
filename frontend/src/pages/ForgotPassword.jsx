@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './ForgotPassword.css';
+import Navbar from '../components/Navbar';
+import './SignUp.css';
 
 const ForgotPassword = () => {
     const navigate = useNavigate();
@@ -25,7 +26,6 @@ const ForgotPassword = () => {
             const data = await response.json();
 
             if (data.success) {
-                // Navigate to OTP verification page
                 navigate('/verify-code', { state: { email } });
             } else {
                 setError(data.message || 'Something went wrong');
@@ -39,46 +39,65 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="password-page">
-            <div className="password-container">
-                <div className="password-card">
-                    <div className="password-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
-                        </svg>
-                    </div>
-
-                    <h2>Forgot Password</h2>
-
-                    {error && <div className="error-message" style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
-
-                    <form className="password-form" onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="email">Email Address</label>
-                            <input
-                                type="email"
-                                id="email"
-                                placeholder="Enter your email address"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
+        <>
+            <Navbar />
+            <div className="auth-page">
+                <div className="auth-container animate-fadeInUp">
+                    <div className="auth-card">
+                        <div className="auth-brand">
+                            <div className="auth-brand-icon">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                                </svg>
+                            </div>
+                            <h2>Forgot Password</h2>
+                            <p>Enter your email and we'll send you a reset code</p>
                         </div>
 
-                        <button type="submit" className="btn-reset" disabled={isLoading}>
-                            {isLoading ? 'Sending...' : 'Reset Password'}
-                        </button>
-                    </form>
+                        {error && (
+                            <div className="auth-alert auth-alert-error">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                <span>{error}</span>
+                            </div>
+                        )}
 
-                    <Link to="/signin" className="back-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg>
-                        Back to Login
-                    </Link>
+                        <form className="auth-form" onSubmit={handleSubmit}>
+                            <div className="auth-field">
+                                <label htmlFor="email">Email Address</label>
+                                <div className="auth-input-wrap">
+                                    <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        placeholder="you@example.com"
+                                        value={email}
+                                        onChange={(e) => { setEmail(e.target.value); if (error) setError(''); }}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button type="submit" className="auth-btn-submit" disabled={isLoading}>
+                                {isLoading ? (
+                                    <><span className="auth-spinner"></span> Sending...</>
+                                ) : (
+                                    'Send Reset Code'
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="auth-footer">
+                            <Link to="/signin" className="auth-back-link">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                                </svg>
+                                Back to Sign In
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import './ForgotPassword.css';
+import Navbar from '../components/Navbar';
+import './SignUp.css';
 
 const SetNewPassword = () => {
     const navigate = useNavigate();
@@ -17,10 +18,8 @@ const SetNewPassword = () => {
     const [error, setError] = useState('');
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (error) setError('');
     };
 
     const handleSubmit = async (e) => {
@@ -50,9 +49,7 @@ const SetNewPassword = () => {
             const data = await response.json();
 
             if (data.success) {
-                // Navigate to login with success message if possible, or maybe a success page
                 navigate('/signin');
-                // Alternatively, could navigate to a success page, but we'll go to signin for now
             } else {
                 setError(data.message || 'Failed to reset password');
             }
@@ -64,116 +61,129 @@ const SetNewPassword = () => {
         }
     };
 
+    const EyeOpen = () => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+        </svg>
+    );
+
+    const EyeOff = () => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+            <line x1="1" y1="1" x2="23" y2="23" />
+        </svg>
+    );
+
     if (!email) {
         return (
-            <div className="password-page">
-                <div className="password-container">
-                    <div className="password-card">
-                        <h2>Error</h2>
-                        <p>No email provided. Please start from the beginning.</p>
-                        <Link to="/forgot-password" className="btn-reset" style={{ textAlign: 'center', textDecoration: 'none' }}>
-                            Go to Forgot Password
-                        </Link>
+            <>
+                <Navbar />
+                <div className="auth-page">
+                    <div className="auth-container animate-fadeInUp">
+                        <div className="auth-card">
+                            <div className="auth-brand">
+                                <h2>Session Expired</h2>
+                                <p>Please start the password reset process again.</p>
+                            </div>
+                            <div className="auth-footer">
+                                <Link to="/forgot-password" className="auth-btn-submit" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    Go to Forgot Password
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </>
         );
     }
 
     return (
-        <div className="password-page">
-            <div className="password-container">
-                <div className="password-card">
-                    <div className="password-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
-                        </svg>
+        <>
+            <Navbar />
+            <div className="auth-page">
+                <div className="auth-container animate-fadeInUp">
+                    <div className="auth-card">
+                        <div className="auth-brand">
+                            <div className="auth-brand-icon">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                            </div>
+                            <h2>Set New Password</h2>
+                            <p>Must be at least 6 characters and different from your previous password</p>
+                        </div>
+
+                        {error && (
+                            <div className="auth-alert auth-alert-error">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                <span>{error}</span>
+                            </div>
+                        )}
+
+                        <form className="auth-form" onSubmit={handleSubmit}>
+                            <div className="auth-field">
+                                <label htmlFor="newPassword">New Password</label>
+                                <div className="auth-input-wrap">
+                                    <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    <input
+                                        type={showNewPassword ? 'text' : 'password'}
+                                        id="newPassword"
+                                        name="newPassword"
+                                        placeholder="Enter new password"
+                                        value={formData.newPassword}
+                                        onChange={handleChange}
+                                        style={{ paddingRight: '2.75rem' }}
+                                        required
+                                    />
+                                    <button type="button" className="auth-eye-btn" onClick={() => setShowNewPassword(!showNewPassword)}>
+                                        {showNewPassword ? <EyeOff /> : <EyeOpen />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="auth-field">
+                                <label htmlFor="confirmPassword">Confirm Password</label>
+                                <div className="auth-input-wrap">
+                                    <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    <input
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        placeholder="Confirm new password"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        style={{ paddingRight: '2.75rem' }}
+                                        required
+                                    />
+                                    <button type="button" className="auth-eye-btn" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                        {showConfirmPassword ? <EyeOff /> : <EyeOpen />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" className="auth-btn-submit" disabled={isLoading}>
+                                {isLoading ? (
+                                    <><span className="auth-spinner"></span> Resetting Password...</>
+                                ) : (
+                                    'Reset Password'
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="auth-footer">
+                            <Link to="/signin" className="auth-back-link">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                                </svg>
+                                Back to Sign In
+                            </Link>
+                        </div>
                     </div>
-
-                    <h2>Set New Password</h2>
-                    <p className="subtitle">Your new password must be different from previously used passwords.</p>
-
-                    {error && <div className="error-message" style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
-
-                    <form className="password-form" onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="newPassword">New Password</label>
-                            <div className="input-wrapper">
-                                <input
-                                    type={showNewPassword ? 'text' : 'password'}
-                                    id="newPassword"
-                                    name="newPassword"
-                                    placeholder="Enter your password"
-                                    value={formData.newPassword}
-                                    onChange={handleChange}
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    className="toggle-password"
-                                    onClick={() => setShowNewPassword(!showNewPassword)}
-                                >
-                                    {showNewPassword ? (
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                                            <line x1="1" y1="1" x2="23" y2="23" />
-                                        </svg>
-                                    ) : (
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                            <circle cx="12" cy="12" r="3" />
-                                        </svg>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="confirmPassword">Confirm Password</label>
-                            <div className="input-wrapper">
-                                <input
-                                    type={showConfirmPassword ? 'text' : 'password'}
-                                    id="confirmPassword"
-                                    name="confirmPassword"
-                                    placeholder="Enter your password"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    className="toggle-password"
-                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                >
-                                    {showConfirmPassword ? (
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                                            <line x1="1" y1="1" x2="23" y2="23" />
-                                        </svg>
-                                    ) : (
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                            <circle cx="12" cy="12" r="3" />
-                                        </svg>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-
-                        <button type="submit" className="btn-reset" disabled={isLoading}>
-                            {isLoading ? 'Resetting Password...' : 'Reset Password'}
-                        </button>
-                    </form>
-
-                    <Link to="/signin" className="back-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg>
-                        Back to Login
-                    </Link>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

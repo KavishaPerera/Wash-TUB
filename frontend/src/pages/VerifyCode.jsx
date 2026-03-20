@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import './ForgotPassword.css';
+import Navbar from '../components/Navbar';
+import './SignUp.css';
 
 const VerifyCode = () => {
     const navigate = useNavigate();
@@ -13,21 +14,19 @@ const VerifyCode = () => {
     const inputRefs = useRef([]);
 
     const handleChange = (index, value) => {
-        // Only allow numbers
         if (value && !/^\d+$/.test(value)) return;
 
         const newOtp = [...otp];
-        newOtp[index] = value.slice(-1); // Take only the last character
+        newOtp[index] = value.slice(-1);
         setOtp(newOtp);
+        if (error) setError('');
 
-        // Auto-focus next input
         if (value && index < 5) {
             inputRefs.current[index + 1]?.focus();
         }
     };
 
     const handleKeyDown = (index, e) => {
-        // Handle backspace - move to previous input
         if (e.key === 'Backspace' && !otp[index] && index > 0) {
             inputRefs.current[index - 1]?.focus();
         }
@@ -99,71 +98,95 @@ const VerifyCode = () => {
 
     if (!email) {
         return (
-            <div className="password-page">
-                <div className="password-container">
-                    <div className="password-card">
-                        <h2>Error</h2>
-                        <p>No email provided. Please start from the beginning.</p>
-                        <Link to="/forgot-password" className="btn-reset" style={{ textAlign: 'center', textDecoration: 'none' }}>
-                            Go to Forgot Password
-                        </Link>
+            <>
+                <Navbar />
+                <div className="auth-page">
+                    <div className="auth-container animate-fadeInUp">
+                        <div className="auth-card">
+                            <div className="auth-brand">
+                                <h2>Session Expired</h2>
+                                <p>Please start the password reset process again.</p>
+                            </div>
+                            <div className="auth-footer">
+                                <Link to="/forgot-password" className="auth-btn-submit" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    Go to Forgot Password
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </>
         );
     }
 
     return (
-        <div className="password-page">
-            <div className="password-container">
-                <div className="password-card">
-                    <div className="password-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
-                        </svg>
-                    </div>
-
-                    <h2>Verify Code</h2>
-                    <p className="subtitle">Enter the 6-digit code sent to {email}</p>
-
-                    {error && <div className="error-message" style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
-
-                    <form onSubmit={handleSubmit}>
-                        <div className="otp-container">
-                            {otp.map((digit, index) => (
-                                <input
-                                    key={index}
-                                    ref={(el) => (inputRefs.current[index] = el)}
-                                    type="text"
-                                    inputMode="numeric"
-                                    maxLength={1}
-                                    className="otp-input"
-                                    value={digit}
-                                    onChange={(e) => handleChange(index, e.target.value)}
-                                    onKeyDown={(e) => handleKeyDown(index, e)}
-                                    onPaste={handlePaste}
-                                />
-                            ))}
+        <>
+            <Navbar />
+            <div className="auth-page">
+                <div className="auth-container animate-fadeInUp">
+                    <div className="auth-card">
+                        <div className="auth-brand">
+                            <div className="auth-brand-icon">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.9 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1-1.06a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                </svg>
+                            </div>
+                            <h2>Verify Code</h2>
+                            <p>Enter the 6-digit code sent to <strong>{email}</strong></p>
                         </div>
 
-                        <button type="submit" className="btn-reset" disabled={isLoading}>
-                            {isLoading ? 'Verifying...' : 'Verify Code'}
-                        </button>
-                    </form>
+                        {error && (
+                            <div className="auth-alert auth-alert-error">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                <span>{error}</span>
+                            </div>
+                        )}
 
-                    <button className="resend-link" onClick={handleResend}>
-                        Resend Code
-                    </button>
+                        <form onSubmit={handleSubmit}>
+                            <div className="otp-container">
+                                {otp.map((digit, index) => (
+                                    <input
+                                        key={index}
+                                        ref={(el) => (inputRefs.current[index] = el)}
+                                        type="text"
+                                        inputMode="numeric"
+                                        maxLength={1}
+                                        className="otp-input"
+                                        value={digit}
+                                        onChange={(e) => handleChange(index, e.target.value)}
+                                        onKeyDown={(e) => handleKeyDown(index, e)}
+                                        onPaste={handlePaste}
+                                    />
+                                ))}
+                            </div>
 
-                    <Link to="/signin" className="back-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg>
-                        Back to Login
-                    </Link>
+                            <button type="submit" className="auth-btn-submit" disabled={isLoading}>
+                                {isLoading ? (
+                                    <><span className="auth-spinner"></span> Verifying...</>
+                                ) : (
+                                    'Verify Code'
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="auth-footer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                            <span>
+                                Didn't receive a code?{' '}
+                                <button className="auth-resend-btn" onClick={handleResend}>
+                                    Resend
+                                </button>
+                            </span>
+                            <Link to="/signin" className="auth-back-link">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                                </svg>
+                                Back to Sign In
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
