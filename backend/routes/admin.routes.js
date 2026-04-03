@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/admin.controller');
+const settingsController = require('../controllers/settings.controller');
 const authMiddleware = require('../middleware/auth.middleware');
 
 // All admin routes require a valid JWT issued to an 'owner' role user
@@ -12,5 +13,9 @@ router.post('/users', adminController.createUser);                       // POST
 router.put('/users/:id', adminController.updateUser);                    // PUT  /api/admin/users/:id
 router.patch('/users/:id/toggle-status', adminController.toggleUserStatus); // PATCH /api/admin/users/:id/toggle-status
 router.delete('/users/:id', adminController.deleteUser);                 // DELETE /api/admin/users/:id
+
+// Settings management
+router.get('/settings', settingsController.getSettings);    // GET  /api/admin/settings
+router.put('/settings', settingsController.updateSettings); // PUT  /api/admin/settings
 
 module.exports = router;

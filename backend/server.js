@@ -22,6 +22,8 @@ const Receipt = require('./models/receipt.model');
 const Notification = require('./models/notification.model');
 const Promotion = require('./models/promotion.model');
 const Complaint = require('./models/complaint.model');
+const Settings = require('./models/settings.model');
+const settingsController = require('./controllers/settings.controller');
 
 const app = express();
 
@@ -52,6 +54,8 @@ db.getConnection()
     await Complaint.createTable();
     await Complaint.migrateTable();
     console.log('✅ Complaints table ready');
+    await Settings.createTable();
+    console.log('✅ Settings table ready');
   })
   .catch((err) => {
     console.error('❌ Database connection failed:', err.message);
@@ -67,6 +71,9 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api', promotionRoutes);
 app.use('/api/complaints', complaintRoutes);
+
+// Public settings endpoint (no auth — delivery fees are public info needed at checkout)
+app.get('/api/settings', settingsController.getSettings);
 
 // Health check route
 app.get('/api/health', (req, res) => {

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Home, MapPin, Phone, User, Truck, Calendar, Loader } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import './Checkout.css';
 import Swal from 'sweetalert2';
@@ -51,8 +51,25 @@ const Checkout = () => {
     });
 
     const _dsRaw = (() => { try { const s = localStorage.getItem('washtub_delivery_settings'); return s ? JSON.parse(s) : {}; } catch { return {}; } })();
-    const DELIVERY_FEE = parseFloat(_dsRaw.deliveryFee) || 350;
-    const PICKUP_FEE = parseFloat(_dsRaw.pickupFee) || 200;
+    const [DELIVERY_FEE, setDeliveryFee] = useState(parseFloat(_dsRaw.deliveryFee) || 350);
+    const [PICKUP_FEE, setPickupFee]     = useState(parseFloat(_dsRaw.pickupFee)   || 200);
+
+    // Fetch latest delivery fees from backend (keeps in sync with admin settings)
+    useEffect(() => {
+        fetch(`${API}/settings`)
+            .then(r => r.json())
+            .then(data => {
+                const df = parseFloat(data.delivery_fee) || 350;
+                const pf = parseFloat(data.pickup_fee)   || 200;
+                setDeliveryFee(df);
+                setPickupFee(pf);
+                localStorage.setItem('washtub_delivery_settings', JSON.stringify({
+                    deliveryFee: String(df),
+                    pickupFee:   String(pf),
+                }));
+            })
+            .catch(() => { /* keep localStorage defaults */ });
+    }, []);
 
     const PICKUP_TIME_SLOTS = (() => {
         const defaults = [

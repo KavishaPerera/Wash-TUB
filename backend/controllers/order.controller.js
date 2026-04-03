@@ -2,6 +2,7 @@ const Order = require('../models/order.model');
 const User = require('../models/user.model');
 const Notification = require('../models/notification.model');
 const Promotion = require('../models/promotion.model');
+const Settings = require('../models/settings.model');
 const { sendSms } = require('../services/sms.service');
 
 // Notification messages for each order status
@@ -125,7 +126,13 @@ const orderController = {
 
       // Calculate totals on server side for security
       const subtotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-      const deliveryFee = deliveryDetails.deliveryOption === 'delivery' ? 200 : 0;
+      const [dfVal, pfVal] = await Promise.all([
+        Settings.get('delivery_fee'),
+        Settings.get('pickup_fee'),
+      ]);
+      const deliveryFee = deliveryDetails.deliveryOption === 'delivery'
+        ? (parseFloat(dfVal) || 350)
+        : (parseFloat(pfVal) || 200);
 
       // Validate and apply promo code if provided
       let discount = 0;

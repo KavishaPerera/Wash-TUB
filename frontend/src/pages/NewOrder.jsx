@@ -87,7 +87,10 @@ const NewOrder = () => {
     // Calculate totals
     const totalItems = basket.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = basket.reduce((sum, item) => sum + item.totalPrice, 0);
-    const deliveryFee = deliveryData.deliveryOption === 'home-delivery' ? 200.00 : 0;
+    const _ds = (() => { try { const s = localStorage.getItem('washtub_delivery_settings'); return s ? JSON.parse(s) : {}; } catch { return {}; } })();
+    const deliveryFee = deliveryData.deliveryOption === 'home-delivery'
+        ? (parseFloat(_ds.deliveryFee) || 350)
+        : (parseFloat(_ds.pickupFee)   || 200);
     const total = subtotal + deliveryFee;
 
     // Handle delivery form changes

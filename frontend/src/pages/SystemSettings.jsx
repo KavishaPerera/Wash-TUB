@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import './CustomerDashboard.css';
 import './SystemSettings.css';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const SystemSettings = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('business');
@@ -51,6 +53,24 @@ const SystemSettings = () => {
             return saved ? { ...DELIVERY_SETTINGS_DEFAULTS, ...JSON.parse(saved) } : DELIVERY_SETTINGS_DEFAULTS;
         } catch { return DELIVERY_SETTINGS_DEFAULTS; }
     });
+
+    // Load delivery settings from DB on mount
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        fetch(`${API}/admin/settings`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(r => r.json())
+            .then(data => {
+                if (data.delivery_fee || data.pickup_fee) {
+                    const fresh = {
+                        deliveryFee: data.delivery_fee || '350.00',
+                        pickupFee:   data.pickup_fee   || '200.00',
+                    };
+                    setDeliverySettings(fresh);
+                    localStorage.setItem('washtub_delivery_settings', JSON.stringify(fresh));
+                }
+            })
+            .catch(() => {});
+    }, []);
 
     // Time Slots State
     const TIME_SLOT_DEFAULTS = [
@@ -117,12 +137,26 @@ const SystemSettings = () => {
         setDeliverySettings({ ...deliverySettings, [e.target.name]: e.target.value });
     };
 
-    const handleSaveDeliverySettings = () => {
-        localStorage.setItem('washtub_delivery_settings', JSON.stringify(deliverySettings));
-        localStorage.setItem('washtub_cities', JSON.stringify(cities));
-        localStorage.setItem('washtub_time_slots', JSON.stringify(timeSlots));
-        localStorage.setItem('washtub_blocked_dates', JSON.stringify(blockedDates));
-        alert('Delivery settings saved successfully.');
+    const handleSaveDeliverySettings = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API}/admin/settings`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    delivery_fee: deliverySettings.deliveryFee,
+                    pickup_fee:   deliverySettings.pickupFee,
+                }),
+            });
+            if (!res.ok) throw new Error('Server error');
+            localStorage.setItem('washtub_delivery_settings', JSON.stringify(deliverySettings));
+            localStorage.setItem('washtub_cities', JSON.stringify(cities));
+            localStorage.setItem('washtub_time_slots', JSON.stringify(timeSlots));
+            localStorage.setItem('washtub_blocked_dates', JSON.stringify(blockedDates));
+            alert('Delivery settings saved successfully.');
+        } catch {
+            alert('Failed to save delivery settings. Please try again.');
+        }
     };
 
     const handleAddTimeSlot = () => {
